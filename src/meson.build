@@ -18,3 +18,7 @@ import('pkgconfig').generate(
 install_headers(
   'stdplus/signal.hpp',
   subdir: 'stdplus')
+
+install_headers(
+  'stdplus/handle/managed.hpp',
+  subdir: 'stdplus/handle')
