@@ -20,5 +20,6 @@ install_headers(
   subdir: 'stdplus')
 
 install_headers(
+  'stdplus/handle/copyable.hpp',
   'stdplus/handle/managed.hpp',
   subdir: 'stdplus/handle')
