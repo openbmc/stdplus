@@ -41,4 +41,4 @@ Makefile.in
 /src/stdplus.pc
 
 # Output binaries
-/test/placeholder
+/test/signal

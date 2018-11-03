@@ -4,5 +4,5 @@ lib_LTLIBRARIES = libstdplus.la
 libstdplus_la_SOURCES =
 libstdplus_la_LIBADD = $(COMMON_LIBS)
 
-nobase_include_HEADERS += stdplus/placeholder.hpp
-libstdplus_la_SOURCES += stdplus/placeholder.cpp
+nobase_include_HEADERS += stdplus/signal.hpp
+libstdplus_la_SOURCES += stdplus/signal.cpp

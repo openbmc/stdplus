@@ -7,7 +7,7 @@ gtest_ldadd = $(STDPLUS_LIBS) $(GTEST_LIBS) $(GMOCK_LIBS) -lgmock_main
 check_PROGRAMS =
 TESTS = $(check_PROGRAMS)
 
-check_PROGRAMS += placeholder
-placeholder_SOURCES = placeholder.cpp
-placeholder_CPPFLAGS = $(gtest_cppflags)
-placeholder_LDADD = $(gtest_ldadd)
+check_PROGRAMS += signal
+signal_SOURCES = signal.cpp
+signal_CPPFLAGS = $(gtest_cppflags)
+signal_LDADD = $(gtest_ldadd)
