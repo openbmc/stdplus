@@ -4,6 +4,8 @@ lib_LTLIBRARIES = libstdplus.la
 libstdplus_la_SOURCES =
 libstdplus_la_LIBADD = $(COMMON_LIBS)
 
+nobase_include_HEADERS += stdplus/handle/copyable.hpp
+
 nobase_include_HEADERS += stdplus/handle/managed.hpp
 
 nobase_include_HEADERS += stdplus/signal.hpp
