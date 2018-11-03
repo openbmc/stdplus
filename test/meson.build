@@ -3,6 +3,7 @@ gmock = dependency('gmock', disabler: true, required: build_tests)
 
 tests = [
   'signal',
+  'handle/managed',
 ]
 
 foreach t : tests

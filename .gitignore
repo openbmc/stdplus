@@ -41,4 +41,5 @@ Makefile.in
 /src/stdplus.pc
 
 # Output binaries
+/test/handle/managed
 /test/signal
