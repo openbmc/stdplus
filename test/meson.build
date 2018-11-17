@@ -3,6 +3,8 @@ gmock = dependency('gmock', disabler: true, required: build_tests)
 
 tests = [
   'signal',
+  'fd/dupable',
+  'fd/managed',
   'future/future',
   'future/util',
   'handle/copyable',

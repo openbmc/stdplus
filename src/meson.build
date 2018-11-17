@@ -16,6 +16,9 @@ stdplus_headers = include_directories('.')
 stdplus_lib = library(
   'stdplus',
   [
+    'stdplus/fd/dupable.cpp',
+    'stdplus/fd/managed.cpp',
+    'stdplus/internal/sys.cpp',
     'stdplus/signal.cpp',
   ],
   include_directories: stdplus_headers,
@@ -40,6 +43,12 @@ install_headers(
   subdir: 'stdplus')
 
 install_headers(
+  'stdplus/fd/base.hpp',
+  'stdplus/fd/dupable.hpp',
+  'stdplus/fd/managed.hpp',
+  subdir: 'stdplus/fd')
+
+install_headers(
   'stdplus/future/future.hpp',
   'stdplus/future/promise.hpp',
   'stdplus/future/util.hpp',
@@ -49,6 +58,14 @@ install_headers(
   'stdplus/handle/copyable.hpp',
   'stdplus/handle/managed.hpp',
   subdir: 'stdplus/handle')
+
+install_headers(
+  'stdplus/internal/sys.hpp',
+  subdir: 'stdplus/internal')
+
+install_headers(
+  'stdplus/test/sys.hpp',
+  subdir: 'stdplus/test')
 
 install_headers(
   'stdplus/util/cexec.hpp',
