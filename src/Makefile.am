@@ -10,3 +10,5 @@ nobase_include_HEADERS += stdplus/handle/managed.hpp
 
 nobase_include_HEADERS += stdplus/signal.hpp
 libstdplus_la_SOURCES += stdplus/signal.cpp
+
+nobase_include_HEADERS += stdplus/util/cexec.hpp

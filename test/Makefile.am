@@ -21,3 +21,8 @@ check_PROGRAMS += signal
 signal_SOURCES = signal.cpp
 signal_CPPFLAGS = $(gtest_cppflags)
 signal_LDADD = $(gtest_ldadd)
+
+check_PROGRAMS += util/cexec
+util_cexec_SOURCES = util/cexec.cpp
+util_cexec_CPPFLAGS = $(gtest_cppflags)
+util_cexec_LDADD = $(gtest_ldadd)

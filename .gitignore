@@ -44,3 +44,4 @@ Makefile.in
 /test/handle/copyable
 /test/handle/managed
 /test/signal
+/test/util/cexec
