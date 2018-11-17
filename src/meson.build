@@ -22,3 +22,7 @@ install_headers(
   'stdplus/handle/copyable.hpp',
   'stdplus/handle/managed.hpp',
   subdir: 'stdplus/handle')
+
+install_headers(
+  'stdplus/util/cexec.hpp',
+  subdir: 'stdplus/util')

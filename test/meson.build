@@ -5,6 +5,7 @@ tests = [
   'signal',
   'handle/copyable',
   'handle/managed',
+  'util/cexec',
 ]
 
 foreach t : tests
