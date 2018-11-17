@@ -3,6 +3,7 @@ gmock = dependency('gmock', disabler: true, required: build_tests)
 
 tests = [
   'signal',
+  'fd/managed',
   'handle/copyable',
   'handle/managed',
   'util/cexec',
