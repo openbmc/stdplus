@@ -41,6 +41,8 @@ Makefile.in
 /src/stdplus.pc
 
 # Output binaries
+/example/nokill
+/test/fd/managed
 /test/handle/copyable
 /test/handle/managed
 /test/signal
