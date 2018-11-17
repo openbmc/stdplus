@@ -7,6 +7,11 @@ gtest_ldadd = $(STDPLUS_LIBS) $(GTEST_LIBS) $(GMOCK_LIBS) -lgmock_main
 check_PROGRAMS =
 TESTS = $(check_PROGRAMS)
 
+check_PROGRAMS += fd/managed
+fd_managed_SOURCES = fd/managed.cpp
+fd_managed_CPPFLAGS = $(gtest_cppflags)
+fd_managed_LDADD = $(gtest_ldadd)
+
 check_PROGRAMS += handle/copyable
 handle_copyable_SOURCES = handle/copyable.cpp
 handle_copyable_CPPFLAGS = $(gtest_cppflags)
