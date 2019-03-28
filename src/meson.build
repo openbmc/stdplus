@@ -5,6 +5,7 @@ stdplus = library(
   ],
   include_directories: includes,
   implicit_include_directories: false,
+  version: meson.project_version(),
   install: true)
 
 import('pkgconfig').generate(
