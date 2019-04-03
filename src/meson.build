@@ -1,12 +1,18 @@
-stdplus = library(
+stdplus_headers = include_directories('.')
+
+libstdplus = library(
   'stdplus',
   [
     'stdplus/signal.cpp',
   ],
-  include_directories: includes,
+  include_directories: stdplus_headers,
   implicit_include_directories: false,
   version: meson.project_version(),
   install: true)
+
+stdplus = declare_dependency(
+  include_directories: stdplus_headers,
+  link_with: libstdplus)
 
 import('pkgconfig').generate(
   name: 'stdplus',
