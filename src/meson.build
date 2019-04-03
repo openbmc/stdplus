@@ -12,8 +12,7 @@ import('pkgconfig').generate(
   name: 'stdplus',
   description: 'C++ helper utilities',
   version: meson.project_version(),
-  libraries: [stdplus],
-)
+  libraries: stdplus)
 
 install_headers(
   'stdplus/signal.hpp',
