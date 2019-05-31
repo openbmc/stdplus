@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71818608_98f9c3f6",
+        "filename": "src/stdplus/util/future.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000100
+      },
+      "writtenOn": "2019-05-31T18:06:17Z",
+      "side": 1,
+      "message": "This is some new template-ness, what is this doing?",
+      "revId": "6178e0c09d2af5ab9bcc4ffcdc9c464da304c1ca",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    }
+  ]
+}
