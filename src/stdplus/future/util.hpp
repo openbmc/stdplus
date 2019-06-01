@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <future>
+#include <stdplus/future/future.hpp>
 #include <tuple>
 
 namespace stdplus
@@ -19,6 +20,17 @@ bool isReady(const std::future<T>& future)
     // TODO(wak): Replace wait_for() with is_ready() when stabilized
     using namespace std::chrono_literals;
     return future.wait_for(0s) == std::future_status::ready;
+}
+
+/** @brief Determines if a future is ready to be used without blocking
+ *
+ *  @param[in] future - The future we are checking
+ *  @return True if ready to read
+ */
+template <typename T>
+bool isReady(const Future<T>& future)
+{
+    return future.is_ready();
 }
 
 /** @brief Determines if all futures in an iterable container are ready
