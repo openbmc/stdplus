@@ -1,3 +1,16 @@
+# Function2 might not have a pkg-config. It is header only so just make
+# sure we can access the needed symbols from the header.
+function2 = dependency('function2', required: false)
+meson.get_compiler('cpp').has_header_symbol(
+  'function2/function2.hpp',
+  'fu2::unique_function',
+  dependencies: function2,
+  required: true)
+
+stdplus_deps = [
+  function2
+]
+
 stdplus_headers = include_directories('.')
 
 stdplus_lib = library(
@@ -8,9 +21,11 @@ stdplus_lib = library(
   include_directories: stdplus_headers,
   implicit_include_directories: false,
   version: meson.project_version(),
+  dependencies: stdplus_deps,
   install: true)
 
 stdplus = declare_dependency(
+  dependencies: stdplus_deps,
   include_directories: stdplus_headers,
   link_with: stdplus_lib)
 
