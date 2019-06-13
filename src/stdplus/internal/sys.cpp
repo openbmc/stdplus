@@ -27,6 +27,16 @@ int SysImpl::read(int fd, void* buf, size_t count) const
     return ::read(fd, buf, count);
 }
 
+int SysImpl::fcntl_setfl(int fd, int flags) const
+{
+    return ::fcntl(fd, F_SETFL, flags);
+}
+
+int SysImpl::fcntl_getfl(int fd) const
+{
+    return ::fcntl(fd, F_GETFL);
+}
+
 SysImpl sys_impl;
 
 } // namespace internal
