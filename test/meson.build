@@ -5,6 +5,7 @@ tests = [
   'signal',
   'fd/dupable',
   'fd/managed',
+  'fd/ops/open',
   'handle/copyable',
   'handle/managed',
   'util/cexec',
