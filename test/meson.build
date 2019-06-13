@@ -6,6 +6,7 @@ tests = [
   'fd/dupable',
   'fd/managed',
   'fd/ops/create',
+  'fd/ops/fcntl',
   'handle/copyable',
   'handle/managed',
   'util/cexec',

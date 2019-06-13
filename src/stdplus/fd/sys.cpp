@@ -23,6 +23,16 @@ int SysImpl::fcntl_setfd(int fd, int flags) const
     return ::fcntl(fd, F_SETFD, flags);
 }
 
+int SysImpl::fcntl_setfl(int fd, int flags) const
+{
+    return ::fcntl(fd, F_SETFL, flags);
+}
+
+int SysImpl::fcntl_getfl(int fd) const
+{
+    return ::fcntl(fd, F_GETFL);
+}
+
 int SysImpl::open(const char* pathname, int flags) const
 {
     return ::open(pathname, flags);
