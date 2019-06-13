@@ -16,6 +16,8 @@ class Sys
     virtual int close(int fd) const = 0;
     virtual int fcntl_dupfd_cloexec(int fd) const = 0;
     virtual int fcntl_setfd(int fd, int flags) const = 0;
+    virtual int fcntl_setfl(int fd, int flags) const = 0;
+    virtual int fcntl_getfl(int fd) const = 0;
 
     virtual int open(const char* pathname, int flags) const = 0;
     virtual int socket(int domain, int type, int protocol) const = 0;
@@ -31,6 +33,8 @@ class SysImpl : public virtual Sys
     int close(int fd) const override;
     int fcntl_dupfd_cloexec(int fd) const override;
     int fcntl_setfd(int fd, int flags) const override;
+    int fcntl_setfl(int fd, int flags) const override;
+    int fcntl_getfl(int fd) const override;
 
     int open(const char* pathname, int flags) const override;
     int socket(int domain, int type, int protocol) const override;

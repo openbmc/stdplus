@@ -33,6 +33,7 @@ install_headers(
   'stdplus/fd/base.hpp',
   'stdplus/fd/dupable.hpp',
   'stdplus/fd/managed.hpp',
+  'stdplus/fd/mock.hpp',
   'stdplus/fd/ops.hpp',
   'stdplus/fd/sys.hpp',
   'stdplus/fd/sys_mock.hpp',
