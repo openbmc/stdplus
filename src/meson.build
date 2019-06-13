@@ -5,6 +5,7 @@ stdplus_lib = library(
   [
     'stdplus/fd/dupable.cpp',
     'stdplus/fd/managed.cpp',
+    'stdplus/fd/ops/create.cpp',
     'stdplus/fd/sys.cpp',
     'stdplus/signal.cpp',
   ],
@@ -31,9 +32,14 @@ install_headers(
   'stdplus/fd/base.hpp',
   'stdplus/fd/dupable.hpp',
   'stdplus/fd/managed.hpp',
+  'stdplus/fd/ops.hpp',
   'stdplus/fd/sys.hpp',
   'stdplus/fd/sys_mock.hpp',
   subdir: 'stdplus/fd')
+
+install_headers(
+  'stdplus/fd/ops/create.hpp',
+  subdir: 'stdplus/fd/ops')
 
 install_headers(
   'stdplus/handle/copyable.hpp',
