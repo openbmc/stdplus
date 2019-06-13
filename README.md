@@ -7,6 +7,7 @@ may find the included set of functions currently quite sparse.
 
 This project provides the following primitives:
 * A [managed](src/stdplus/fd/managed.hpp) and [dupable](src/stdplus/fd/dupable.hpp) file descriptor RAII wrapper for managing FD lifetimes.
+* Wrappers for [common file descriptor operations](src/stdplus/fd/ops)
 * A [movable](src/stdplus/handle/managed.hpp) and [copyable](src/stdplus/handle/copyable.hpp) RAII helper wrapper which is used for wrapping c-native types that have custom destruction or copy reference logic.
 * [Functions](src/stdplus/signal.hpp) for trivially configuring signals without having to do the normal signal set operations from libc
 * [C-Style Error Handler](src/stdplus/util/cexec.hpp) that wrap c-style functions which return errnos and negative error values into functions that throw c++ exceptions.
