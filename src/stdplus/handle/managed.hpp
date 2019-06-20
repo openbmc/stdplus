@@ -161,6 +161,19 @@ struct Managed
             reset(std::nullopt);
         }
 
+        /** @brief Reference the contained data
+         *
+         *  @return A reference to the contained data
+         */
+        constexpr const std::tuple<As...>& data() const noexcept
+        {
+            return as;
+        }
+        constexpr std::tuple<As...>& data() noexcept
+        {
+            return as;
+        }
+
       protected:
         /* Hold the data parameterized for this container */
         std::tuple<As...> as;
