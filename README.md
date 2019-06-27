@@ -9,6 +9,7 @@ This project provides the following primitives:
 * A [movable](src/stdplus/handle/managed.hpp) and [copyable](src/stdplus/handle/copyable.hpp) RAII helper wrapper which is used for wrapping c-native types that have custom destruction or copy reference logic.
 * [Functions](src/stdplus/signal.hpp) for trivially configuring signals without having to do the normal signal set operations from libc
 * [C-Style Error Handler](src/stdplus/util/cexec.hpp) that wrap c-style functions which return errnos and negative error values into functions that throw c++ exceptions.
+* [String Utilities](src/stdplus/util/string.hpp) that focus on providing helpful wrappers like efficient string append and concatenation.
 
 ## Dependencies
 
