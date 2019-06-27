@@ -31,4 +31,5 @@ install_headers(
 
 install_headers(
   'stdplus/util/cexec.hpp',
+  'stdplus/util/str.hpp',
   subdir: 'stdplus/util')

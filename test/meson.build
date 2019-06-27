@@ -6,6 +6,7 @@ tests = [
   'handle/copyable',
   'handle/managed',
   'util/cexec',
+  'util/str',
 ]
 
 foreach t : tests
