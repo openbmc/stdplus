@@ -161,6 +161,31 @@ struct Managed
             reset(std::nullopt);
         }
 
+        /** @brief Releases the managed value and transfers ownership
+         *         to the caller.
+         *
+         *  @throws std::bad_optional_access if it has no object
+         *  @return The value that was managed
+         */
+        [[nodiscard]] constexpr T release()
+        {
+            T ret = std::move(maybeT.value());
+            maybeT = std::nullopt;
+            return ret;
+        }
+
+        /** @brief Releases the managed value and transfers ownership
+         *         to the caller.
+         *
+         *  @return Maybe the value that was managed
+         */
+        [[nodiscard]] constexpr std::optional<T> maybe_release() noexcept
+        {
+            std::optional<T> ret = std::move(maybeT);
+            maybeT = std::nullopt;
+            return ret;
+        }
+
         /** @brief Reference the contained data
          *
          *  @return A reference to the contained data

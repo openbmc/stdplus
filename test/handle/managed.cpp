@@ -48,10 +48,13 @@ TEST_F(ManagedHandleTest, EmptyNoStorage)
     SimpleHandle h(std::nullopt);
     EXPECT_FALSE(h);
     EXPECT_THROW(h.value(), std::bad_optional_access);
+    EXPECT_THROW((void)h.release(), std::bad_optional_access);
     h.reset();
     EXPECT_FALSE(h.has_value());
     EXPECT_THROW(h.value(), std::bad_optional_access);
+    EXPECT_THROW((void)h.release(), std::bad_optional_access);
     EXPECT_EQ(std::nullopt, h.maybe_value());
+    EXPECT_EQ(std::nullopt, h.maybe_release());
 }
 
 TEST_F(ManagedHandleTest, EmptyWithStorage)
@@ -162,6 +165,24 @@ TEST_F(ManagedHandleTest, ResetNewPopulatedWithStorage)
     EXPECT_EQ(6, stored);
     EXPECT_EQ(std::vector{expected2}, dropped);
     dropped.clear();
+}
+
+TEST_F(ManagedHandleTest, Release)
+{
+    constexpr int expected = 3;
+    int val = expected;
+    SimpleHandle h(std::move(val));
+    EXPECT_EQ(expected, h.release());
+    EXPECT_FALSE(h);
+}
+
+TEST_F(ManagedHandleTest, MaybeRelease)
+{
+    constexpr int expected = 3;
+    int val = expected;
+    SimpleHandle h(std::move(val));
+    EXPECT_EQ(expected, h.maybe_release());
+    EXPECT_FALSE(h);
 }
 
 TEST_F(ManagedHandleTest, MoveConstructWithStorage)
