@@ -68,6 +68,19 @@ TEST_F(FdOpsFcntlTest, SetNonblockAlreadyOff)
     setFileNonblock(fd, false);
 }
 
+TEST_F(FdOpsFcntlTest, SetFdCloexecFail)
+{
+    EXPECT_CALL(fd.mock, fcntl_setfd(fd.value, 0))
+        .WillOnce(SetErrnoAndReturn(EINVAL, -1));
+    EXPECT_THROW(setFdCloexec(fd, false), std::system_error);
+}
+
+TEST_F(FdOpsFcntlTest, SetFdCloexecSuccess)
+{
+    EXPECT_CALL(fd.mock, fcntl_setfd(fd.value, FD_CLOEXEC)).WillOnce(Return(0));
+    setFdCloexec(fd, true);
+}
+
 } // namespace
 } // namespace ops
 } // namespace fd

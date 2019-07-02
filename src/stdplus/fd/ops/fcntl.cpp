@@ -26,6 +26,12 @@ void fcntl_setfl(const Fd& fd, int flags)
 
 } // namespace
 
+void setFdCloexec(const Fd& fd, bool value)
+{
+    util::callCheckErrno("fcntl_setfd", &Sys::fcntl_setfd, fd.getSys(),
+                         fd.getValue(), value ? FD_CLOEXEC : 0);
+}
+
 void setFileNonblock(const Fd& fd, bool value)
 {
     fcntl_setfl(fd, (fcntl_getfl(fd) & ~O_NONBLOCK) | (value ? O_NONBLOCK : 0));
