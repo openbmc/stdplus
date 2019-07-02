@@ -6,6 +6,7 @@ stdplus_lib = library(
     'stdplus/fd/dupable.cpp',
     'stdplus/fd/managed.cpp',
     'stdplus/fd/ops/create.cpp',
+    'stdplus/fd/ops/fcntl.cpp',
     'stdplus/fd/sys.cpp',
     'stdplus/signal.cpp',
   ],
@@ -39,6 +40,7 @@ install_headers(
 
 install_headers(
   'stdplus/fd/ops/create.hpp',
+  'stdplus/fd/ops/fcntl.hpp',
   subdir: 'stdplus/fd/ops')
 
 install_headers(

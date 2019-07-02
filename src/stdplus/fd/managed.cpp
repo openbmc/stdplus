@@ -1,6 +1,6 @@
-#include <fcntl.h>
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/managed.hpp>
+#include <stdplus/fd/ops/fcntl.hpp>
 #include <stdplus/fd/sys.hpp>
 #include <stdplus/util/cexec.hpp>
 #include <utility>
@@ -21,8 +21,7 @@ void drop(int&& fd, const Sys*& sys)
 
 ManagedFd::ManagedFd(int&& fd, const Sys* sys) : handle(std::move(fd), sys)
 {
-    util::callCheckErrno("fcntl_setfd", &Sys::fcntl_setfd, sys, *handle,
-                         FD_CLOEXEC);
+    ops::setFdCloexec(*this, true);
 }
 
 ManagedFd::ManagedFd(DupableFd&& other) noexcept :
