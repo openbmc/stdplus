@@ -1,5 +1,5 @@
-#include <fcntl.h>
 #include <stdplus/fd/dupable.hpp>
+#include <stdplus/fd/ops/fcntl.hpp>
 #include <stdplus/fd/sys.hpp>
 #include <stdplus/util/cexec.hpp>
 #include <utility>
@@ -25,8 +25,7 @@ DupableFd::DupableFd(const int& fd, const Sys* sys) : handle(fd, sys)
 
 DupableFd::DupableFd(int&& fd, const Sys* sys) : handle(std::move(fd), sys)
 {
-    util::callCheckErrno("fcntl_setfd", &Sys::fcntl_setfd, sys, *handle,
-                         FD_CLOEXEC);
+    ops::setFdCloexec(*this, true);
 }
 
 } // namespace fd
