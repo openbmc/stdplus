@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <stdplus/signal.hpp>
+#include <stdplus/util/cexec.hpp>
 #include <system_error>
 
 namespace stdplus
@@ -7,25 +8,14 @@ namespace stdplus
 namespace signal
 {
 
+using util::callCheckErrno;
+
 void block(int signum)
 {
     sigset_t set;
-    if (sigprocmask(SIG_BLOCK, nullptr, &set) < 0)
-    {
-        throw std::system_error(errno, std::generic_category(),
-                                "sigprocmask get");
-    }
-
-    if (sigaddset(&set, signum) < 0)
-    {
-        throw std::system_error(errno, std::generic_category(), "sigaddset");
-    }
-
-    if (sigprocmask(SIG_BLOCK, &set, nullptr) < 0)
-    {
-        throw std::system_error(errno, std::generic_category(),
-                                "sigprocmask set");
-    }
+    callCheckErrno("sigprocmask get", sigprocmask, SIG_BLOCK, nullptr, &set);
+    callCheckErrno("sigaddset", sigaddset, &set, signum);
+    callCheckErrno("sigprocmask set", sigprocmask, SIG_BLOCK, &set, nullptr);
 }
 
 } // namespace signal
