@@ -54,6 +54,7 @@ endif
 
 catch2_tests = [
   'signal',
+  'raw',
 ]
 
 if has_catch2
@@ -68,6 +69,6 @@ if has_catch2
                        build_by_default: false,
                        implicit_include_directories: false,
                        link_with: libcatch2,
-                       dependencies: [stdplus, catch2_dep]))
+                       dependencies: [stdplus, span_dep, catch2_dep]))
   endforeach
 endif
