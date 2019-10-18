@@ -1,5 +1,13 @@
 stdplus_headers = include_directories('.')
 
+fmt = declare_dependency(
+  compile_args: '-DFMT_STRING_ALIAS=1',
+  dependencies: dependency('fmt'))
+
+stdplus_deps = [
+  fmt,
+]
+
 stdplus_lib = library(
   'stdplus',
   [
@@ -7,10 +15,12 @@ stdplus_lib = library(
   ],
   include_directories: stdplus_headers,
   implicit_include_directories: false,
+  dependencies: stdplus_deps,
   version: meson.project_version(),
   install: true)
 
 stdplus = declare_dependency(
+  dependencies: stdplus_deps,
   include_directories: stdplus_headers,
   link_with: stdplus_lib)
 
