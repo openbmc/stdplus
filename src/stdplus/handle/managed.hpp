@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <optional>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 namespace stdplus
@@ -37,14 +38,12 @@ struct Managed
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit Handle(std::optional<T>&& maybeV,
-                                  Vs&&... vs) noexcept :
-            as(std::forward<Vs>(vs)...),
-            maybeT(std::move(maybeV))
+        constexpr explicit Handle(std::optional<T>&& maybeV, Vs&&... vs) :
+            as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
         {
         }
         template <typename... Vs>
-        constexpr explicit Handle(T&& maybeV, Vs&&... vs) noexcept :
+        constexpr explicit Handle(T&& maybeV, Vs&&... vs) :
             as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
         {
         }
@@ -52,8 +51,11 @@ struct Managed
         Handle(const Handle& other) = delete;
         Handle& operator=(const Handle& other) = delete;
 
-        constexpr Handle(Handle&& other) :
-            as(std::move(other.as)), maybeT(std::move(other.maybeT))
+        constexpr Handle(Handle&& other) noexcept(
+            std::is_nothrow_move_constructible_v<std::tuple<As...>>&&
+                std::is_nothrow_move_constructible_v<std::optional<T>>) :
+            as(std::move(other.as)),
+            maybeT(std::move(other.maybeT))
         {
             other.maybeT = std::nullopt;
         }

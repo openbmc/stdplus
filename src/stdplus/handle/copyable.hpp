@@ -1,6 +1,7 @@
 #pragma once
 #include <optional>
 #include <stdplus/handle/managed.hpp>
+#include <type_traits>
 #include <utility>
 
 namespace stdplus
@@ -40,13 +41,12 @@ struct Copyable
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit Handle(std::optional<T>&& maybeV,
-                                  Vs&&... vs) noexcept :
+        constexpr explicit Handle(std::optional<T>&& maybeV, Vs&&... vs) :
             MHandle(std::move(maybeV), std::forward<Vs>(vs)...)
         {
         }
         template <typename... Vs>
-        constexpr explicit Handle(T&& maybeV, Vs&&... vs) noexcept :
+        constexpr explicit Handle(T&& maybeV, Vs&&... vs) :
             MHandle(std::move(maybeV), std::forward<Vs>(vs)...)
         {
         }
@@ -56,7 +56,9 @@ struct Copyable
             reset(other.maybe_value());
         }
 
-        constexpr Handle(Handle&& other) noexcept : MHandle(std::move(other))
+        constexpr Handle(Handle&& other) noexcept(
+            std::is_nothrow_move_constructible_v<MHandle>) :
+            MHandle(std::move(other))
         {
         }
 
@@ -71,7 +73,7 @@ struct Copyable
             return *this;
         }
 
-        constexpr Handle& operator=(Handle&& other) noexcept
+        constexpr Handle& operator=(Handle&& other)
         {
             MHandle::operator=(std::move(other));
             return *this;
