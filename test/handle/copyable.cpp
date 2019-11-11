@@ -15,34 +15,58 @@ static int stored_ref = 0;
 static std::vector<int> dropped;
 static int stored_drop = 0;
 
+struct SimpleRef
+{
+    int operator()(const int& i) noexcept
+    {
+        reffed.push_back(i);
+        return i + 1;
+    }
+};
+
 int ref(const int& i)
 {
-    reffed.push_back(i);
-    return i + 1;
+    return SimpleRef()(i);
 }
+
+struct SimpleDrop
+{
+    void operator()(int&& i) noexcept
+    {
+        dropped.push_back(std::move(i));
+    }
+};
 
 void drop(int&& i)
 {
-    dropped.push_back(std::move(i));
+    SimpleDrop()(std::move(i));
 }
 
-int ref(const int& i, std::string&, int& si)
+struct StoreRef
 {
-    reffed.push_back(i);
-    // Make sure we can update the stored data
-    stored_ref = si++;
-    return i + 1;
-}
+    int operator()(const int& i, std::string&, int& si)
+    {
+        reffed.push_back(i);
+        // Make sure we can update the stored data
+        stored_ref = si++;
+        return i + 1;
+    }
+};
 
-void drop(int&& i, std::string&, int& si)
+struct StoreDrop
 {
-    dropped.push_back(std::move(i));
-    // Make sure we can update the stored data
-    stored_drop = si++;
-}
+    void operator()(int&& i, std::string&, int& si)
+    {
+        dropped.push_back(std::move(i));
+        // Make sure we can update the stored data
+        stored_drop = si++;
+    }
+};
 
-using SimpleHandle = Copyable<int>::Handle<drop, ref>;
-using StoreHandle = Copyable<int, std::string, int>::Handle<drop, ref>;
+using SimpleHandleOld = Copyable<int>::Handle<drop, ref>;
+using SimpleHandle = Copyable<int>::HandleF<SimpleDrop, SimpleRef>;
+using StoreHandle =
+    Copyable<int, std::string, int>::HandleF<StoreDrop, StoreRef>;
 
 class CopyableHandleTest : public ::testing::Test
 {
@@ -62,7 +86,7 @@ class CopyableHandleTest : public ::testing::Test
 
 TEST_F(CopyableHandleTest, EmptyNoStorage)
 {
-    SimpleHandle h(std::nullopt);
+    SimpleHandleOld h(std::nullopt);
     EXPECT_FALSE(h);
     EXPECT_THROW(h.value(), std::bad_optional_access);
     h.reset();
