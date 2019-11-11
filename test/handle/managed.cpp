@@ -14,20 +14,32 @@ namespace
 static std::vector<int> dropped;
 static int stored = 0;
 
+struct SimpleDrop
+{
+    void operator()(int&& i) noexcept
+    {
+        dropped.push_back(std::move(i));
+    }
+};
+
 void drop(int&& i)
 {
-    dropped.push_back(std::move(i));
+    SimpleDrop()(std::move(i));
 }
 
-void drop(int&& i, std::string&, int& si)
+struct StoreDrop
 {
-    dropped.push_back(std::move(i));
-    // Make sure we can update the stored data
-    stored = si++;
-}
+    void operator()(int&& i, std::string&, int& si)
+    {
+        dropped.push_back(std::move(i));
+        // Make sure we can update the stored data
+        stored = si++;
+    }
+};
 
-using SimpleHandle = Managed<int>::Handle<drop>;
-using StoreHandle = Managed<int, std::string, int>::Handle<drop>;
+using SimpleHandleOld = Managed<int>::Handle<drop>;
+using SimpleHandle = Managed<int>::HandleF<SimpleDrop>;
+using StoreHandle = Managed<int, std::string, int>::HandleF<StoreDrop>;
 
 class ManagedHandleTest : public ::testing::Test
 {
@@ -45,7 +57,7 @@ class ManagedHandleTest : public ::testing::Test
 
 TEST_F(ManagedHandleTest, EmptyNoStorage)
 {
-    SimpleHandle h(std::nullopt);
+    SimpleHandleOld h(std::nullopt);
     EXPECT_FALSE(h);
     EXPECT_THROW(h.value(), std::bad_optional_access);
     EXPECT_THROW((void)h.release(), std::bad_optional_access);

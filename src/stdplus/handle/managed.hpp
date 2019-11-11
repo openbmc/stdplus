@@ -15,8 +15,10 @@ namespace stdplus
  *           We could make a simple file descriptor wrapper that is
  *           automatically closed:
  *
- *           void closefd(int&& fd) { close(fd); }
- *           using Fd = Managed<int>::Handle<closefd>;
+ *           struct CloseFd {
+ *               void operator()(int&& fd) { close(fd); }
+ *           };
+ *           using Fd = Managed<int>::HandleF<closefd>;
  *
  *           void some_func()
  *           {
@@ -29,8 +31,9 @@ namespace stdplus
 template <typename T, typename... As>
 struct Managed
 {
-    template <void (*drop)(T&&, As&...)>
-    class Handle
+
+    template <typename Drop>
+    class HandleF
     {
       public:
         /** @brief Creates a handle owning the object
@@ -38,20 +41,20 @@ struct Managed
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit Handle(std::optional<T>&& maybeV, Vs&&... vs) :
+        constexpr explicit HandleF(std::optional<T>&& maybeV, Vs&&... vs) :
             as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
         {
         }
         template <typename... Vs>
-        constexpr explicit Handle(T&& maybeV, Vs&&... vs) :
+        constexpr explicit HandleF(T&& maybeV, Vs&&... vs) :
             as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
         {
         }
 
-        Handle(const Handle& other) = delete;
-        Handle& operator=(const Handle& other) = delete;
+        HandleF(const HandleF& other) = delete;
+        HandleF& operator=(const HandleF& other) = delete;
 
-        constexpr Handle(Handle&& other) noexcept(
+        constexpr HandleF(HandleF&& other) noexcept(
             std::is_nothrow_move_constructible_v<std::tuple<As...>>&&
                 std::is_nothrow_move_constructible_v<std::optional<T>>) :
             as(std::move(other.as)),
@@ -60,7 +63,7 @@ struct Managed
             other.maybeT = std::nullopt;
         }
 
-        constexpr Handle& operator=(Handle&& other)
+        constexpr HandleF& operator=(HandleF&& other)
         {
             if (this != &other)
             {
@@ -71,7 +74,7 @@ struct Managed
             return *this;
         }
 
-        virtual ~Handle()
+        virtual ~HandleF()
         {
             try
             {
@@ -214,10 +217,22 @@ struct Managed
         {
             if (maybeT)
             {
-                drop(std::move(*maybeT), std::get<Indices>(as)...);
+                Drop()(std::move(*maybeT), std::get<Indices>(as)...);
             }
         }
     };
+
+    template <void (*drop)(T&&, As&...)>
+    struct Dropper
+    {
+        void operator()(T&& t, As&... as) noexcept(noexcept(drop))
+        {
+            drop(std::move(t), as...);
+        }
+    };
+
+    template <void (*drop)(T&&, As&...)>
+    using Handle = HandleF<Dropper<drop>>;
 };
 
 } // namespace stdplus

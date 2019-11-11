@@ -13,25 +13,25 @@ namespace stdplus
 template <typename T, typename... As>
 struct Copyable
 {
-    template <void (*drop)(T&&, As&...), T (*ref)(const T&, As&...)>
-    class Handle : public Managed<T, As...>::template Handle<drop>
+    template <typename Drop, typename Ref>
+    class HandleF : public Managed<T, As...>::template HandleF<Drop>
     {
       public:
-        using MHandle = typename Managed<T, As...>::template Handle<drop>;
+        using MHandleF = typename Managed<T, As...>::template HandleF<Drop>;
 
         /** @brief Creates a handle referencing the object
          *
          *  @param[in] maybeV - Optional object being managed
          */
         template <typename... Vs>
-        constexpr explicit Handle(const std::optional<T>& maybeV, Vs&&... vs) :
-            MHandle(std::nullopt, std::forward<Vs>(vs)...)
+        constexpr explicit HandleF(const std::optional<T>& maybeV, Vs&&... vs) :
+            MHandleF(std::nullopt, std::forward<Vs>(vs)...)
         {
             reset(maybeV);
         }
         template <typename... Vs>
-        constexpr explicit Handle(const T& maybeV, Vs&&... vs) :
-            MHandle(std::nullopt, std::forward<Vs>(vs)...)
+        constexpr explicit HandleF(const T& maybeV, Vs&&... vs) :
+            MHandleF(std::nullopt, std::forward<Vs>(vs)...)
         {
             reset(maybeV);
         }
@@ -41,28 +41,29 @@ struct Copyable
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit Handle(std::optional<T>&& maybeV, Vs&&... vs) :
-            MHandle(std::move(maybeV), std::forward<Vs>(vs)...)
+        constexpr explicit HandleF(std::optional<T>&& maybeV, Vs&&... vs) :
+            MHandleF(std::move(maybeV), std::forward<Vs>(vs)...)
         {
         }
         template <typename... Vs>
-        constexpr explicit Handle(T&& maybeV, Vs&&... vs) :
-            MHandle(std::move(maybeV), std::forward<Vs>(vs)...)
+        constexpr explicit HandleF(T&& maybeV, Vs&&... vs) :
+            MHandleF(std::move(maybeV), std::forward<Vs>(vs)...)
         {
         }
 
-        constexpr Handle(const Handle& other) : MHandle(std::nullopt, other.as)
+        constexpr HandleF(const HandleF& other) :
+            MHandleF(std::nullopt, other.as)
         {
             reset(other.maybe_value());
         }
 
-        constexpr Handle(Handle&& other) noexcept(
-            std::is_nothrow_move_constructible_v<MHandle>) :
-            MHandle(std::move(other))
+        constexpr HandleF(HandleF&& other) noexcept(
+            std::is_nothrow_move_constructible_v<MHandleF>) :
+            MHandleF(std::move(other))
         {
         }
 
-        constexpr Handle& operator=(const Handle& other)
+        constexpr HandleF& operator=(const HandleF& other)
         {
             if (this != &other)
             {
@@ -73,13 +74,13 @@ struct Copyable
             return *this;
         }
 
-        constexpr Handle& operator=(Handle&& other)
+        constexpr HandleF& operator=(HandleF&& other)
         {
-            MHandle::operator=(std::move(other));
+            MHandleF::operator=(std::move(other));
             return *this;
         }
 
-        using MHandle::reset;
+        using MHandleF::reset;
 
         /** @brief Resets the managed value to a new value
          *         Takes a new reference on the value
@@ -106,9 +107,22 @@ struct Copyable
         template <size_t... Indices>
         T doRef(const T& v, std::index_sequence<Indices...>)
         {
-            return ref(v, std::get<Indices>(this->as)...);
+            return Ref()(v, std::get<Indices>(this->as)...);
         }
     };
+
+    template <T (*ref)(const T&, As&...)>
+    struct Reffer
+    {
+        T operator()(const T& t, As&... as) noexcept(noexcept(ref))
+        {
+            return ref(t, as...);
+        }
+    };
+
+    template <void (*drop)(T&&, As&...), T (*ref)(const T&, As&...)>
+    using Handle = HandleF<typename Managed<T, As...>::template Dropper<drop>,
+                           Reffer<ref>>;
 };
 
 } // namespace stdplus
