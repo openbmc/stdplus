@@ -68,6 +68,16 @@ using SimpleHandle = Copyable<int>::HandleF<SimpleDrop, SimpleRef>;
 using StoreHandle =
     Copyable<int, std::string, int>::HandleF<StoreDrop, StoreRef>;
 
+static_assert(std::is_nothrow_move_constructible_v<SimpleHandle>);
+static_assert(std::is_nothrow_move_assignable_v<SimpleHandle>);
+static_assert(std::is_nothrow_destructible_v<SimpleHandle>);
+static_assert(noexcept(std::declval<SimpleHandle>().reset()));
+// http://cplusplus.github.io/LWG/lwg-active.html#2116
+// static_assert(std::is_nothrow_move_constructible_v<StoreHandle>);
+static_assert(!std::is_nothrow_move_assignable_v<StoreHandle>);
+static_assert(!std::is_nothrow_destructible_v<StoreHandle>);
+static_assert(!noexcept(std::declval<StoreHandle>().reset()));
+
 class CopyableHandleTest : public ::testing::Test
 {
   protected:

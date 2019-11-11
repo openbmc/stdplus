@@ -35,19 +35,33 @@ struct Managed
     template <typename Drop>
     class HandleF
     {
+      protected:
+        static constexpr bool drop_noexcept =
+            noexcept(Drop()(std::declval<T>(), std::declval<As&>()...));
+
       public:
         /** @brief Creates a handle owning the object
          *
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit HandleF(std::optional<T>&& maybeV, Vs&&... vs) :
-            as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
+        constexpr explicit HandleF(
+            std::optional<T>&& maybeV,
+            Vs&&... vs) noexcept(std::
+                                     is_nothrow_move_constructible_v<
+                                         std::tuple<As...>>&&
+                                         std::is_nothrow_move_constructible_v<
+                                             std::optional<T>>) :
+            as(std::forward<Vs>(vs)...),
+            maybeT(std::move(maybeV))
         {
         }
         template <typename... Vs>
-        constexpr explicit HandleF(T&& maybeV, Vs&&... vs) :
-            as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
+        constexpr explicit HandleF(T&& maybeV, Vs&&... vs) noexcept(
+            std::is_nothrow_move_constructible_v<std::tuple<As...>>&&
+                std::is_nothrow_move_constructible_v<std::optional<T>>) :
+            as(std::forward<Vs>(vs)...),
+            maybeT(std::move(maybeV))
         {
         }
 
@@ -63,7 +77,10 @@ struct Managed
             other.maybeT = std::nullopt;
         }
 
-        constexpr HandleF& operator=(HandleF&& other)
+        constexpr HandleF& operator=(HandleF&& other) noexcept(
+            std::is_nothrow_move_assignable_v<std::tuple<As...>>&& noexcept(
+                std::declval<HandleF>().reset(
+                    std::declval<std::optional<T>>())))
         {
             if (this != &other)
             {
@@ -74,16 +91,12 @@ struct Managed
             return *this;
         }
 
-        virtual ~HandleF()
+        virtual ~HandleF() noexcept(
+            std::is_nothrow_destructible_v<std::tuple<As...>>&&
+                std::is_nothrow_destructible_v<std::optional<T>>&& noexcept(
+                    std::declval<HandleF>().reset()))
         {
-            try
-            {
-                reset();
-            }
-            catch (...)
-            {
-                std::abort();
-            }
+            reset();
         }
 
         /** @brief Gets the managed object
@@ -147,12 +160,14 @@ struct Managed
          *
          *  @param[in] maybeV - Maybe the new value
          */
-        constexpr void reset(std::optional<T>&& maybeV)
+        constexpr void reset(std::optional<T>&& maybeV) noexcept(
+            std::is_nothrow_move_assignable_v<std::optional<T>>&& drop_noexcept)
         {
             maybeDrop(std::index_sequence_for<As...>());
             maybeT = std::move(maybeV);
         }
-        constexpr void reset(T&& maybeV)
+        constexpr void reset(T&& maybeV) noexcept(
+            std::is_nothrow_move_assignable_v<std::optional<T>>&& drop_noexcept)
         {
             maybeDrop(std::index_sequence_for<As...>());
             maybeT = std::move(maybeV);
@@ -161,7 +176,7 @@ struct Managed
         /** @brief A shorthand reset function for convenience
          *         Same as calling reset(std::nullopt)
          */
-        constexpr void reset()
+        constexpr void reset() noexcept(drop_noexcept)
         {
             reset(std::nullopt);
         }
@@ -213,7 +228,7 @@ struct Managed
         std::optional<T> maybeT;
 
         template <size_t... Indices>
-        void maybeDrop(std::index_sequence<Indices...>)
+        void maybeDrop(std::index_sequence<Indices...>) noexcept(drop_noexcept)
         {
             if (maybeT)
             {

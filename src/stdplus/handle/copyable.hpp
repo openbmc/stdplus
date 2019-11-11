@@ -16,6 +16,10 @@ struct Copyable
     template <typename Drop, typename Ref>
     class HandleF : public Managed<T, As...>::template HandleF<Drop>
     {
+      protected:
+        static constexpr bool ref_noexcept =
+            noexcept(Ref()(std::declval<T>(), std::declval<As&>()...));
+
       public:
         using MHandleF = typename Managed<T, As...>::template HandleF<Drop>;
 
@@ -24,13 +28,18 @@ struct Copyable
          *  @param[in] maybeV - Optional object being managed
          */
         template <typename... Vs>
-        constexpr explicit HandleF(const std::optional<T>& maybeV, Vs&&... vs) :
+        constexpr explicit HandleF(const std::optional<T>& maybeV, Vs&&... vs) noexcept(
+            noexcept(MHandleF(std::nullopt, std::declval<Vs>()...)) && noexcept(
+                std::declval<HandleF>().reset(
+                    std::declval<const std::optional<T>&>()))) :
             MHandleF(std::nullopt, std::forward<Vs>(vs)...)
         {
             reset(maybeV);
         }
         template <typename... Vs>
-        constexpr explicit HandleF(const T& maybeV, Vs&&... vs) :
+        constexpr explicit HandleF(const T& maybeV, Vs&&... vs) noexcept(
+            noexcept(MHandleF(std::nullopt, std::declval<Vs>()...)) && noexcept(
+                std::declval<HandleF>().reset(std::declval<const T&>()))) :
             MHandleF(std::nullopt, std::forward<Vs>(vs)...)
         {
             reset(maybeV);
@@ -41,17 +50,29 @@ struct Copyable
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit HandleF(std::optional<T>&& maybeV, Vs&&... vs) :
+        constexpr explicit HandleF(
+            std::optional<T>&& maybeV,
+            Vs&&... vs) noexcept(noexcept(MHandleF(std::
+                                                       declval<std::optional<
+                                                           T>&&>(),
+                                                   std::declval<Vs>()...))) :
             MHandleF(std::move(maybeV), std::forward<Vs>(vs)...)
         {
         }
         template <typename... Vs>
-        constexpr explicit HandleF(T&& maybeV, Vs&&... vs) :
+        constexpr explicit HandleF(T&& maybeV, Vs&&... vs) noexcept(
+            noexcept(MHandleF(std::declval<T&&>(), std::declval<Vs>()...))) :
             MHandleF(std::move(maybeV), std::forward<Vs>(vs)...)
         {
         }
 
-        constexpr HandleF(const HandleF& other) :
+        constexpr HandleF(const HandleF& other) noexcept(noexcept(MHandleF(
+            std::nullopt,
+            std::declval<const std::tuple<
+                As...>&>())) && noexcept(std::declval<HandleF>()
+                                             .reset(std::declval<
+                                                    const std::optional<
+                                                        T>&>()))) :
             MHandleF(std::nullopt, other.as)
         {
             reset(other.maybe_value());
@@ -63,7 +84,11 @@ struct Copyable
         {
         }
 
-        constexpr HandleF& operator=(const HandleF& other)
+        constexpr HandleF& operator=(const HandleF& other) noexcept(
+            noexcept(std::declval<HandleF>().reset()) &&
+            std::is_nothrow_copy_constructible_v<std::tuple<As...>>&& noexcept(
+                std::declval<HandleF>().reset(
+                    std::declval<const std::optional<T>&>())))
         {
             if (this != &other)
             {
@@ -74,20 +99,18 @@ struct Copyable
             return *this;
         }
 
-        constexpr HandleF& operator=(HandleF&& other)
+        constexpr HandleF& operator=(HandleF&& other) noexcept(
+            std::is_nothrow_move_assignable_v<MHandleF>)
         {
             MHandleF::operator=(std::move(other));
             return *this;
         }
 
         using MHandleF::reset;
-
-        /** @brief Resets the managed value to a new value
-         *         Takes a new reference on the value
-         *
-         *  @param[in] maybeV - Maybe the new value
-         */
-        constexpr void reset(const std::optional<T>& maybeV)
+        constexpr void reset(const std::optional<T>& maybeV) noexcept(
+            ref_noexcept&& noexcept(std::declval<HandleF>().reset(
+                std::declval<T>())) && noexcept(std::declval<HandleF>()
+                                                    .reset()))
         {
             if (maybeV)
             {
@@ -95,17 +118,19 @@ struct Copyable
             }
             else
             {
-                reset(std::nullopt);
+                reset();
             }
         }
-        constexpr void reset(const T& maybeV)
+        constexpr void reset(const T& maybeV) noexcept(ref_noexcept&& noexcept(
+            std::declval<HandleF>().reset(std::declval<T>())))
         {
             reset(doRef(maybeV, std::index_sequence_for<As...>()));
         }
 
       private:
         template <size_t... Indices>
-        T doRef(const T& v, std::index_sequence<Indices...>)
+        T doRef(const T& v,
+                std::index_sequence<Indices...>) noexcept(ref_noexcept)
         {
             return Ref()(v, std::get<Indices>(this->as)...);
         }
