@@ -41,6 +41,16 @@ using SimpleHandleOld = Managed<int>::Handle<drop>;
 using SimpleHandle = Managed<int>::HandleF<SimpleDrop>;
 using StoreHandle = Managed<int, std::string, int>::HandleF<StoreDrop>;
 
+static_assert(std::is_nothrow_move_constructible_v<SimpleHandle>);
+static_assert(std::is_nothrow_move_assignable_v<SimpleHandle>);
+static_assert(std::is_nothrow_destructible_v<SimpleHandle>);
+static_assert(noexcept(std::declval<SimpleHandle>().reset()));
+// http://cplusplus.github.io/LWG/lwg-active.html#2116
+// static_assert(std::is_nothrow_move_constructible_v<StoreHandle>);
+static_assert(!std::is_nothrow_move_assignable_v<StoreHandle>);
+static_assert(!std::is_nothrow_destructible_v<StoreHandle>);
+static_assert(!noexcept(std::declval<StoreHandle>().reset()));
+
 class ManagedHandleTest : public ::testing::Test
 {
   protected:
