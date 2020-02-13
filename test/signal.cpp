@@ -1,5 +1,5 @@
+#include <catch2/catch.hpp>
 #include <cstring>
-#include <gtest/gtest.h>
 #include <signal.h>
 #include <stdplus/signal.hpp>
 
@@ -10,51 +10,51 @@ namespace signal
 namespace
 {
 
-TEST(SignalTest, BlockSignal)
+TEST_CASE("Signals are blocked", "[signal]")
 {
     constexpr int s = SIGINT;
     constexpr int otherS = SIGTERM;
     constexpr int notBlocked = SIGPROF;
 
     sigset_t expectedSet;
-    EXPECT_EQ(0, sigprocmask(SIG_BLOCK, nullptr, &expectedSet));
-    EXPECT_EQ(0, sigaddset(&expectedSet, otherS));
-    EXPECT_EQ(0, sigprocmask(SIG_BLOCK, &expectedSet, nullptr));
-    EXPECT_EQ(0, sigismember(&expectedSet, notBlocked));
-    EXPECT_EQ(0, sigismember(&expectedSet, s));
-    EXPECT_EQ(0, sigaddset(&expectedSet, s));
+    REQUIRE(0 == sigprocmask(SIG_BLOCK, nullptr, &expectedSet));
+    REQUIRE(0 == sigaddset(&expectedSet, otherS));
+    REQUIRE(0 == sigprocmask(SIG_BLOCK, &expectedSet, nullptr));
+    REQUIRE(0 == sigismember(&expectedSet, notBlocked));
+    REQUIRE(0 == sigismember(&expectedSet, s));
+    REQUIRE(0 == sigaddset(&expectedSet, s));
 
     block(s);
 
     sigset_t newSet;
-    EXPECT_EQ(0, sigprocmask(SIG_BLOCK, nullptr, &newSet));
-    EXPECT_EQ(sigismember(&expectedSet, s), sigismember(&newSet, s));
-    EXPECT_EQ(sigismember(&expectedSet, otherS), sigismember(&newSet, otherS));
-    EXPECT_EQ(sigismember(&expectedSet, notBlocked),
-              sigismember(&newSet, notBlocked));
+    REQUIRE(0 == sigprocmask(SIG_BLOCK, nullptr, &newSet));
+    REQUIRE(sigismember(&expectedSet, s) == sigismember(&newSet, s));
+    REQUIRE(sigismember(&expectedSet, otherS) == sigismember(&newSet, otherS));
+    REQUIRE(sigismember(&expectedSet, notBlocked) ==
+            sigismember(&newSet, notBlocked));
 }
 
-TEST(SignalTest, KeepBlockSignal)
+TEST_CASE("Signals stay blocked if already blocked", "[signal]")
 {
     constexpr int s = SIGINT;
     constexpr int otherS = SIGTERM;
     constexpr int notBlocked = SIGPROF;
 
     sigset_t expectedSet;
-    EXPECT_EQ(0, sigprocmask(SIG_BLOCK, nullptr, &expectedSet));
-    EXPECT_EQ(0, sigaddset(&expectedSet, s));
-    EXPECT_EQ(0, sigaddset(&expectedSet, otherS));
-    EXPECT_EQ(0, sigismember(&expectedSet, notBlocked));
-    EXPECT_EQ(0, sigprocmask(SIG_BLOCK, &expectedSet, nullptr));
+    REQUIRE(0 == sigprocmask(SIG_BLOCK, nullptr, &expectedSet));
+    REQUIRE(0 == sigaddset(&expectedSet, s));
+    REQUIRE(0 == sigaddset(&expectedSet, otherS));
+    REQUIRE(0 == sigismember(&expectedSet, notBlocked));
+    REQUIRE(0 == sigprocmask(SIG_BLOCK, &expectedSet, nullptr));
 
     block(s);
 
     sigset_t newSet;
-    EXPECT_EQ(0, sigprocmask(SIG_BLOCK, nullptr, &newSet));
-    EXPECT_EQ(sigismember(&expectedSet, s), sigismember(&newSet, s));
-    EXPECT_EQ(sigismember(&expectedSet, otherS), sigismember(&newSet, otherS));
-    EXPECT_EQ(sigismember(&expectedSet, notBlocked),
-              sigismember(&newSet, notBlocked));
+    REQUIRE(0 == sigprocmask(SIG_BLOCK, nullptr, &newSet));
+    REQUIRE(sigismember(&expectedSet, s) == sigismember(&newSet, s));
+    REQUIRE(sigismember(&expectedSet, otherS) == sigismember(&newSet, otherS));
+    REQUIRE(sigismember(&expectedSet, notBlocked) ==
+            sigismember(&newSet, notBlocked));
 }
 
 } // namespace

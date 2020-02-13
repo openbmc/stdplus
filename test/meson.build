@@ -16,7 +16,6 @@ if not gtest.found() or not gmock.found()
 endif
 
 gtests = [
-  'signal',
   'handle/copyable',
   'handle/managed',
   'util/cexec',
@@ -49,6 +48,7 @@ if not has_catch2
 endif
 
 catch2_tests = [
+  'signal',
 ]
 
 if has_catch2
