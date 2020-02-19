@@ -25,6 +25,7 @@ gtests = [
 
 foreach t : gtests
   test(t, executable(t.underscorify(), t + '.cpp',
+                     build_by_default: false,
                      implicit_include_directories: false,
                      dependencies: [stdplus, gtest, gmock]))
 endforeach
@@ -59,6 +60,7 @@ if has_catch2
 
   foreach t : catch2_tests
     test(t, executable(t.underscorify(), t + '.cpp',
+                       build_by_default: false,
                        implicit_include_directories: false,
                        link_with: libcatch2,
                        dependencies: [stdplus, catch2_dep]))
