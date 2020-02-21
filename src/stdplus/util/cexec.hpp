@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <string>
 #include <system_error>
 #include <type_traits>
 #include <utility>
@@ -79,6 +80,12 @@ inline auto callCheckErrno(const char* msg, Args&&... args)
         static_assert(std::is_same_v<Ret, int>, "Unimplemented check routine");
     }
 }
+template <auto (*makeError)(int, const char*) = makeSystemError,
+          typename... Args>
+inline auto callCheckErrno(const std::string& msg, Args&&... args)
+{
+    return callCheckErrno(msg.c_str(), std::forward(args)...);
+}
 
 /** @brief   Wraps common c style error handling for exception throwing
  *           This requires the callee to provide error information in -r.
@@ -107,6 +114,12 @@ inline auto callCheckRet(const char* msg, Args&&... args)
     {
         static_assert(std::is_same_v<Ret, int>, "Unimplemented check routine");
     }
+}
+template <auto (*makeError)(int, const char*) = makeSystemError,
+          typename... Args>
+inline auto callCheckRet(const std::string& msg, Args&&... args)
+{
+    return callCheckRet(msg.c_str(), std::forward(args)...);
 }
 
 } // namespace util
