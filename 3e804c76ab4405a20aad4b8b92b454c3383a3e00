@@ -1,0 +1,9 @@
+Ok-To-Test+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Code-Review+1: Brandon Kim <brandonkim@google.com>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Verified+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Submitted-by: William A. Kennington III <wak@google.com>
+Submitted-at: Mon, 16 Mar 2020 06:43:19 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/stdplus/+/29654
+Project: openbmc/stdplus
+Branch: refs/heads/master
