@@ -1,7 +1,6 @@
 stdplus_headers = include_directories('.')
 
 fmt_dep = dependency('fmt', required: false)
-fmt_ext = fmt_dep
 if not fmt_dep.found()
   fmt_proj = import('cmake').subproject(
     'fmt',
@@ -17,7 +16,6 @@ endif
 # span-lite might not have a pkg-config. It is header only so just make
 # sure we can access the needed symbols from the header.
 span_dep = dependency('', required: false)
-span_ext = span_dep
 has_span = meson.get_compiler('cpp').has_header_symbol(
   'span',
   'std::dynamic_extent',
@@ -25,7 +23,6 @@ has_span = meson.get_compiler('cpp').has_header_symbol(
   required: false)
 if not has_span
   span_dep = dependency('span-lite', required: false)
-  span_ext = span_dep
   has_span = meson.get_compiler('cpp').has_header_symbol(
     'nonstd/span.hpp',
     'nonstd::dynamic_extent',
@@ -65,12 +62,19 @@ stdplus = declare_dependency(
   include_directories: stdplus_headers,
   link_with: stdplus_lib)
 
+stdplus_reqs = []
+foreach dep : stdplus_deps
+  if dep.type_name() == 'pkgconfig'
+	stdplus_reqs += dep
+  endif
+endforeach
+
 import('pkgconfig').generate(
   name: 'stdplus',
   description: 'C++ helper utilities',
   version: meson.project_version(),
   libraries: stdplus,
-  requires: [fmt_ext, span_ext])
+  requires: stdplus_reqs)
 
 install_headers(
   'stdplus/raw.hpp',
