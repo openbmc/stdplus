@@ -79,6 +79,7 @@ import('pkgconfig').generate(
 install_headers(
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
+  'stdplus/types.hpp',
   subdir: 'stdplus')
 
 install_headers(
