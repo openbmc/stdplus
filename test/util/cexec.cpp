@@ -69,7 +69,7 @@ int makeTrivialError(int error, const char* msg)
 TEST(Cexec, CallCheckErrnoInt)
 {
     EXPECT_EQ(1, callCheckErrno("sample1", sample1));
-    EXPECT_EQ(2, callCheckErrno("sample2", &sample2, 2));
+    EXPECT_EQ(2, callCheckErrno(std::string("sample2"), &sample2, 2));
     EXPECT_EQ(4, callCheckErrno("sample::s", sample::s, 4));
     ssize_t v = 10;
     EXPECT_EQ(12, callCheckErrno("sample3", sample3, 2, &v));
@@ -169,7 +169,7 @@ TEST(Cexec, CallCheckErrnoErrorFunc)
 TEST(Cexec, CallCheckRetInt)
 {
     EXPECT_EQ(1, callCheckRet("sample1", sample1));
-    EXPECT_EQ(2, callCheckRet("sample2", &sample2, 2));
+    EXPECT_EQ(2, callCheckRet(std::string("sample2"), &sample2, 2));
     EXPECT_EQ(4, callCheckRet("sample::s", sample::s, 4));
     ssize_t v = 10;
     EXPECT_EQ(12, callCheckRet("sample3", sample3, 2, &v));

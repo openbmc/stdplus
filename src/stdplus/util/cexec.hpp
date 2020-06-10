@@ -84,7 +84,7 @@ template <auto (*makeError)(int, const char*) = makeSystemError,
           typename... Args>
 inline auto callCheckErrno(const std::string& msg, Args&&... args)
 {
-    return callCheckErrno(msg.c_str(), std::forward(args)...);
+    return callCheckErrno(msg.c_str(), std::forward<Args>(args)...);
 }
 
 /** @brief   Wraps common c style error handling for exception throwing
@@ -119,7 +119,7 @@ template <auto (*makeError)(int, const char*) = makeSystemError,
           typename... Args>
 inline auto callCheckRet(const std::string& msg, Args&&... args)
 {
-    return callCheckRet(msg.c_str(), std::forward(args)...);
+    return callCheckRet(msg.c_str(), std::forward<Args>(args)...);
 }
 
 } // namespace util
