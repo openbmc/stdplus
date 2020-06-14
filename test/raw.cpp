@@ -12,6 +12,15 @@ namespace raw
 namespace
 {
 
+TEST_CASE("Equal", "[Equal]")
+{
+	int a = 4;
+	unsigned b = 4;
+	CHECK(equal(a, b));
+	b = 5;
+	CHECK(!equal(a, b));
+}
+
 TEST_CASE("Copy From Empty", "[CopyFrom]")
 {
     const std::string_view s;
