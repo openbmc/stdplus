@@ -22,6 +22,21 @@ inline constexpr bool trivialContainer =
 
 } // namespace detail
 
+/** @brief Compares two containers to see if their raw bytes are equal
+ *
+ *  @param[in] a - The first container
+ *  @param[in] b - The second container
+ *  @return True if they are the same, false otherwise
+ */
+template <typename A, typename B>
+bool equal(const A& a, const B& b)
+{
+    static_assert(std::is_trivially_copyable_v<A>);
+    static_assert(std::is_trivially_copyable_v<B>);
+    static_assert(sizeof(A) == sizeof(B));
+    return memcmp(&a, &b, sizeof(A)) == 0;
+}
+
 /** @brief Copies data from a buffer into a copyable type
  *
  *  @param[in] data - The data buffer being copied from
