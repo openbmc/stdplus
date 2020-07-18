@@ -75,7 +75,7 @@ T extract(std::basic_string_view<CharT>& data)
 #ifdef STDPLUS_SPAN_TYPE
 template <typename T, typename IntT,
           typename = std::enable_if_t<std::is_integral_v<IntT>>>
-T extract(span<const IntT>& data)
+T extract(span<IntT>& data)
 {
     T ret = copyFrom<T>(data);
     static_assert(sizeof(T) % sizeof(IntT) == 0);
