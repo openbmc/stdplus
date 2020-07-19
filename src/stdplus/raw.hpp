@@ -76,7 +76,7 @@ T copyFrom(const Container& c)
  */
 template <typename T, typename Container,
           typename Tp = detail::copyConst<T, detail::dataType<Container>>>
-Tp& refFrom(Container& c)
+Tp& refFrom(Container&& c)
 {
     static_assert(std::is_trivially_copyable_v<Tp>);
     static_assert(detail::trivialContainer<Container>);
@@ -181,7 +181,7 @@ template <typename IntT, typename Container,
           typename = std::enable_if_t<!std::is_trivially_copyable_v<Container>>,
           typename = decltype(std::data(std::declval<Container>())),
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
-span<IntTp> asSpan(Container& c) noexcept
+span<IntTp> asSpan(Container&& c) noexcept
 {
     static_assert(detail::trivialContainer<Container>);
     static_assert(sizeof(*std::data(c)) % sizeof(IntTp) == 0);
