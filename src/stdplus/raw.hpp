@@ -13,12 +13,17 @@ namespace raw
 namespace detail
 {
 
+/** @brief Gets the datatype referenced in a container
+ */
+template <typename Container>
+using dataType = std::remove_pointer_t<decltype(
+    std::data(std::declval<std::add_lvalue_reference_t<Container>>()))>;
+
 /** @brief Determines if the container holds trivially copyable data
  */
 template <typename Container>
 inline constexpr bool trivialContainer =
-    std::is_trivially_copyable_v<std::remove_pointer_t<decltype(
-        std::data(std::declval<std::add_lvalue_reference_t<Container>>()))>>;
+    std::is_trivially_copyable_v<dataType<Container>>;
 
 } // namespace detail
 
@@ -58,6 +63,29 @@ T copyFrom(const Container& c)
     return ret;
 }
 
+/** @brief References the data from a buffer if aligned
+ *
+ *  @param[in] data - The data buffer being referenced
+ *  @return The reference to the data in the new type
+ */
+template <typename T, typename Container,
+          typename Tp =
+              std::conditional_t<std::is_const_v<detail::dataType<Container>>,
+                                 std::add_const_t<T>, T>>
+Tp& refFrom(Container& c)
+{
+    static_assert(std::is_trivially_copyable_v<Tp>);
+    static_assert(detail::trivialContainer<Container>);
+    static_assert(sizeof(*std::data(c)) % alignof(Tp) == 0);
+    const size_t bytes = std::size(c) * sizeof(*std::data(c));
+    if (bytes < sizeof(Tp))
+    {
+        throw std::runtime_error(
+            fmt::format("RefFrom: {} < {}", bytes, sizeof(Tp)));
+    }
+    return *reinterpret_cast<Tp*>(std::data(c));
+}
+
 /** @brief Extracts data from a buffer into a copyable type
  *         Updates the data buffer to show that data was removed
  *
@@ -80,6 +108,34 @@ T extract(span<IntT>& data)
     T ret = copyFrom<T>(data);
     static_assert(sizeof(T) % sizeof(IntT) == 0);
     data = data.subspan(sizeof(T) / sizeof(IntT));
+    return ret;
+}
+#endif
+
+/** @brief Extracts data from a buffer as a reference if aligned
+ *         Updates the data buffer to show that data was removed
+ *
+ *  @param[in,out] data - The data buffer being extracted from
+ *  @return A reference to the data
+ */
+template <typename T, typename CharT>
+const T& extractRef(std::basic_string_view<CharT>& data)
+{
+    const T& ret = refFrom<T>(data);
+    static_assert(sizeof(T) % sizeof(CharT) == 0);
+    data.remove_prefix(sizeof(T) / sizeof(CharT));
+    return ret;
+}
+#ifdef STDPLUS_SPAN_TYPE
+template <typename T, typename IntT,
+          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
+          typename Tp =
+              std::conditional_t<std::is_const_v<IntT>, std::add_const_t<T>, T>>
+Tp& extractRef(span<IntT>& data)
+{
+    Tp& ret = refFrom<Tp>(data);
+    static_assert(sizeof(Tp) % sizeof(IntT) == 0);
+    data = data.subspan(sizeof(Tp) / sizeof(IntT));
     return ret;
 }
 #endif
