@@ -23,9 +23,10 @@ TEST_CASE("Equal", "[Equal]")
 
 TEST_CASE("Copy From Empty", "[CopyFrom]")
 {
-    const std::string_view s;
+    const std::string_view cs;
+    CHECK_THROWS_AS(copyFrom<int>(cs), std::runtime_error);
+    std::string_view s;
     CHECK_THROWS_AS(copyFrom<int>(s), std::runtime_error);
-    CHECK(s.empty());
 }
 
 TEST_CASE("Copy From Basic", "[CopyFrom]")
@@ -41,6 +42,39 @@ TEST_CASE("Copy From Partial", "[CopyFrom]")
     CHECK('a' == copyFrom<char>(s));
     const char s2[] = "def";
     CHECK('d' == copyFrom<char>(s2));
+}
+
+struct Int
+{
+    uint8_t data[sizeof(int)];
+
+    inline bool operator==(const Int& other) const
+    {
+        return memcmp(data, other.data, sizeof(data)) == 0;
+    }
+};
+
+TEST_CASE("Ref From Empty", "[RefFrom]")
+{
+    const std::string_view cs;
+    CHECK_THROWS_AS(refFrom<Int>(cs), std::runtime_error);
+    std::string_view s;
+    CHECK_THROWS_AS(refFrom<Int>(s), std::runtime_error);
+}
+
+TEST_CASE("Ref From Basic", "[RefFrom]")
+{
+    Int a = {4, 0, 0, 4};
+    const std::string_view s(reinterpret_cast<char*>(&a), sizeof(a));
+    CHECK(a == refFrom<Int>(s));
+}
+
+TEST_CASE("Ref From Partial", "[RefFrom]")
+{
+    const std::vector<char> s = {'a', 'b', 'c'};
+    CHECK('a' == refFrom<char>(s));
+    const char s2[] = "def";
+    CHECK('d' == refFrom<char>(s2));
 }
 
 TEST_CASE("Extract Too Small", "[Extract]")
@@ -62,6 +96,28 @@ TEST_CASE("Extract Partial", "[Extract]")
 {
     std::string_view s("abc");
     CHECK('a' == extract<char>(s));
+    CHECK(2 == s.size());
+}
+
+TEST_CASE("Extract Ref Too Small", "[ExtractRef]")
+{
+    std::string_view s("a");
+    CHECK_THROWS_AS(extractRef<Int>(s), std::runtime_error);
+    CHECK(1 == s.size());
+}
+
+TEST_CASE("Extract Ref Basic", "[ExtractRef]")
+{
+    Int a = {4, 0, 0, 4};
+    std::string_view s(reinterpret_cast<char*>(&a), sizeof(a));
+    CHECK(a == extractRef<Int>(s));
+    CHECK(s.empty());
+}
+
+TEST_CASE("Extract Ref Partial", "[ExtractRef]")
+{
+    std::string_view s("abc");
+    CHECK('a' == extractRef<char>(s));
     CHECK(2 == s.size());
 }
 
@@ -112,6 +168,30 @@ TEST_CASE("Span Extract Larger", "[Extract]")
     const std::vector<int> v{3, 4, 5};
     span<const int> s = v;
     CHECK(v[0] == extract<int>(s));
+    CHECK(v.size() - 1 == s.size());
+}
+
+TEST_CASE("Span Extract Ref TooSmall", "[ExtractRef]")
+{
+    const std::vector<char> v = {'c'};
+    span<const char> s = v;
+    CHECK_THROWS_AS(extractRef<Int>(s), std::runtime_error);
+    CHECK(1 == s.size());
+}
+
+TEST_CASE("Span Extract Ref Basic", "[ExtractRef]")
+{
+    const std::vector<Int> v = {{4, 0, 0, 4}};
+    span<const Int> s = v;
+    CHECK(v[0] == extractRef<Int>(s));
+    CHECK(s.empty());
+}
+
+TEST_CASE("Span Extract Ref Larger", "[ExtractRef]")
+{
+    const std::vector<Int> v{{3}, {4}, {5}};
+    span<const Int> s = v;
+    CHECK(v[0] == extractRef<Int>(s));
     CHECK(v.size() - 1 == s.size());
 }
 
