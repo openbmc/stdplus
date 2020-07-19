@@ -85,7 +85,7 @@ T extract(std::basic_string_view<CharT>& data)
 }
 #ifdef STDPLUS_SPAN_TYPE
 template <typename T, typename IntT,
-          typename = std::enable_if_t<std::is_integral_v<IntT>>>
+          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>>
 T extract(span<IntT>& data)
 {
     T ret = copyFrom<T>(data);
@@ -120,7 +120,7 @@ std::basic_string_view<CharT> asView(const Container& c) noexcept
 }
 #ifdef STDPLUS_SPAN_TYPE
 template <typename IntT, typename T,
-          typename = std::enable_if_t<std::is_integral_v<IntT>>,
+          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename = std::enable_if_t<std::is_trivially_copyable_v<T>>,
           typename IntTp = detail::copyConst<IntT, T>>
 span<IntTp> asSpan(T& t) noexcept
@@ -129,7 +129,7 @@ span<IntTp> asSpan(T& t) noexcept
     return {reinterpret_cast<IntTp*>(&t), sizeof(T) / sizeof(IntTp)};
 }
 template <typename IntT, typename Container,
-          typename = std::enable_if_t<std::is_integral_v<IntT>>,
+          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename = std::enable_if_t<!std::is_trivially_copyable_v<Container>>,
           typename = decltype(std::data(std::declval<Container>())),
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
