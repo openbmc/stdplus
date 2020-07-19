@@ -110,41 +110,26 @@ std::basic_string_view<CharT> asView(const Container& c) noexcept
 #ifdef STDPLUS_SPAN_TYPE
 template <typename IntT, typename T,
           typename = std::enable_if_t<std::is_integral_v<IntT>>,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
-span<IntT> asSpan(T& t) noexcept
+          typename = std::enable_if_t<std::is_trivially_copyable_v<T>>,
+          typename IntTp = std::conditional_t<std::is_const_v<T>,
+                                              std::add_const_t<IntT>, IntT>>
+span<IntTp> asSpan(T& t) noexcept
 {
-    static_assert(sizeof(T) % sizeof(IntT) == 0);
-    return {reinterpret_cast<IntT*>(&t), sizeof(T) / sizeof(IntT)};
+    static_assert(sizeof(T) % sizeof(IntTp) == 0);
+    return {reinterpret_cast<IntTp*>(&t), sizeof(T) / sizeof(IntTp)};
 }
 template <typename IntT, typename Container,
           typename = std::enable_if_t<std::is_integral_v<IntT>>,
           typename = std::enable_if_t<!std::is_trivially_copyable_v<Container>>,
-          typename = decltype(std::data(std::declval<Container>()))>
-span<IntT> asSpan(Container& c) noexcept
+          typename = decltype(std::data(std::declval<Container>())),
+          typename IntTp = std::conditional_t<std::is_const_v<Container>,
+                                              std::add_const_t<IntT>, IntT>>
+span<IntTp> asSpan(Container& c) noexcept
 {
     static_assert(detail::trivialContainer<Container>);
-    static_assert(sizeof(*std::data(c)) % sizeof(IntT) == 0);
-    return {reinterpret_cast<IntT*>(std::data(c)),
-            std::size(c) * sizeof(*std::data(c)) / sizeof(IntT)};
-}
-template <typename IntT, typename T,
-          typename = std::enable_if_t<std::is_integral_v<IntT>>,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
-span<const IntT> asSpan(const T& t) noexcept
-{
-    static_assert(sizeof(T) % sizeof(IntT) == 0);
-    return {reinterpret_cast<const IntT*>(&t), sizeof(T) / sizeof(IntT)};
-}
-template <typename IntT, typename Container,
-          typename = std::enable_if_t<std::is_integral_v<IntT>>,
-          typename = std::enable_if_t<!std::is_trivially_copyable_v<Container>>,
-          typename = decltype(std::data(std::declval<Container>()))>
-span<const IntT> asSpan(const Container& c) noexcept
-{
-    static_assert(detail::trivialContainer<Container>);
-    static_assert(sizeof(*std::data(c)) % sizeof(IntT) == 0);
-    return {reinterpret_cast<const IntT*>(std::data(c)),
-            std::size(c) * sizeof(*std::data(c)) / sizeof(IntT)};
+    static_assert(sizeof(*std::data(c)) % sizeof(IntTp) == 0);
+    return {reinterpret_cast<IntTp*>(std::data(c)),
+            std::size(c) * sizeof(*std::data(c)) / sizeof(IntTp)};
 }
 #endif
 
