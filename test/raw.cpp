@@ -146,6 +146,15 @@ TEST_CASE("As View Arr", "[AsView]")
     CHECK(htole16(0) == s[3]);
 }
 
+TEST_CASE("As View View", "[AsView]")
+{
+    std::string_view sv = "ab";
+    auto s = asView<uint8_t>(sv);
+    REQUIRE(s.size() == 2);
+    CHECK(s[0] == sv[0]);
+    CHECK(s[1] == sv[1]);
+}
+
 #ifdef STDPLUS_SPAN_TYPE
 TEST_CASE("Span Extract TooSmall", "[Extract]")
 {
@@ -236,6 +245,21 @@ TEST_CASE("As Span Arr", "[AsSpan]")
     CHECK(htole16(0) == s[1]);
     CHECK(htole16(2) == s[2]);
     CHECK(htole16(0) == s[3]);
+}
+
+TEST_CASE("As Span Span", "[AsSpan]")
+{
+    std::array<char, 2> arr = {'a', 'b'};
+    auto sp1 = span<const char>(arr);
+    auto s1 = asSpan<uint8_t>(sp1);
+    REQUIRE(s1.size() == 2);
+    CHECK(s1[0] == arr[0]);
+    CHECK(s1[1] == arr[1]);
+    auto sp2 = span<char>(arr);
+    auto s2 = asSpan<uint8_t>(sp2);
+    REQUIRE(s2.size() == 2);
+    CHECK(s2[0] == arr[0]);
+    CHECK(s2[1] == arr[1]);
 }
 
 #endif

@@ -31,6 +31,13 @@ template <typename A, typename B>
 using copyConst =
     std::conditional_t<std::is_const_v<B>, std::add_const_t<A>, A>;
 
+/** @brief Determines if a type is a container of data
+ */
+template <typename, typename = void>
+inline constexpr bool hasData = false;
+template <typename T>
+inline constexpr bool hasData<T, std::void_t<dataType<T>>> = true;
+
 } // namespace detail
 
 /** @brief Compares two containers to see if their raw bytes are equal
@@ -149,37 +156,39 @@ Tp& extractRef(span<IntT>& data)
  *  @param[in] t - The trivial raw data
  *  @return A view over the input with the given output integral type
  */
-template <typename CharT, typename T,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
-std::basic_string_view<CharT> asView(const T& t) noexcept
+template <typename CharT, typename T>
+std::enable_if_t<!detail::hasData<T>, std::basic_string_view<CharT>>
+    asView(const T& t) noexcept
 {
+    static_assert(std::is_trivially_copyable_v<T>);
     static_assert(sizeof(T) % sizeof(CharT) == 0);
     return {reinterpret_cast<const CharT*>(&t), sizeof(T) / sizeof(CharT)};
 }
-template <typename CharT, typename Container,
-          typename = std::enable_if_t<!std::is_trivially_copyable_v<Container>>,
-          typename = decltype(std::data(std::declval<Container>()))>
-std::basic_string_view<CharT> asView(const Container& c) noexcept
+
+template <typename CharT, typename Container>
+std::enable_if_t<detail::hasData<Container>, std::basic_string_view<CharT>>
+    asView(const Container& c) noexcept
 {
     static_assert(detail::trivialContainer<Container>);
     static_assert(sizeof(*std::data(c)) % sizeof(CharT) == 0);
     return {reinterpret_cast<const CharT*>(std::data(c)),
             std::size(c) * sizeof(*std::data(c)) / sizeof(CharT)};
 }
+
 #ifdef STDPLUS_SPAN_TYPE
 template <typename IntT, typename T,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<T>>,
+          typename = std::enable_if_t<!detail::hasData<T>>,
           typename IntTp = detail::copyConst<IntT, T>>
 span<IntTp> asSpan(T& t) noexcept
 {
+    static_assert(std::is_trivially_copyable_v<T>);
     static_assert(sizeof(T) % sizeof(IntTp) == 0);
     return {reinterpret_cast<IntTp*>(&t), sizeof(T) / sizeof(IntTp)};
 }
 template <typename IntT, typename Container,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
-          typename = std::enable_if_t<!std::is_trivially_copyable_v<Container>>,
-          typename = decltype(std::data(std::declval<Container>())),
+          typename = std::enable_if_t<detail::hasData<Container>>,
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
 span<IntTp> asSpan(Container&& c) noexcept
 {
