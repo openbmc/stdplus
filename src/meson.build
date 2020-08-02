@@ -38,9 +38,8 @@ stdplus_deps = [
 
 stdplus_lib = library(
   'stdplus',
-  [
-    'stdplus/signal.cpp',
-  ],
+  'stdplus/exception.cpp',
+  'stdplus/signal.cpp',
   include_directories: stdplus_headers,
   implicit_include_directories: false,
   dependencies: stdplus_deps,
@@ -66,6 +65,7 @@ import('pkgconfig').generate(
   requires: stdplus_reqs)
 
 install_headers(
+  'stdplus/exception.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
   'stdplus/types.hpp',
