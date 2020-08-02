@@ -68,6 +68,9 @@ int makeTrivialError(int error, const char* msg)
 
 TEST(Cexec, CallCheckErrnoInt)
 {
+    EXPECT_EQ(1, CHECK_ERRNO(sample1(), [](int) { throw 0; }));
+    EXPECT_EQ(1, CHECK_ERRNO(sample1(), "sample1"));
+    EXPECT_EQ(1, CHECK_ERRNO(sample1(), std::string("sample1")));
     EXPECT_EQ(1, callCheckErrno("sample1", sample1));
     EXPECT_EQ(2, callCheckErrno(std::string("sample2"), &sample2, 2));
     EXPECT_EQ(4, callCheckErrno("sample::s", sample::s, 4));
@@ -79,6 +82,19 @@ TEST(Cexec, CallCheckErrnoInt)
     {
         errno = EBADF;
         callCheckErrno(error, sample2, -1);
+        EXPECT_TRUE(false);
+    }
+    catch (const std::system_error& e)
+    {
+        EXPECT_EQ(std::string_view(error),
+                  std::string_view(e.what(), strlen(error)));
+        EXPECT_EQ(EBADF, e.code().value());
+    }
+
+    try
+    {
+        errno = EBADF;
+        CHECK_ERRNO(sample2(-1), error);
         EXPECT_TRUE(false);
     }
     catch (const std::system_error& e)
@@ -164,11 +180,23 @@ TEST(Cexec, CallCheckErrnoErrorFunc)
     {
         EXPECT_EQ(errno, error);
     }
+
+    try
+    {
+        errno = EBADF;
+        CHECK_ERRNO(sample2(-1), [](int r) { throw r; });
+        EXPECT_TRUE(false);
+    }
+    catch (int i)
+    {
+        EXPECT_EQ(EBADF, i);
+    }
 }
 
 TEST(Cexec, CallCheckRetInt)
 {
     EXPECT_EQ(1, callCheckRet("sample1", sample1));
+    EXPECT_EQ(1, CHECK_RET(sample1(), "sample1"));
     EXPECT_EQ(2, callCheckRet(std::string("sample2"), &sample2, 2));
     EXPECT_EQ(4, callCheckRet("sample::s", sample::s, 4));
     ssize_t v = 10;
@@ -179,6 +207,19 @@ TEST(Cexec, CallCheckRetInt)
     {
         errno = EBADF;
         callCheckRet(error, sample2, -EINTR);
+        EXPECT_TRUE(false);
+    }
+    catch (const std::system_error& e)
+    {
+        EXPECT_EQ(std::string_view(error),
+                  std::string_view(e.what(), strlen(error)));
+        EXPECT_EQ(EINTR, e.code().value());
+    }
+
+    try
+    {
+        errno = EBADF;
+        CHECK_RET(sample2(-EINTR), error);
         EXPECT_TRUE(false);
     }
     catch (const std::system_error& e)

@@ -5,6 +5,80 @@
 #include <type_traits>
 #include <utility>
 
+/** @brief   Wraps common c style error handling for exception throwing
+ *           This requires the callee to set errno on error.
+ *  @details We often have a pattern in our code for checking errors and
+ *           propagating up exceptions:
+ *
+ *           int c_call(const char* path);
+ *
+ *           int our_cpp_call(const char* path)
+ *           {
+ *               int r = c_call(path);
+ *               if (r < 0)
+ *               {
+ *                   throw std::system_error(errno, std::generic_category(),
+ *                                           "our msg");
+ *               }
+ *               return r;
+ *           }
+ *
+ *           To make that more succinct, we can use CHECK_ERRNO:
+ *
+ *           int our_cpp_call(const char* path)
+ *           {
+ *               return CHECK_ERRNO(c_call(path), "our msg");
+ *           }
+ *
+ *  @param[in] expr          - The expression returning an errno value
+ *  @param[in] error_handler - Passed to the doError function
+ *  @throws std::system_error (depends on error_handler) for an error case
+ *  @return A successful return value based on the function type
+ */
+#define CHECK_ERRNO(expr, error_handler)                                       \
+    [&](auto check_errno_ret) {                                                \
+        if constexpr (::std::is_pointer_v<decltype(check_errno_ret)>)          \
+        {                                                                      \
+            if (check_errno_ret == nullptr)                                    \
+                ::stdplus::util::doError(errno, (error_handler));              \
+        }                                                                      \
+        else if constexpr (::std::is_signed_v<decltype(check_errno_ret)>)      \
+        {                                                                      \
+            if (check_errno_ret < 0)                                           \
+                ::stdplus::util::doError(errno, (error_handler));              \
+        }                                                                      \
+        else                                                                   \
+        {                                                                      \
+            static_assert(::std::is_same_v<decltype(check_errno_ret), int>,    \
+                          "Unimplemented check routine");                      \
+        }                                                                      \
+        return check_errno_ret;                                                \
+    }((expr))
+
+/** @brief   Wraps common c style error handling for exception throwing
+ *           This requires the callee to provide error information in -r.
+ *           See CHECK_ERRNO() for details.
+ *
+ *  @param[in] expr          - The expression returning an negative error value
+ *  @param[in] error_handler - Passed to the doError function
+ *  @throws std::system_error (depends on error_handler) for an error case
+ *  @return A successful return value based on the function type
+ */
+#define CHECK_RET(expr, error_handler)                                         \
+    [&](auto check_ret_ret) {                                                  \
+        if constexpr (::std::is_signed_v<decltype(check_ret_ret)>)             \
+        {                                                                      \
+            if (check_ret_ret < 0)                                             \
+                ::stdplus::util::doError(-check_ret_ret, (error_handler));     \
+        }                                                                      \
+        else                                                                   \
+        {                                                                      \
+            static_assert(::std::is_same_v<decltype(check_ret_ret), int>,      \
+                          "Unimplemented check routine");                      \
+        }                                                                      \
+        return check_ret_ret;                                                  \
+    }((expr))
+
 namespace stdplus
 {
 namespace util
@@ -22,6 +96,33 @@ namespace util
 inline auto makeSystemError(int error, const char* msg)
 {
     return std::system_error(error, std::generic_category(), msg);
+}
+
+/** @brief Turns errors into exceptions for the given error handler
+ *
+ *  @param[in] error - The numeric system error code
+ *  @param[in] msg   - The string used to describe the error
+ *  @throws A system exception with the given error and msg
+ */
+inline void doError(int error, const char* msg)
+{
+    throw makeSystemError(error, msg);
+}
+inline void doError(int error, const std::string& msg)
+{
+    throw makeSystemError(error, msg.c_str());
+}
+
+/** @brief Turns errors into exceptions for the given error handler
+ *
+ *  @param[in] error - The numeric system error code
+ *  @param[in] fun   - the function used to throw the error
+ */
+template <typename Fun>
+inline std::enable_if_t<std::is_invocable_v<Fun, int>, void> doError(int error,
+                                                                     Fun&& fun)
+{
+    fun(error);
 }
 
 /** @brief   Wraps common c style error handling for exception throwing

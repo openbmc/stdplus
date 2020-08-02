@@ -8,14 +8,12 @@ namespace stdplus
 namespace signal
 {
 
-using util::callCheckErrno;
-
 void block(int signum)
 {
     sigset_t set;
-    callCheckErrno("sigprocmask get", sigprocmask, SIG_BLOCK, nullptr, &set);
-    callCheckErrno("sigaddset", sigaddset, &set, signum);
-    callCheckErrno("sigprocmask set", sigprocmask, SIG_BLOCK, &set, nullptr);
+    CHECK_ERRNO(sigprocmask(SIG_BLOCK, nullptr, &set), "sigprocmask get");
+    CHECK_ERRNO(sigaddset(&set, signum), "sigaddset");
+    CHECK_ERRNO(sigprocmask(SIG_BLOCK, &set, nullptr), "sigprocmask set");
 }
 
 } // namespace signal
