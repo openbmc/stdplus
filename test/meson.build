@@ -22,6 +22,18 @@ gtests = [
   'util/string',
 ]
 
+if has_fd
+  gtests += [
+    'fd/convenience',
+    'fd/dupable',
+    'fd/managed',
+    'fd/impl',
+    'fd/mock',
+  ]
+else
+  warning('Not testing file descriptor feature')
+endif
+
 foreach t : gtests
   test(t, executable(t.underscorify(), t + '.cpp',
                      build_by_default: false,
