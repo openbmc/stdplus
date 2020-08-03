@@ -46,10 +46,36 @@ stdplus_deps = [
   span_dep,
 ]
 
+has_fd = false
+if not get_option('fd').disabled() and has_span
+  has_fd = true
+
+  fd_srcs = [
+    'stdplus/fd/create.cpp',
+    'stdplus/fd/dupable.cpp',
+    'stdplus/fd/impl.cpp',
+    'stdplus/fd/managed.cpp',
+    'stdplus/fd/ops.cpp',
+  ]
+
+  install_headers(
+    'stdplus/fd/create.hpp',
+    'stdplus/fd/dupable.hpp',
+    'stdplus/fd/gmock.hpp',
+    'stdplus/fd/impl.hpp',
+    'stdplus/fd/intf.hpp',
+    'stdplus/fd/managed.hpp',
+    'stdplus/fd/ops.hpp',
+    subdir: 'stdplus/fd')
+elif get_option('fd').enabled()
+  error('File descriptor support required')
+endif
+
 stdplus_lib = library(
   'stdplus',
   'stdplus/exception.cpp',
   'stdplus/signal.cpp',
+  fd_srcs,
   include_directories: stdplus_headers,
   implicit_include_directories: false,
   dependencies: stdplus_deps,
@@ -77,6 +103,7 @@ import('pkgconfig').generate(
 
 install_headers(
   'stdplus/exception.hpp',
+  'stdplus/flags.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
   'stdplus/types.hpp',
