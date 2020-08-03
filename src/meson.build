@@ -49,6 +49,11 @@ stdplus_deps = [
 stdplus_lib = library(
   'stdplus',
   'stdplus/exception.cpp',
+  'stdplus/fd/create.cpp',
+  'stdplus/fd/dupable.cpp',
+  'stdplus/fd/impl.cpp',
+  'stdplus/fd/intf.cpp',
+  'stdplus/fd/managed.cpp',
   'stdplus/signal.cpp',
   include_directories: stdplus_headers,
   implicit_include_directories: false,
@@ -81,6 +86,14 @@ install_headers(
   'stdplus/signal.hpp',
   'stdplus/types.hpp',
   subdir: 'stdplus')
+
+install_headers(
+  'stdplus/fd/create.hpp',
+  'stdplus/fd/dupable.hpp',
+  'stdplus/fd/impl.hpp',
+  'stdplus/fd/intf.hpp',
+  'stdplus/fd/managed.hpp',
+  subdir: 'stdplus/fd')
 
 install_headers(
   'stdplus/handle/copyable.hpp',
