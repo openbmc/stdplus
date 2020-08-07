@@ -3,6 +3,7 @@ stdplus_headers = [include_directories('.')]
 install_headers(
   'stdplus/cancel.hpp',
   'stdplus/concepts.hpp',
+  'stdplus/debug/lifetime.hpp',
   'stdplus/exception.hpp',
   'stdplus/flags.hpp',
   'stdplus/function_view.hpp',
