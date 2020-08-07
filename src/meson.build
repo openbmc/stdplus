@@ -43,6 +43,7 @@ stdplus_deps = [
 
 stdplus_srcs = [
   'cancel.cpp',
+  'debug/lifetime.cpp',
   'exception.cpp',
   'flags.cpp',
   'function_view.cpp',
