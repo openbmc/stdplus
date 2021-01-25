@@ -65,15 +65,14 @@ stdplus = declare_dependency(
 stdplus_reqs = []
 foreach dep : stdplus_deps
   if dep.type_name() == 'pkgconfig'
-	stdplus_reqs += dep
+    stdplus_reqs += dep
   endif
 endforeach
 
 import('pkgconfig').generate(
-  name: 'stdplus',
+  stdplus_lib,
   description: 'C++ helper utilities',
   version: meson.project_version(),
-  libraries: stdplus,
   requires: stdplus_reqs)
 
 install_headers(
