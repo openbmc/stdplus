@@ -47,7 +47,7 @@ inline constexpr bool hasData<T, std::void_t<dataType<T>>> = true;
  *  @return True if they are the same, false otherwise
  */
 template <typename A, typename B>
-bool equal(const A& a, const B& b)
+bool equal(const A& a, const B& b) noexcept
 {
     static_assert(std::is_trivially_copyable_v<A>);
     static_assert(std::is_trivially_copyable_v<B>);
