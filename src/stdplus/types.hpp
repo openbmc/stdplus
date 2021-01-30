@@ -1,8 +1,6 @@
 #pragma once
-#if defined(__cpp_lib_span) && __cpp_lib_span >= 202002L
-#include <span>
-#define STDPLUS_SPAN_TYPE std::span
-#elif __has_include(<nonstd/span.hpp>)
+#if __has_include(<nonstd/span.hpp>)
+#define span_CONFIG_SELECT_SPAN span_SPAN_NONSTD
 #include <nonstd/span.hpp>
 #define STDPLUS_SPAN_TYPE nonstd::span
 #endif

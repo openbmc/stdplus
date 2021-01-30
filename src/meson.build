@@ -15,29 +15,19 @@ endif
 
 # span-lite might not have a pkg-config. It is header only so just make
 # sure we can access the needed symbols from the header.
-span_dep = dependency('', required: false)
+span_dep = dependency('span-lite', required: false)
 has_span = meson.get_compiler('cpp').has_header_symbol(
-  'span',
-  'std::dynamic_extent',
+  'nonstd/span.hpp',
+  'nonstd::dynamic_extent',
   dependencies: span_dep,
   required: false)
 if not has_span
-  span_dep = dependency('span-lite', required: false)
-  has_span = meson.get_compiler('cpp').has_header_symbol(
-    'nonstd/span.hpp',
-    'nonstd::dynamic_extent',
-    dependencies: span_dep,
+  span_lite_proj = import('cmake').subproject(
+    'span-lite',
     required: false)
-  if not has_span
-    span_lite_proj = import('cmake').subproject(
-      'span-lite',
-      cmake_options: [
-      ],
-      required: false)
-    if span_lite_proj.found()
-      span_dep = span_lite_proj.dependency('span-lite')
-      has_span = true
-    endif
+  if span_lite_proj.found()
+    span_dep = span_lite_proj.dependency('span-lite')
+    has_span = true
   endif
 endif
 
