@@ -36,24 +36,28 @@ if gtest.found() and gmock.found()
   endforeach
 endif
 
-# catch2 might not have a pkg-config. It is header only so just make
-# sure we can access the needed symbols from the header.
-catch2_dep = dependency('Catch2', required: false)
-has_catch2 = meson.get_compiler('cpp').has_header_symbol(
-  'catch2/catch.hpp',
-  'Approx',
-  dependencies: catch2_dep,
-  required: false)
-if not has_catch2
+# Switch to `catch2-with-main.pc` when 2.x supports it
+catch2 = dependency('catch2', required: false)
+if catch2.found()
+  catch2 = declare_dependency(
+    dependencies: [
+      catch2,
+      meson.get_compiler('cpp').find_library('Catch2WithMain'),
+    ])
+else
   catch2_proj = import('cmake').subproject(
     'Catch2',
     cmake_options: [
-      '-DBUILD_TESTING=OFF'
+      '-DBUILD_TESTING=OFF',
+      '-DCMAKE_CXX_FLAGS=-Wno-non-virtual-dtor',
     ],
     required: false)
   if catch2_proj.found()
-    catch2_dep = catch2_proj.dependency('Catch2')
-    has_catch2 = true
+    catch2 = declare_dependency(
+      dependencies: [
+        catch2_proj.dependency('Catch2'),
+        catch2_proj.dependency('Catch2WithMain'),
+      ])
   else
     assert(not build_tests.enabled(), 'Catch2 is required')
   endif
@@ -64,18 +68,11 @@ catch2_tests = [
   'raw',
 ]
 
-if has_catch2
-  libcatch2 = static_library(
-    'catch2', 'catch2_main.cpp',
-    implicit_include_directories: false,
-    build_by_default: false,
-    dependencies: catch2_dep)
-
+if catch2.found()
   foreach t : catch2_tests
     test(t, executable(t.underscorify(), t + '.cpp',
                        build_by_default: false,
                        implicit_include_directories: false,
-                       link_with: libcatch2,
-                       dependencies: [stdplus, span_dep, catch2_dep]))
+                       dependencies: [stdplus, span_dep, catch2]))
   endforeach
 endif
