@@ -1,5 +1,9 @@
 #include <array>
+#if __has_include(<catch2/catch.hpp>)
 #include <catch2/catch.hpp>
+#else
+#include <catch2/catch_test_macros.hpp>
+#endif
 #include <endian.h>
 #include <stdexcept>
 #include <stdplus/raw.hpp>
