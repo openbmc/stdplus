@@ -45,7 +45,7 @@ if gtest.found() and gmock.found()
     test(t, executable(t.underscorify(), t + '.cpp',
                        build_by_default: false,
                        implicit_include_directories: false,
-                       dependencies: [stdplus, gtest, gmock]))
+                       dependencies: [stdplus_dep, gtest, gmock]))
   endforeach
 endif
 
@@ -102,6 +102,6 @@ if catch2.found()
     test(t, executable(t.underscorify(), t + '.cpp',
                        build_by_default: false,
                        implicit_include_directories: false,
-                       dependencies: [stdplus, span_dep, catch2]))
+                       dependencies: [stdplus_dep, catch2]))
   endforeach
 endif

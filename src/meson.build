@@ -72,7 +72,7 @@ stdplus_lib = library(
   version: meson.project_version(),
   install: true)
 
-stdplus = declare_dependency(
+stdplus_dep = declare_dependency(
   dependencies: stdplus_deps,
   include_directories: stdplus_headers,
   link_with: stdplus_lib)
