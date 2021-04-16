@@ -2,12 +2,14 @@ stdplus_headers = include_directories('.')
 
 fmt_dep = dependency('fmt', required: false)
 if not fmt_dep.found()
+  fmt_opts = import('cmake').subproject_options()
+  fmt_opts.add_cmake_defines({
+    'CMAKE_POSITION_INDEPENDENT_CODE': 'ON',
+    'MASTER_PROJECT': 'OFF',
+  })
   fmt_proj = import('cmake').subproject(
     'fmt',
-    cmake_options: [
-      '-DCMAKE_POSITION_INDEPENDENT_CODE=ON',
-      '-DMASTER_PROJECT=OFF'
-    ],
+    options: fmt_opts,
     required: false)
   assert(fmt_proj.found(), 'fmtlib is required')
   fmt_dep = fmt_proj.dependency('fmt')

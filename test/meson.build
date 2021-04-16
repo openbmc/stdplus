@@ -1,11 +1,11 @@
 gtest = dependency('gtest', main: true, disabler: true, required: false)
 gmock = dependency('gmock', disabler: true, required: false)
 if not gtest.found() or not gmock.found()
+  gtest_opts = import('cmake').subproject_options()
+  gtest_opts.add_cmake_defines({'CMAKE_CXX_FLAGS': '-Wno-pedantic'})
   gtest_proj = import('cmake').subproject(
     'googletest',
-    cmake_options: [
-      '-DCMAKE_CXX_FLAGS=-Wno-pedantic',
-    ],
+    options: gtest_opts,
     required: false)
   if gtest_proj.found()
     gtest = declare_dependency(
@@ -74,12 +74,14 @@ if not catch2.found()
   endif
 endif
 if not catch2.found()
+  catch2_opts = import('cmake').subproject_options()
+  catch2_opts.add_cmake_defines({
+    'BUILD_TESTING': 'OFF',
+    'CMAKE_CXX_FLAGS': '-Wno-non-virtual-dtor',
+  })
   catch2_proj = import('cmake').subproject(
     'Catch2',
-    cmake_options: [
-      '-DBUILD_TESTING=OFF',
-      '-DCMAKE_CXX_FLAGS=-Wno-non-virtual-dtor',
-    ],
+    options: catch2_opts,
     required: false)
   if catch2_proj.found()
     catch2 = declare_dependency(
