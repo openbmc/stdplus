@@ -27,6 +27,16 @@ gtests = [
   'util/string',
 ]
 
+if has_dl
+  gtests += [
+    'dl',
+  ]
+elif build_tests.enabled()
+  error('Not testing libdl feature')
+else
+  warning('Not testing libdl feature')
+endif
+
 if has_fd
   gtests += [
     'fd/dupable',
