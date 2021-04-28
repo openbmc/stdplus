@@ -36,6 +36,8 @@ if has_fd
     'fd/mock',
     'fd/ops',
   ]
+elif build_tests.enabled()
+  error('Not testing file descriptor feature')
 else
   warning('Not testing file descriptor feature')
 endif

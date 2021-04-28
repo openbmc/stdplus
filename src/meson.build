@@ -38,11 +38,16 @@ stdplus_deps = [
   span_dep,
 ]
 
+stdplus_srcs = [
+  'stdplus/exception.cpp',
+  'stdplus/signal.cpp',
+]
+
 has_fd = false
 if not get_option('fd').disabled() and has_span
   has_fd = true
 
-  fd_srcs = [
+  stdplus_srcs += [
     'stdplus/fd/create.cpp',
     'stdplus/fd/dupable.cpp',
     'stdplus/fd/impl.cpp',
@@ -65,9 +70,7 @@ endif
 
 stdplus_lib = library(
   'stdplus',
-  'stdplus/exception.cpp',
-  'stdplus/signal.cpp',
-  fd_srcs,
+  stdplus_srcs,
   include_directories: stdplus_headers,
   implicit_include_directories: false,
   dependencies: stdplus_deps,
