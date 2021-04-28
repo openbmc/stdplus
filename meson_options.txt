@@ -1,3 +1,4 @@
+option('dl', type: 'feature', description: 'libdl wrapper support')
 option('fd', type: 'feature', description: 'Managed file descriptor support')
 option('io_uring', type: 'feature', description: 'io_uring wrapper support')
 option('tests', type: 'feature', description: 'Build tests')

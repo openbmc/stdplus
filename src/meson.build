@@ -43,6 +43,30 @@ stdplus_srcs = [
   'stdplus/signal.cpp',
 ]
 
+has_dl = false
+if not get_option('dl').disabled()
+  dl_dep = meson.get_compiler('cpp').find_library('dl', required: false)
+  has_dl = meson.get_compiler('cpp').links('
+    #include <dlfcn.h>
+    int main() { dlopen("", 0); }
+  ', dependencies: dl_dep)
+endif
+if has_dl
+  stdplus_deps += [
+    dl_dep,
+  ]
+
+  stdplus_srcs += [
+    'stdplus/dl.cpp',
+  ]
+
+  install_headers(
+    'stdplus/dl.hpp',
+    subdir: 'stdplus')
+elif get_option('dl').enabled()
+  error('libdl support required')
+endif
+
 has_fd = false
 if not get_option('fd').disabled() and has_span
   has_fd = true
