@@ -1,5 +1,19 @@
 #include <stdplus/exception.hpp>
 
+// These will only be used if the compiler doesn't support them
+int __builtin_LINE()
+{
+    return -1;
+}
+const char* __builtin_FILE()
+{
+    return "<unknown>";
+}
+const char* __builtin_FUNCTION()
+{
+    return "<unknown>";
+}
+
 namespace stdplus
 {
 namespace exception
