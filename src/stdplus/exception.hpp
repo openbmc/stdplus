@@ -25,7 +25,8 @@ struct Eof : public std::system_error
     Eof(const std::string& what);
 };
 
-auto ignore(auto&& f, const char* file = __builtin_FILE(),
+template <typename F>
+auto ignore(F&& f, const char* file = __builtin_FILE(),
             int line = __builtin_LINE(),
             const char* func = __builtin_FUNCTION())
 {
