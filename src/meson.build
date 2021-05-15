@@ -20,7 +20,7 @@ endif
 span_dep = dependency('span-lite', required: false)
 has_span = meson.get_compiler('cpp').has_header_symbol(
   'nonstd/span.hpp',
-  'nonstd::dynamic_extent',
+  'nonstd::span<int>',
   dependencies: span_dep,
   required: false)
 if not has_span
