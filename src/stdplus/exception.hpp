@@ -53,5 +53,24 @@ auto ignore(F&& f, const char* file = __builtin_FILE(),
     };
 }
 
+template <typename F>
+auto ignoreQuiet(F&& f) noexcept
+{
+    return [f = std::move(f)](auto&&... args) mutable noexcept {
+        try
+        {
+            return f(std::forward<decltype(args)>(args)...);
+        }
+        catch (...)
+        {
+        }
+        using Ret = std::invoke_result_t<decltype(f), decltype(args)...>;
+        if constexpr (!std::is_same_v<void, Ret>)
+        {
+            return Ret();
+        }
+    };
+}
+
 } // namespace exception
 } // namespace stdplus
