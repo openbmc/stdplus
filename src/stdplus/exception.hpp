@@ -28,29 +28,30 @@ struct Eof : public std::system_error
 template <typename F>
 auto ignore(F&& f, const char* file = __builtin_FILE(),
             int line = __builtin_LINE(),
-            const char* func = __builtin_FUNCTION())
+            const char* func = __builtin_FUNCTION()) noexcept
 {
-    return [f = std::move(f), file, line, func](auto&&... args) mutable {
-        try
-        {
-            return f(std::forward<decltype(args)>(args)...);
-        }
-        catch (const std::exception& e)
-        {
-            fmt::print(stderr, "Ignoring({}:{} {}): {}\n", file, line, func,
-                       e.what());
-        }
-        catch (...)
-        {
-            fmt::print(stderr, "Ignoring({}:{} {}): Invalid Error\n", file,
-                       line, func);
-        }
-        using Ret = std::invoke_result_t<decltype(f), decltype(args)...>;
-        if constexpr (!std::is_same_v<void, Ret>)
-        {
-            return Ret();
-        }
-    };
+    return
+        [f = std::move(f), file, line, func](auto&&... args) mutable noexcept {
+            try
+            {
+                return f(std::forward<decltype(args)>(args)...);
+            }
+            catch (const std::exception& e)
+            {
+                fmt::print(stderr, "Ignoring({}:{} {}): {}\n", file, line, func,
+                           e.what());
+            }
+            catch (...)
+            {
+                fmt::print(stderr, "Ignoring({}:{} {}): Invalid Error\n", file,
+                           line, func);
+            }
+            using Ret = std::invoke_result_t<decltype(f), decltype(args)...>;
+            if constexpr (!std::is_same_v<void, Ret>)
+            {
+                return Ret();
+            }
+        };
 }
 
 } // namespace exception
