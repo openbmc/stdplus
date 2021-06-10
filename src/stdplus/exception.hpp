@@ -28,9 +28,9 @@ struct Eof : public std::system_error
 template <typename F>
 auto ignore(F&& f, const char* file = __builtin_FILE(),
             int line = __builtin_LINE(),
-            const char* func = __builtin_FUNCTION())
+            const char* func = __builtin_FUNCTION()) noexcept
 {
-    return [f = std::move(f), file, line, func](auto&&... args) mutable {
+    return [f = std::move(f), file, line, func](auto&&... args) mutable noexcept {
         try
         {
             return f(std::forward<decltype(args)>(args)...);
