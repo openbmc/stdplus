@@ -19,5 +19,11 @@ TEST(Exception, IgnoreNoError)
                      std::move(y)));
 }
 
+TEST(Exception, IgnoreQuiet)
+{
+    ignoreQuiet([] {})();
+    ignoreQuiet([]() mutable { throw std::runtime_error("Boom"); })();
+}
+
 } // namespace exception
 } // namespace stdplus
