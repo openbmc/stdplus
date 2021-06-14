@@ -96,6 +96,7 @@ import('pkgconfig').generate(
   requires: stdplus_reqs)
 
 install_headers(
+  'stdplus/cancel.hpp',
   'stdplus/exception.hpp',
   'stdplus/flags.hpp',
   'stdplus/raw.hpp',
