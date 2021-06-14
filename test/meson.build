@@ -21,6 +21,7 @@ if not gtest.found() or not gmock.found()
 endif
 
 gtests = [
+  'cancel',
   'exception',
   'handle/copyable',
   'handle/managed',
