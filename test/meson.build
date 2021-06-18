@@ -44,6 +44,16 @@ else
   warning('Not testing file descriptor feature')
 endif
 
+if has_io_uring
+  gtests += [
+    'io_uring',
+  ]
+elif build_tests.enabled()
+  error('Not testing io_uring feature')
+else
+  warning('Not testing io_uring feature')
+endif
+
 if gtest.found() and gmock.found()
   foreach t : gtests
     test(t, executable(t.underscorify(), t + '.cpp',

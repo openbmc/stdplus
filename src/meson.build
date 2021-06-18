@@ -68,6 +68,26 @@ elif get_option('fd').enabled()
   error('File descriptor support required')
 endif
 
+io_uring_dep = dependency('liburing', required: get_option('io_uring'))
+has_io_uring = false
+if not get_option('io_uring').disabled() and has_fd and io_uring_dep.found()
+  has_io_uring = true
+
+  stdplus_deps += [
+    io_uring_dep,
+  ]
+
+  stdplus_srcs += [
+    'stdplus/io_uring.cpp',
+  ]
+
+  install_headers(
+    'stdplus/io_uring.hpp',
+    subdir: 'stdplus')
+elif get_option('io_uring').enabled()
+  error('File descriptor support required')
+endif
+
 stdplus_lib = library(
   'stdplus',
   stdplus_srcs,
