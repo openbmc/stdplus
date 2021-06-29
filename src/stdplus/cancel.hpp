@@ -12,6 +12,10 @@ struct Cancelable
     virtual ~Cancelable() = default;
     virtual void cancel() noexcept = 0;
 };
+
+namespace detail
+{
+
 struct CancelableF
 {
     inline void operator()(Cancelable* c) noexcept
@@ -19,7 +23,20 @@ struct CancelableF
         c->cancel();
     }
 };
-using Cancel = stdplus::Managed<Cancelable*>::HandleF<CancelableF>;
+
+using CancelHandle = stdplus::Managed<Cancelable*>::HandleF<CancelableF>;
+
+} // namespace detail
+
+struct Cancel : detail::CancelHandle
+{
+    Cancel() : detail::CancelHandle(std::nullopt)
+    {
+    }
+    Cancel(Cancelable* c) : detail::CancelHandle(c)
+    {
+    }
+};
 
 namespace detail
 {
