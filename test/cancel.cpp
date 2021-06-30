@@ -21,9 +21,20 @@ TEST(CancelTest, Cancel)
     EXPECT_EQ(c.count, 0);
     {
         Cancel cancel(&c);
+        EXPECT_TRUE(cancel);
+        Cancel cancel2(std::move(cancel));
+        EXPECT_FALSE(cancel);
+        EXPECT_TRUE(cancel2);
         EXPECT_EQ(c.count, 0);
     }
     EXPECT_EQ(c.count, 1);
+}
+
+TEST(CancelTest, EmptyCancel)
+{
+    Cancel cancel, cancel2(std::nullopt);
+    EXPECT_FALSE(cancel);
+    EXPECT_FALSE(cancel2);
 }
 
 TEST(CancelTest, AlwaysCallOnceLambda)

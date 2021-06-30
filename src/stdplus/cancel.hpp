@@ -33,7 +33,8 @@ struct Cancel : detail::CancelHandle
     Cancel() : detail::CancelHandle(std::nullopt)
     {
     }
-    explicit Cancel(Cancelable* c) : detail::CancelHandle(c)
+    template <typename T>
+    explicit Cancel(T&& t) : detail::CancelHandle(t)
     {
     }
 };
