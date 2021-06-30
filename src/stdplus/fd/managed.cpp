@@ -20,6 +20,10 @@ void drop(int&& fd)
 
 } // namespace detail
 
+ManagedFd::ManagedFd() noexcept : handle(std::nullopt)
+{
+}
+
 ManagedFd::ManagedFd(int&& fd) : handle(std::move(fd))
 {
     fd::setFdFlags(*this, fd::getFdFlags(*this).set(fd::FdFlag::CloseOnExec));

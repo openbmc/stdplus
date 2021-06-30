@@ -28,6 +28,9 @@ class DupableFd;
 class ManagedFd : public FdImpl
 {
   public:
+    /** @brief Constructs an empty file descriptor */
+    ManagedFd() noexcept;
+
     /** @brief Holds the input file descriptor
      *         Becomes the sole owner of the file descriptor
      *

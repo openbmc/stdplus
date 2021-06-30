@@ -23,6 +23,9 @@ using DupableFdHandle = Copyable<int>::Handle<drop, ref>;
 class DupableFd : public FdImpl
 {
   public:
+    /** @brief Constructs an empty file descriptor */
+    DupableFd() noexcept;
+
     /** @brief Duplicates and holds a file descriptor
      *         Does not automatically close the input descriptor
      *

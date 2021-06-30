@@ -18,6 +18,10 @@ int ref(const int& fd)
 
 } // namespace detail
 
+DupableFd::DupableFd() noexcept : handle(std::nullopt)
+{
+}
+
 DupableFd::DupableFd(const int& fd) : handle(fd)
 {
 }
