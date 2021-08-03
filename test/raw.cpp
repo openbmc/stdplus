@@ -231,7 +231,14 @@ TEST_CASE("As Span Arr const", "[AsSpan]")
 
 TEST_CASE("As Span", "[AsSpan]")
 {
-    uint64_t data = htole64(0xffff0000);
+    struct
+    {
+        uint64_t a;
+        uint64_t* data()
+        {
+            return &a;
+        }
+    } data = {htole64(0xffff0000)};
     auto s = asSpan<uint16_t>(data);
     CHECK(s.size() == 4);
     s[2] = 0xfefe;

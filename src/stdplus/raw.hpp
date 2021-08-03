@@ -19,6 +19,12 @@ template <typename Container>
 using dataType = std::remove_pointer_t<decltype(
     std::data(std::declval<std::add_lvalue_reference_t<Container>>()))>;
 
+/** @brief Gets the sizetype referenced in a container
+ */
+template <typename Container>
+using sizeType =
+    decltype(std::size(std::declval<std::add_lvalue_reference_t<Container>>()));
+
 /** @brief Determines if the container holds trivially copyable data
  */
 template <typename Container>
@@ -36,7 +42,7 @@ using copyConst =
 template <typename, typename = void>
 inline constexpr bool hasData = false;
 template <typename T>
-inline constexpr bool hasData<T, std::void_t<dataType<T>>> = true;
+inline constexpr bool hasData<T, std::void_t<dataType<T>, sizeType<T>>> = true;
 
 } // namespace detail
 
