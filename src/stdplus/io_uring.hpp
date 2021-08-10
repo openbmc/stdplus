@@ -1,4 +1,5 @@
 #pragma once
+
 #include <liburing.h>
 
 #include <stdplus/fd/managed.hpp>
@@ -24,12 +25,19 @@ class IoUring
         virtual void handleCQE(io_uring_cqe&) noexcept = 0;
     };
 
-    explicit IoUring(size_t queue_size = 10);
+    typedef io_uring_params Params;
+
+    explicit IoUring(size_t queue_size = 10, Params* params = nullptr);
     IoUring(IoUring&&) = delete;
     IoUring& operator=(IoUring&&) = delete;
     IoUring(const IoUring&) = delete;
     IoUring& operator=(const IoUring&) = delete;
     ~IoUring();
+
+    /** @brief Flag constants. */
+    static constexpr auto SETUP_SQPOLL = IORING_SETUP_SQPOLL;
+    static constexpr auto SQ_NEED_WAKEUP = IORING_SQ_NEED_WAKEUP;
+    static constexpr auto REGISTER_FILES = IORING_REGISTER_FILES;
 
     /** @brief Gets an unused SQE from the ring
      *
@@ -72,6 +80,26 @@ class IoUring
      *         Should be used instead of process() to clear eventFd events.
      */
     void processEvents();
+
+    /**
+     * @brief Register file descriptors to be used in subsequent ring
+     * operations.
+     * @param[in] files - Pointer to an array of file descriptors.
+     * @param[in] num - Number of file descriptors in the array.
+     */
+    void registerFiles(const int* files, unsigned num);
+
+    /**
+     * @brief Update the set of file descriptors registered.
+     * @param[in] off - Offset in the original file descriptors array to update
+     * from.
+     * @param[in] files - Array of new file descriptors.
+     * @param[in] num - Number of file descriptors in the new array.
+     */
+    void registerFilesUpdate(unsigned off, int* files, unsigned num);
+
+    /** @brief Unregister any registered file descriptors. */
+    void unregisterFiles();
 
   private:
     io_uring ring;
