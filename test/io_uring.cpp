@@ -30,7 +30,7 @@ class IoUringTest : public testing::Test
         io_uring_queue_exit(&r);
     }
     std::array<testing::StrictMock<MockHandler>, 2> h;
-    IoUring ring;
+    IoUring ring = {};
 };
 
 TEST_F(IoUringTest, NullHandler)
