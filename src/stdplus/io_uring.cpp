@@ -1,4 +1,6 @@
 #include <liburing.h>
+
+#include <linux/io_uring.h>
 #include <sys/eventfd.h>
 
 #include <stdplus/fd/managed.hpp>
@@ -11,9 +13,16 @@
 namespace stdplus
 {
 
-IoUring::IoUring(size_t queue_size)
+IoUring::IoUring(size_t queue_size, Params* params)
 {
-    CHECK_RET(io_uring_queue_init(queue_size, &ring, 0), "io_uring_queue_init");
+    Params p = {};
+    if (params == nullptr)
+    {
+        params = &p;
+    }
+
+    CHECK_RET(io_uring_queue_init_params(queue_size, &ring, params),
+              "io_uring_queue_init_params");
 }
 
 IoUring::~IoUring()
@@ -91,6 +100,23 @@ void IoUring::processEvents()
     {
         process();
     }
+}
+
+void IoUring::registerFiles(const int* files, unsigned num)
+{
+    CHECK_RET(io_uring_register_files(&ring, files, num),
+              "io_uring_register_files");
+}
+
+void IoUring::registerFilesUpdate(unsigned off, int* files, unsigned num)
+{
+    CHECK_RET(io_uring_register_files_update(&ring, off, files, num),
+              "io_uring_register_files_update");
+}
+
+void IoUring::unregisterFiles()
+{
+    CHECK_RET(io_uring_unregister_files(&ring), "io_uring_unregister_files");
 }
 
 void IoUring::dropHandler(CQEHandler* h, io_uring_cqe& cqe) noexcept
