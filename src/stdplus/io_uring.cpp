@@ -1,4 +1,6 @@
 #include <liburing.h>
+
+#include <linux/io_uring.h>
 #include <sys/eventfd.h>
 
 #include <stdplus/fd/managed.hpp>
@@ -14,6 +16,12 @@ namespace stdplus
 IoUring::IoUring(size_t queue_size)
 {
     CHECK_RET(io_uring_queue_init(queue_size, &ring, 0), "io_uring_queue_init");
+}
+
+IoUring::IoUring(size_t queue_size, io_uring_params* params)
+{
+    CHECK_RET(io_uring_queue_init_params(queue_size, &ring, params),
+              "io_uring_queue_init_params");
 }
 
 IoUring::~IoUring()

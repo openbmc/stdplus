@@ -1,4 +1,5 @@
 #pragma once
+
 #include <liburing.h>
 
 #include <stdplus/fd/managed.hpp>
@@ -25,6 +26,8 @@ class IoUring
     };
 
     explicit IoUring(size_t queue_size = 10);
+    explicit IoUring(size_t queue_size, io_uring_params* params);
+
     IoUring(IoUring&&) = delete;
     IoUring& operator=(IoUring&&) = delete;
     IoUring(const IoUring&) = delete;
