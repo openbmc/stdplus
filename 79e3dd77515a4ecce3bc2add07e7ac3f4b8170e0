@@ -94,6 +94,30 @@
       "revId": "79e3dd77515a4ecce3bc2add07e7ac3f4b8170e0",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f118b14_740535ad",
+        "filename": "src/stdplus/io_uring.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000388
+      },
+      "writtenOn": "2021-08-16T18:47:15Z",
+      "side": 1,
+      "message": "Sorry about that! Blindly assumed that the macro would return for some reason.",
+      "parentUuid": "b5161f13_b06ac063",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 5
+      },
+      "revId": "79e3dd77515a4ecce3bc2add07e7ac3f4b8170e0",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
