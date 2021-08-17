@@ -2,6 +2,7 @@
 #include <liburing.h>
 
 #include <stdplus/fd/managed.hpp>
+#include <stdplus/handle/managed.hpp>
 
 #include <optional>
 #include <vector>
@@ -24,12 +25,38 @@ class IoUring
         virtual void handleCQE(io_uring_cqe&) noexcept = 0;
     };
 
+    class FileHandle
+    {
+      public:
+        inline operator unsigned() const
+        {
+            return *slot;
+        }
+
+      private:
+        explicit FileHandle(unsigned slot, IoUring& ring);
+
+        static void drop(unsigned&& slot, IoUring*& ring);
+
+        Managed<unsigned, IoUring*>::Handle<drop> slot;
+
+        friend class IoUring;
+    };
+
     explicit IoUring(size_t queue_size = 10);
     IoUring(IoUring&&) = delete;
     IoUring& operator=(IoUring&&) = delete;
     IoUring(const IoUring&) = delete;
     IoUring& operator=(const IoUring&) = delete;
     ~IoUring();
+
+    /** @brief Registers a file descriptor with a slot on the ring
+     *
+     *  @param[in] fd - The file descriptor to register
+     *  @throws std::system_error if the allocation fails
+     *  @return A handle to the registered file on the ring
+     */
+    [[nodiscard]] FileHandle registerFile(int fd);
 
     /** @brief Gets an unused SQE from the ring
      *
@@ -77,8 +104,10 @@ class IoUring
     io_uring ring;
     std::optional<stdplus::ManagedFd> event_fd;
     std::vector<CQEHandler*> handlers;
+    std::vector<int> files;
 
     void dropHandler(CQEHandler* h, io_uring_cqe& cqe) noexcept;
+    void updateFile(unsigned slot, int fd);
 };
 
 } // namespace stdplus

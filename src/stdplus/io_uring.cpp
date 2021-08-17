@@ -27,6 +27,37 @@ IoUring::~IoUring()
     }
 }
 
+IoUring::FileHandle::FileHandle(unsigned slot, IoUring& ring) :
+    slot(slot, &ring)
+{
+}
+
+void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
+{
+    ring->updateFile(slot, -1);
+}
+
+[[nodiscard]] IoUring::FileHandle IoUring::registerFile(int fd)
+{
+    unsigned slot = 0;
+    for (; slot < files.size(); slot++)
+    {
+        if (files[slot] == -1)
+        {
+            updateFile(slot, fd);
+            return FileHandle(slot, *this);
+        }
+    }
+
+    io_uring_unregister_files(&ring);
+    files.reserve(files.size() + 1);
+    files.resize(files.capacity(), -1);
+    files[slot] = fd;
+    CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
+              "io_uring_register_files");
+    return FileHandle(slot, *this);
+}
+
 io_uring_sqe& IoUring::getSQE()
 {
     return *CHECK_ERRNO(io_uring_get_sqe(&ring), "io_uring_get_sqe");
@@ -106,6 +137,13 @@ void IoUring::dropHandler(CQEHandler* h, io_uring_cqe& cqe) noexcept
     }
     handlers.pop_back();
     h->handleCQE(cqe);
+}
+
+void IoUring::updateFile(unsigned slot, int fd)
+{
+    files[slot] = fd;
+    CHECK_RET(io_uring_register_files_update(&ring, slot, &files[slot], 1),
+              "io_uring_register_files_update");
 }
 
 } // namespace stdplus

@@ -131,4 +131,17 @@ TEST_F(IoUringTest, HandleCalledOnDestroy)
     EXPECT_CALL(h[0], handleCQE(_));
 }
 
+TEST_F(IoUringTest, RegisterFiles)
+{
+    // Slots are always allocated linearly and re-used if invalidated
+    std::optional<IoUring::FileHandle> h;
+    h = ring.registerFile(0);
+    EXPECT_EQ(*h, 0);
+    h = ring.registerFile(1);
+    EXPECT_EQ(*h, 1);
+    // The first handle should have dropped and can be replaced
+    h = ring.registerFile(2);
+    EXPECT_EQ(*h, 0);
+}
+
 } // namespace stdplus
