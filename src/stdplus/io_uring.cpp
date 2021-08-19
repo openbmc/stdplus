@@ -63,11 +63,7 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
         io_uring_unregister_files(&ring);
     }
 
-    unsigned addSize = currentSize == 0 ? 1 : currentSize;
-    for (unsigned i = 0; i < addSize; i++)
-    {
-        files.push_back(-1);
-    }
+    files.resize(currentSize == 0 ? 1 : currentSize * 2, -1);
 
     files[slot] = fd;
     CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
