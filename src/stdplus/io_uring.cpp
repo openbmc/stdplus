@@ -1,4 +1,5 @@
 #include <liburing.h>
+
 #include <sys/eventfd.h>
 
 #include <stdplus/fd/managed.hpp>
@@ -14,6 +15,12 @@ namespace stdplus
 IoUring::IoUring(size_t queue_size)
 {
     CHECK_RET(io_uring_queue_init(queue_size, &ring, 0), "io_uring_queue_init");
+}
+
+IoUring::IoUring(size_t queue_size, io_uring_params& params)
+{
+    CHECK_RET(io_uring_queue_init_params(queue_size, &ring, &params),
+              "io_uring_queue_init_params");
 }
 
 IoUring::~IoUring()
@@ -39,8 +46,10 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
 
 [[nodiscard]] IoUring::FileHandle IoUring::registerFile(int fd)
 {
+    unsigned currentSize = files.size();
+
     unsigned slot = 0;
-    for (; slot < files.size(); slot++)
+    for (; slot < currentSize; slot++)
     {
         if (files[slot] == -1)
         {
@@ -49,12 +58,21 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
         }
     }
 
-    io_uring_unregister_files(&ring);
-    files.reserve(files.size() + 1);
-    files.resize(files.capacity(), -1);
+    if (currentSize != 0)
+    {
+        io_uring_unregister_files(&ring);
+    }
+
+    unsigned addSize = currentSize == 0 ? 1 : currentSize;
+    for (unsigned i = 0; i < addSize; i++)
+    {
+        files.push_back(-1);
+    }
+
     files[slot] = fd;
     CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
               "io_uring_register_files");
+
     return FileHandle(slot, *this);
 }
 
