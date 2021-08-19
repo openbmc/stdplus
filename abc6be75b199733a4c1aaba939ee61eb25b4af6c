@@ -1,0 +1,9 @@
+Ok-To-Test+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+1: Jerry Z. <jzhu379@gmail.com>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Submitted-by: William A. Kennington III <wak@google.com>
+Submitted-at: Thu, 19 Aug 2021 01:24:22 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/stdplus/+/45945
+Project: openbmc/stdplus
+Branch: refs/heads/master
