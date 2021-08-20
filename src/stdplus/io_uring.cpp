@@ -20,9 +20,10 @@ __kernel_timespec chronoToKTS(std::chrono::nanoseconds t) noexcept
     return ts;
 }
 
-IoUring::IoUring(size_t queue_size)
+IoUring::IoUring(size_t queue_size, int flags)
 {
-    CHECK_RET(io_uring_queue_init(queue_size, &ring, 0), "io_uring_queue_init");
+    CHECK_RET(io_uring_queue_init(queue_size, &ring, flags),
+              "io_uring_queue_init");
 }
 
 IoUring::IoUring(size_t queue_size, io_uring_params& params)

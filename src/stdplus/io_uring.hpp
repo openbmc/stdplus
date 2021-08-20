@@ -48,7 +48,7 @@ class IoUring
         friend class IoUring;
     };
 
-    explicit IoUring(size_t queue_size = 10);
+    explicit IoUring(size_t queue_size = 10, int flags = 0);
     explicit IoUring(size_t queue_size, io_uring_params& params);
 
     IoUring(IoUring&&) = delete;
