@@ -179,13 +179,16 @@ TEST_F(IoUringTest, RegisterFiles)
 
     // Slots are always allocated linearly and re-used if invalidated
     fh = ring.registerFile(0);
+    EXPECT_GT(ring.getFiles().size(), 1);
     EXPECT_EQ(*fh, 0);
     fh = ring.registerFile(1);
     EXPECT_EQ(*fh, 1);
+    EXPECT_EQ(ring.getFiles()[1], 1);
 
     // The first handle should have dropped and can be replaced
     fh = ring.registerFile(2);
     EXPECT_EQ(*fh, 0);
+    EXPECT_EQ(ring.getFiles()[0], 2);
 
     // We should be able to write to stderr via the fixed file and regular fd
     testFdWrite(2, 0);
@@ -197,11 +200,18 @@ TEST_F(IoUringTest, RegisterFiles)
     testFdWrite(*fh, IOSQE_FIXED_FILE, -EBADF);
 
     std::vector<IoUring::FileHandle> fhs;
-    for (size_t i = 0; i < 10; ++i)
+    EXPECT_LT(ring.getFiles().size(), 9);
+    ring.reserveFiles(9);
+    EXPECT_EQ(ring.getFiles().size(), 9);
+    for (size_t i = 0; i < 9; ++i)
     {
         fhs.emplace_back(ring.registerFile(2));
         testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
     }
+    EXPECT_EQ(ring.getFiles().size(), 9);
+    fhs.emplace_back(ring.registerFile(2));
+    testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
+    EXPECT_GE(ring.getFiles().size(), 10);
 }
 
 } // namespace stdplus

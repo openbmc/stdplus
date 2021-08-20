@@ -57,6 +57,13 @@ class IoUring
     IoUring& operator=(const IoUring&) = delete;
     ~IoUring();
 
+    /** @brief Reserves an additional number of file descriptor slots
+     *
+     *  @param[in] num - The number of slots to register
+     *  @throws std::system_error if the allocation fails
+     */
+    void reserveFiles(size_t num);
+
     /** @brief Registers a file descriptor with a slot on the ring
      *
      *  @param[in] fd - The file descriptor to register
@@ -64,6 +71,13 @@ class IoUring
      *  @return A handle to the registered file on the ring
      */
     [[nodiscard]] FileHandle registerFile(int fd);
+
+    /** @brief Get current list of files descriptors registered on the ring.
+     * Note this view potentially expires when registrations change. */
+    inline stdplus::span<const int> getFiles() const noexcept
+    {
+        return files;
+    }
 
     /** @brief Gets an unused SQE from the ring
      *
@@ -116,8 +130,10 @@ class IoUring
     std::optional<stdplus::ManagedFd> event_fd;
     std::vector<CQEHandler*> handlers;
     std::vector<int> files;
+    size_t filesAllocated = 0;
 
     void dropHandler(CQEHandler* h, io_uring_cqe& cqe) noexcept;
+    void setFile(unsigned slot, int fd) noexcept;
     void updateFile(unsigned slot, int fd);
 };
 
