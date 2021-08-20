@@ -65,8 +65,7 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
     }
 
     io_uring_unregister_files(&ring);
-    files.reserve(files.size() + 1);
-    files.resize(files.capacity(), -1);
+    files.resize(std::max<size_t>(7, files.size() * 2 + 1), -1);
     files[slot] = fd;
     CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
               "io_uring_register_files");
