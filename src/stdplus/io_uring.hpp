@@ -33,7 +33,7 @@ class IoUring
     class FileHandle
     {
       public:
-        inline operator unsigned() const
+        inline operator int() const
         {
             return *slot;
         }
