@@ -2,7 +2,9 @@
 
 #include <array>
 #include <chrono>
+#include <optional>
 #include <stdplus/io_uring.hpp>
+#include <string_view>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -43,6 +45,23 @@ class IoUringTest : public testing::Test
     }
     std::array<testing::StrictMock<MockHandler>, 2> h;
     IoUring ring;
+
+    void testFdWrite(int fd, int flags,
+                     std::optional<int> expected_res = std::nullopt)
+    {
+        auto& sqe = ring.getSQE();
+        std::string_view data = "Test\n";
+        io_uring_prep_write(&sqe, fd, data.data(), data.size(), 0);
+        sqe.flags |= flags;
+        ring.setHandler(sqe, &h[0]);
+        ring.submit();
+        ring.wait();
+        EXPECT_CALL(h[0], handleCQE(_)).WillOnce([&](io_uring_cqe& cqe) {
+            EXPECT_EQ(cqe.res, expected_res.value_or(data.size()));
+        });
+        ring.process();
+        testing::Mock::VerifyAndClearExpectations(&h[0]);
+    }
 };
 
 TEST_F(IoUringTest, NullHandler)
@@ -156,15 +175,33 @@ TEST_F(IoUringTest, HandleCalledOnDestroy)
 
 TEST_F(IoUringTest, RegisterFiles)
 {
+    std::optional<IoUring::FileHandle> fh;
+
     // Slots are always allocated linearly and re-used if invalidated
-    std::optional<IoUring::FileHandle> h;
-    h = ring.registerFile(0);
-    EXPECT_EQ(*h, 0);
-    h = ring.registerFile(1);
-    EXPECT_EQ(*h, 1);
+    fh = ring.registerFile(0);
+    EXPECT_EQ(*fh, 0);
+    fh = ring.registerFile(1);
+    EXPECT_EQ(*fh, 1);
+
     // The first handle should have dropped and can be replaced
-    h = ring.registerFile(2);
-    EXPECT_EQ(*h, 0);
+    fh = ring.registerFile(2);
+    EXPECT_EQ(*fh, 0);
+
+    // We should be able to write to stderr via the fixed file and regular fd
+    testFdWrite(2, 0);
+    testFdWrite(*fh, IOSQE_FIXED_FILE);
+
+    // Without registration we should only be able to write to the regular fd
+    fh.reset();
+    testFdWrite(2, 0);
+    testFdWrite(*fh, IOSQE_FIXED_FILE, -EBADF);
+
+    std::vector<IoUring::FileHandle> fhs;
+    for (size_t i = 0; i < 10; ++i)
+    {
+        fhs.emplace_back(ring.registerFile(2));
+        testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
+    }
 }
 
 } // namespace stdplus
