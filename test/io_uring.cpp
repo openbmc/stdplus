@@ -1,5 +1,7 @@
 #include <poll.h>
 
+#include <array>
+#include <chrono>
 #include <stdplus/io_uring.hpp>
 
 #include <gmock/gmock.h>
@@ -9,6 +11,16 @@ namespace stdplus
 {
 
 using testing::_;
+
+TEST(Convert, ChronoToKTS)
+{
+    const auto ns = 700;
+    const auto s = 5;
+    const auto kts =
+        chronoToKTS(std::chrono::nanoseconds(ns) + std::chrono::seconds(s));
+    EXPECT_EQ(kts.tv_sec, s);
+    EXPECT_EQ(kts.tv_nsec, ns);
+}
 
 class MockHandler : public IoUring::CQEHandler
 {
@@ -121,6 +133,17 @@ TEST_F(IoUringTest, EventFd)
 
     // Our event fd should be empty
     ASSERT_EQ(0, poll(&pfd, 1, 100));
+}
+
+TEST_F(IoUringTest, Wait)
+{
+    auto& sqe = ring.getSQE();
+    auto kts = chronoToKTS(std::chrono::milliseconds(1));
+    io_uring_prep_timeout(&sqe, &kts, 0, 0);
+    ring.setHandler(sqe, &h[0]);
+    ring.submit();
+    ring.wait(std::chrono::seconds(1));
+    EXPECT_CALL(h[0], handleCQE(_));
 }
 
 TEST_F(IoUringTest, HandleCalledOnDestroy)

@@ -5,11 +5,15 @@
 #include <stdplus/fd/managed.hpp>
 #include <stdplus/handle/managed.hpp>
 
+#include <chrono>
 #include <optional>
 #include <vector>
 
 namespace stdplus
 {
+
+/** @brief Converts a chrono duration into a kernel duration */
+__kernel_timespec chronoToKTS(std::chrono::nanoseconds t) noexcept;
 
 class IoUring
 {
@@ -89,6 +93,10 @@ class IoUring
 
     /** @brief Non-blocking process all outstanding CQEs */
     void process() noexcept;
+
+    /** @brief Waits for new CQEs to become available */
+    void wait();
+    void wait(std::chrono::nanoseconds timeout);
 
     /** @brief Returns the EventFD associated with the ring
      *         A new descriptor is created if it does not yet exist

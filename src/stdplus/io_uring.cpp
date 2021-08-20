@@ -12,6 +12,14 @@
 namespace stdplus
 {
 
+__kernel_timespec chronoToKTS(std::chrono::nanoseconds t) noexcept
+{
+    __kernel_timespec ts;
+    ts.tv_sec = std::chrono::floor<std::chrono::seconds>(t).count();
+    ts.tv_nsec = (t % std::chrono::seconds(1)).count();
+    return ts;
+}
+
 IoUring::IoUring(size_t queue_size)
 {
     CHECK_RET(io_uring_queue_init(queue_size, &ring, 0), "io_uring_queue_init");
@@ -107,6 +115,20 @@ void IoUring::process() noexcept
         dropHandler(h, *cqe);
         io_uring_cqe_seen(&ring, cqe);
     }
+}
+
+void IoUring::wait()
+{
+    io_uring_cqe* cqe;
+    CHECK_RET(io_uring_wait_cqe(&ring, &cqe), "io_uring_wait_cqe");
+}
+
+void IoUring::wait(std::chrono::nanoseconds timeout)
+{
+    io_uring_cqe* cqe;
+    auto kts = chronoToKTS(timeout);
+    CHECK_RET(io_uring_wait_cqe_timeout(&ring, &cqe, &kts),
+              "io_uring_wait_cqe_timeout");
 }
 
 stdplus::ManagedFd& IoUring::getEventFd()
