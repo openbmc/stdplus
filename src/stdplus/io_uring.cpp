@@ -53,6 +53,18 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
     ring->updateFile(slot, -1);
 }
 
+void IoUring::reserveFiles(size_t num)
+{
+    auto new_size = std::max<size_t>(7, num + filesAllocated);
+    if (files.size() < new_size)
+    {
+        io_uring_unregister_files(&ring);
+        files.resize(new_size, -1);
+        CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
+                  "io_uring_register_files");
+    }
+}
+
 [[nodiscard]] IoUring::FileHandle IoUring::registerFile(int fd)
 {
     unsigned slot = 0;
@@ -67,7 +79,7 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
 
     io_uring_unregister_files(&ring);
     files.resize(std::max<size_t>(7, files.size() * 2 + 1), -1);
-    files[slot] = fd;
+    setFile(slot, fd);
     CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
               "io_uring_register_files");
     return FileHandle(slot, *this);
@@ -168,9 +180,22 @@ void IoUring::dropHandler(CQEHandler* h, io_uring_cqe& cqe) noexcept
     h->handleCQE(cqe);
 }
 
+void IoUring::setFile(unsigned slot, int fd) noexcept
+{
+    if (files[slot] == -1 && files[slot] != fd)
+    {
+        filesAllocated++;
+    }
+    else if (fd == -1 && files[slot] != fd)
+    {
+        filesAllocated--;
+    }
+    files[slot] = fd;
+}
+
 void IoUring::updateFile(unsigned slot, int fd)
 {
-    files[slot] = fd;
+    setFile(slot, fd);
     CHECK_RET(io_uring_register_files_update(&ring, slot, &files[slot], 1),
               "io_uring_register_files_update");
 }
