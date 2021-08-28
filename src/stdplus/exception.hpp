@@ -4,9 +4,11 @@
 #include <utility>
 
 // Forward declare builtins in case they are unsupported
+#if !__has_builtin(__builtin_LINE)
 int __builtin_LINE();
 const char* __builtin_FILE();
 const char* __builtin_FUNCTION();
+#endif
 
 namespace stdplus
 {

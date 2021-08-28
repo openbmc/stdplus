@@ -1,6 +1,7 @@
 #include <stdplus/exception.hpp>
 
 // These will only be used if the compiler doesn't support them
+#if !__has_builtin(__builtin_LINE)
 int __builtin_LINE()
 {
     return -1;
@@ -13,6 +14,7 @@ const char* __builtin_FUNCTION()
 {
     return "<unknown>";
 }
+#endif
 
 namespace stdplus
 {
