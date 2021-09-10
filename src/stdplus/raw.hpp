@@ -16,8 +16,8 @@ namespace detail
 /** @brief Gets the datatype referenced in a container
  */
 template <typename Container>
-using dataType = std::remove_pointer_t<decltype(
-    std::data(std::declval<std::add_lvalue_reference_t<Container>>()))>;
+using dataType = std::remove_pointer_t<decltype(std::data(
+    std::declval<std::add_lvalue_reference_t<Container>>()))>;
 
 /** @brief Gets the sizetype referenced in a container
  */
