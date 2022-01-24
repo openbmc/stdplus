@@ -1,5 +1,6 @@
 #pragma once
 #include <fcntl.h>
+#include <netinet/ip.h>
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/flags.hpp>
 #include <string>
@@ -60,14 +61,27 @@ inline DupableFd open(const std::string& pathname, OpenFlags flags,
 
 enum class SocketDomain : int
 {
+    INet = AF_INET,
+    INet6 = AF_INET6,
+    Netlink = AF_NETLINK,
+    Packet = AF_PACKET,
+    UNIX = AF_UNIX,
 };
 
 enum class SocketType : int
 {
+    Datagram = SOCK_DGRAM,
+    Raw = SOCK_RAW,
+    Stream = SOCK_STREAM,
 };
 
 enum class SocketProto : int
 {
+    ICMP = IPPROTO_ICMP,
+    IP = IPPROTO_IP,
+    Raw = IPPROTO_RAW,
+    TCP = IPPROTO_TCP,
+    UDP = IPPROTO_UDP,
 };
 
 DupableFd socket(SocketDomain domain, SocketType type, SocketProto protocol);
