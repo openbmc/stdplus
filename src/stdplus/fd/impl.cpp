@@ -115,6 +115,21 @@ void FdImpl::bind(span<const std::byte> sockaddr)
         "bind");
 }
 
+void FdImpl::listen(int backlog)
+{
+    CHECK_ERRNO(::listen(get(), backlog), "listen");
+}
+
+std::tuple<int, span<std::byte>> FdImpl::accept(span<std::byte> sockaddr)
+{
+    socklen_t len = sockaddr.size();
+    auto fd = CHECK_ERRNO(
+        ::accept(get(), reinterpret_cast<struct sockaddr*>(sockaddr.data()),
+                 &len),
+        "accept");
+    return std::make_tuple(fd, sockaddr.subspan(0, len));
+}
+
 void FdImpl::setsockopt(SockLevel level, SockOpt optname,
                         span<const std::byte> opt)
 {

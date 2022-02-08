@@ -1,4 +1,6 @@
 #pragma once
+#include <stdexcept>
+#include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/raw.hpp>
 #include <stdplus/types.hpp>
@@ -101,6 +103,27 @@ template <typename SockAddr>
 inline void bind(Fd& fd, SockAddr&& sockaddr)
 {
     return fd.bind(raw::asSpan<std::byte>(sockaddr));
+}
+
+inline void listen(Fd& fd, int backlog)
+{
+    return fd.listen(backlog);
+}
+
+template <typename SockAddr>
+inline stdplus::DupableFd accept(Fd& fd, SockAddr&& sockaddr)
+{
+    auto ret = fd.accept(raw::asSpan<std::byte>(sockaddr));
+    if (std::get<1>(ret).size() != sizeof(sockaddr))
+    {
+        throw std::runtime_error("Invalid sockaddr type for accept");
+    }
+    return stdplus::DupableFd(std::move(std::get<0>(ret)));
+}
+
+inline stdplus::DupableFd accept(Fd& fd)
+{
+    return stdplus::DupableFd(std::get<0>(fd.accept(span<std::byte>{})));
 }
 
 template <typename Opt>

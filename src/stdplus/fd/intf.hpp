@@ -4,6 +4,7 @@
 #include <stdplus/flags.hpp>
 #include <stdplus/types.hpp>
 #include <sys/socket.h>
+#include <tuple>
 
 namespace stdplus
 {
@@ -91,6 +92,9 @@ class Fd
     virtual size_t lseek(off_t offset, Whence whence) = 0;
     virtual void truncate(off_t size) = 0;
     virtual void bind(span<const std::byte> sockaddr) = 0;
+    virtual void listen(int backlog) = 0;
+    virtual std::tuple<int, span<std::byte>>
+        accept(span<std::byte> sockaddr) = 0;
     virtual void setsockopt(SockLevel level, SockOpt optname,
                             span<const std::byte> opt) = 0;
     virtual int ioctl(unsigned long id, void* data) = 0;

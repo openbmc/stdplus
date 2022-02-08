@@ -20,6 +20,9 @@ class FdMock : public Fd
     MOCK_METHOD(size_t, lseek, (off_t offset, Whence whence), (override));
     MOCK_METHOD(void, truncate, (off_t size), (override));
     MOCK_METHOD(void, bind, (span<const std::byte> sockaddr), (override));
+    MOCK_METHOD(void, listen, (int backlog), (override));
+    MOCK_METHOD((std::tuple<int, span<std::byte>>), accept,
+                (span<std::byte> sockaddr), (override));
     MOCK_METHOD(void, setsockopt,
                 (SockLevel level, SockOpt optname, span<const std::byte> opt),
                 (override));

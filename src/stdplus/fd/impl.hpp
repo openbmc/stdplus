@@ -19,6 +19,8 @@ class FdImpl : public Fd
     size_t lseek(off_t offset, Whence whence) override;
     void truncate(off_t size) override;
     void bind(span<const std::byte> sockaddr) override;
+    void listen(int backlog) override;
+    std::tuple<int, span<std::byte>> accept(span<std::byte> sockaddr) override;
     void setsockopt(SockLevel level, SockOpt optname,
                     span<const std::byte> opt) override;
     int ioctl(unsigned long id, void* data) override;
