@@ -16,6 +16,24 @@
       "message": "it seems like this will cause an issue with gtest\n\n```\n/usr/local/include/gmock/gmock-matchers.h:3228:8:   required from here\n/usr/local/include/gmock/gmock-matchers.h:3238:43: error: no type named \u0027const_iterator\u0027 in \u0027testing::internal::ElementsAreMatcherImpl\u003cconst std::span\u003cconst std::byte\u003e\u0026\u003e::StlContainer\u0027 {aka \u0027class std::span\u003cconst std::byte\u003e\u0027}\n/usr/local/include/gmock/gmock-matchers.h:3238:43: error: no type named \u0027const_iterator\u0027 in \u0027testing::internal::ElementsAreMatcherImpl\u003cconst std::span\u003cconst std::byte\u003e\u0026\u003e::StlContainer\u0027 {aka \u0027class std::span\u003cconst std::byte\u003e\u0027}\n```",
       "revId": "4bbdd90294e3d02ea29d0b506004ca31b9708e28",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ea80ca2_9e1edc25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-04-07T18:24:22Z",
+      "side": 1,
+      "message": "I guess we can wait for the new googletest release to include https://github.com/google/googletest/pull/3195 and just update the docker to point to the rev. Or fix all repo that might have an issue...",
+      "parentUuid": "929320c2_e834789e",
+      "revId": "4bbdd90294e3d02ea29d0b506004ca31b9708e28",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
