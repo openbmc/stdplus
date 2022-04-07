@@ -52,6 +52,24 @@
       "parentUuid": "4ea80ca2_9e1edc25",
       "revId": "4bbdd90294e3d02ea29d0b506004ca31b9708e28",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75ade388_4bd816da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-04-07T18:32:43Z",
+      "side": 1,
+      "message": "it seems like only the following uses stdplus in openbmc.\n\n```\n$ git grep \"stdplus\"\nmeta-google/recipes-google/ncsi/ncsid_git.bb:  stdplus \\\nmeta-google/recipes-google/networking/dhcp-done_git.bb:  stdplus \\\nmeta-phosphor/recipes-extended/sdeventplus/sdeventplus_git.bb:        stdplus \\\nmeta-phosphor/recipes-extended/stdplus/stdplus_git.bb:HOMEPAGE \u003d \"http://github.com/openbmc/stdplus\"\nmeta-phosphor/recipes-extended/stdplus/stdplus_git.bb:SRC_URI +\u003d \"git://github.com/openbmc/stdplus;branch\u003dmaster;protocol\u003dhttps\"\nmeta-phosphor/recipes-phosphor/ipmi/phosphor-ipmi-kcs_git.bb:        stdplus \\\nmeta-phosphor/recipes-phosphor/network/phosphor-network_git.bb:DEPENDS +\u003d \"stdplus\"\nmeta-phosphor/recipes-phosphor/sensors/phosphor-hwmon_git.bb:        stdplus \\\nmeta-phosphor/recipes-phospho\n```\n\nI just checked and they are all c++20",
+      "parentUuid": "01ca731c_81e62cdb",
+      "revId": "4bbdd90294e3d02ea29d0b506004ca31b9708e28",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
