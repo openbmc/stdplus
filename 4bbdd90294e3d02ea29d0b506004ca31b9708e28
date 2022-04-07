@@ -106,6 +106,24 @@
       "parentUuid": "d3894b86_00fd4d53",
       "revId": "4bbdd90294e3d02ea29d0b506004ca31b9708e28",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "892c5a18_d64dfe1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-04-07T18:39:56Z",
+      "side": 1,
+      "message": "ah, I see. oof, that\u0027s tough to clean up. I guess I\u0027ll just leave this here for now.\n\nbuild script change as a side note,\nhttps://gerrit.openbmc-project.xyz/c/openbmc/openbmc-build-scripts/+/52713",
+      "parentUuid": "902591ab_72e2933f",
+      "revId": "4bbdd90294e3d02ea29d0b506004ca31b9708e28",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
