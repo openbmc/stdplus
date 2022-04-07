@@ -39,20 +39,14 @@ else
   warning('Not testing libdl feature')
 endif
 
-if has_fd
-  gtests += [
-    'fd/dupable',
-    'fd/managed',
-    'fd/intf',
-    'fd/impl',
-    'fd/mock',
-    'fd/ops',
-  ]
-elif build_tests.enabled()
-  error('Not testing file descriptor feature')
-else
-  warning('Not testing file descriptor feature')
-endif
+gtests += [
+  'fd/dupable',
+  'fd/managed',
+  'fd/intf',
+  'fd/impl',
+  'fd/mock',
+  'fd/ops',
+]
 
 if has_io_uring
   gtests += [

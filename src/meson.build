@@ -15,27 +15,8 @@ if not fmt_dep.found()
   fmt_dep = fmt_proj.dependency('fmt')
 endif
 
-# span-lite might not have a pkg-config. It is header only so just make
-# sure we can access the needed symbols from the header.
-span_dep = dependency('span-lite', required: false)
-has_span = meson.get_compiler('cpp').has_header_symbol(
-  'nonstd/span.hpp',
-  'nonstd::span<int>',
-  dependencies: span_dep,
-  required: false)
-if not has_span
-  span_lite_proj = import('cmake').subproject(
-    'span-lite',
-    required: false)
-  if span_lite_proj.found()
-    span_dep = span_lite_proj.dependency('span-lite')
-    has_span = true
-  endif
-endif
-
 stdplus_deps = [
   fmt_dep,
-  span_dep,
 ]
 
 stdplus_srcs = [
@@ -67,34 +48,27 @@ elif get_option('dl').enabled()
   error('libdl support required')
 endif
 
-has_fd = false
-if not get_option('fd').disabled() and has_span
-  has_fd = true
+stdplus_srcs += [
+  'stdplus/fd/create.cpp',
+  'stdplus/fd/dupable.cpp',
+  'stdplus/fd/impl.cpp',
+  'stdplus/fd/managed.cpp',
+  'stdplus/fd/ops.cpp',
+]
 
-  stdplus_srcs += [
-    'stdplus/fd/create.cpp',
-    'stdplus/fd/dupable.cpp',
-    'stdplus/fd/impl.cpp',
-    'stdplus/fd/managed.cpp',
-    'stdplus/fd/ops.cpp',
-  ]
-
-  install_headers(
-    'stdplus/fd/create.hpp',
-    'stdplus/fd/dupable.hpp',
-    'stdplus/fd/gmock.hpp',
-    'stdplus/fd/impl.hpp',
-    'stdplus/fd/intf.hpp',
-    'stdplus/fd/managed.hpp',
-    'stdplus/fd/ops.hpp',
-    subdir: 'stdplus/fd')
-elif get_option('fd').enabled()
-  error('File descriptor support required')
-endif
+install_headers(
+  'stdplus/fd/create.hpp',
+  'stdplus/fd/dupable.hpp',
+  'stdplus/fd/gmock.hpp',
+  'stdplus/fd/impl.hpp',
+  'stdplus/fd/intf.hpp',
+  'stdplus/fd/managed.hpp',
+  'stdplus/fd/ops.hpp',
+  subdir: 'stdplus/fd')
 
 io_uring_dep = dependency('liburing', required: get_option('io_uring'))
 has_io_uring = false
-if not get_option('io_uring').disabled() and has_fd and io_uring_dep.found()
+if not get_option('io_uring').disabled() and io_uring_dep.found()
   has_io_uring = true
 
   stdplus_deps += [
