@@ -3,7 +3,7 @@
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/raw.hpp>
-#include <stdplus/types.hpp>
+#include <span>
 #include <utility>
 
 namespace stdplus
@@ -13,18 +13,20 @@ namespace fd
 namespace detail
 {
 
-void readExact(Fd& fd, span<std::byte> data);
-void recvExact(Fd& fd, span<std::byte> data, RecvFlags flags);
-void writeExact(Fd& fd, span<const std::byte> data);
-void sendExact(Fd& fd, span<const std::byte> data, SendFlags flags);
+void readExact(Fd& fd, std::span<std::byte> data);
+void recvExact(Fd& fd, std::span<std::byte> data, RecvFlags flags);
+void writeExact(Fd& fd, std::span<const std::byte> data);
+void sendExact(Fd& fd, std::span<const std::byte> data, SendFlags flags);
 
-span<std::byte> readAligned(Fd& fd, size_t align, span<std::byte> buf);
-span<std::byte> recvAligned(Fd& fd, size_t align, span<std::byte> buf,
-                            RecvFlags flags);
-span<const std::byte> writeAligned(Fd& fd, size_t align,
-                                   span<const std::byte> data);
-span<const std::byte> sendAligned(Fd& fd, size_t align,
-                                  span<const std::byte> data, SendFlags flags);
+std::span<std::byte> readAligned(Fd& fd, size_t align,
+                                 std::span<std::byte> buf);
+std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
+                                 RecvFlags flags);
+std::span<const std::byte> writeAligned(Fd& fd, size_t align,
+                                        std::span<const std::byte> data);
+std::span<const std::byte> sendAligned(Fd& fd, size_t align,
+                                       std::span<const std::byte> data,
+                                       SendFlags flags);
 
 template <typename Fun, typename Container, typename... Args>
 auto alignedOp(Fun&& fun, Fd& fd, Container&& c, Args&&... args)
@@ -32,7 +34,7 @@ auto alignedOp(Fun&& fun, Fd& fd, Container&& c, Args&&... args)
     using Data = raw::detail::dataType<Container>;
     auto ret = fun(fd, sizeof(Data), raw::asSpan<std::byte>(c),
                    std::forward<Args>(args)...);
-    return span<Data>(std::begin(c), ret.size() / sizeof(Data));
+    return std::span<Data>(std::begin(c), ret.size() / sizeof(Data));
 }
 
 } // namespace detail
@@ -127,7 +129,7 @@ inline std::optional<stdplus::DupableFd> accept(Fd& fd, SockAddr&& sockaddr)
 
 inline std::optional<stdplus::DupableFd> accept(Fd& fd)
 {
-    auto ret = std::get<0>(fd.accept(span<std::byte>{}));
+    auto ret = std::get<0>(fd.accept(std::span<std::byte>{}));
     if (!ret)
     {
         return std::nullopt;

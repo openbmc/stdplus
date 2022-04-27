@@ -15,27 +15,8 @@ if not fmt_dep.found()
   fmt_dep = fmt_proj.dependency('fmt')
 endif
 
-# span-lite might not have a pkg-config. It is header only so just make
-# sure we can access the needed symbols from the header.
-span_dep = dependency('span-lite', required: false)
-has_span = meson.get_compiler('cpp').has_header_symbol(
-  'nonstd/span.hpp',
-  'nonstd::span<int>',
-  dependencies: span_dep,
-  required: false)
-if not has_span
-  span_lite_proj = import('cmake').subproject(
-    'span-lite',
-    required: false)
-  if span_lite_proj.found()
-    span_dep = span_lite_proj.dependency('span-lite')
-    has_span = true
-  endif
-endif
-
 stdplus_deps = [
   fmt_dep,
-  span_dep,
 ]
 
 stdplus_srcs = [
@@ -68,7 +49,7 @@ elif get_option('dl').enabled()
 endif
 
 has_fd = false
-if not get_option('fd').disabled() and has_span
+if not get_option('fd').disabled()
   has_fd = true
 
   stdplus_srcs += [
@@ -145,7 +126,6 @@ install_headers(
   'stdplus/flags.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
-  'stdplus/types.hpp',
   subdir: 'stdplus')
 
 install_headers(
