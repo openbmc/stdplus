@@ -2,8 +2,8 @@
 #include <cstddef>
 #include <fcntl.h>
 #include <optional>
+#include <span>
 #include <stdplus/flags.hpp>
-#include <stdplus/types.hpp>
 #include <sys/socket.h>
 #include <tuple>
 
@@ -85,19 +85,21 @@ class Fd
   public:
     virtual ~Fd() = default;
 
-    virtual span<std::byte> read(span<std::byte> buf) = 0;
-    virtual span<std::byte> recv(span<std::byte> buf, RecvFlags flags) = 0;
-    virtual span<const std::byte> write(span<const std::byte> data) = 0;
-    virtual span<const std::byte> send(span<const std::byte> data,
-                                       SendFlags flags) = 0;
+    virtual std::span<std::byte> read(std::span<std::byte> buf) = 0;
+    virtual std::span<std::byte> recv(std::span<std::byte> buf,
+                                      RecvFlags flags) = 0;
+    virtual std::span<const std::byte>
+        write(std::span<const std::byte> data) = 0;
+    virtual std::span<const std::byte> send(std::span<const std::byte> data,
+                                            SendFlags flags) = 0;
     virtual size_t lseek(off_t offset, Whence whence) = 0;
     virtual void truncate(off_t size) = 0;
-    virtual void bind(span<const std::byte> sockaddr) = 0;
+    virtual void bind(std::span<const std::byte> sockaddr) = 0;
     virtual void listen(int backlog) = 0;
-    virtual std::tuple<std::optional<int>, span<std::byte>>
-        accept(span<std::byte> sockaddr) = 0;
+    virtual std::tuple<std::optional<int>, std::span<std::byte>>
+        accept(std::span<std::byte> sockaddr) = 0;
     virtual void setsockopt(SockLevel level, SockOpt optname,
-                            span<const std::byte> opt) = 0;
+                            std::span<const std::byte> opt) = 0;
     virtual int ioctl(unsigned long id, void* data) = 0;
     virtual int constIoctl(unsigned long id, void* data) const = 0;
     virtual void fcntlSetfd(FdFlags flags) = 0;

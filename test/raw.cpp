@@ -164,7 +164,7 @@ TEST_CASE("As View View", "[AsView]")
 TEST_CASE("Span Extract TooSmall", "[Extract]")
 {
     const std::vector<char> v = {'c'};
-    span<const char> s = v;
+    std::span<const char> s = v;
     CHECK_THROWS_AS(extract<int>(s), std::runtime_error);
     CHECK(1 == s.size());
 }
@@ -172,7 +172,7 @@ TEST_CASE("Span Extract TooSmall", "[Extract]")
 TEST_CASE("Span Extract Basic", "[Extract]")
 {
     const std::vector<int> v = {4};
-    span<const int> s = v;
+    std::span<const int> s = v;
     CHECK(v[0] == extract<int>(s));
     CHECK(s.empty());
 }
@@ -180,7 +180,7 @@ TEST_CASE("Span Extract Basic", "[Extract]")
 TEST_CASE("Span Extract Larger", "[Extract]")
 {
     const std::vector<int> v{3, 4, 5};
-    span<const int> s = v;
+    std::span<const int> s = v;
     CHECK(v[0] == extract<int>(s));
     CHECK(v.size() - 1 == s.size());
 }
@@ -188,7 +188,7 @@ TEST_CASE("Span Extract Larger", "[Extract]")
 TEST_CASE("Span Extract Ref TooSmall", "[ExtractRef]")
 {
     const std::vector<char> v = {'c'};
-    span<const char> s = v;
+    std::span<const char> s = v;
     CHECK_THROWS_AS(extractRef<Int>(s), std::runtime_error);
     CHECK(1 == s.size());
 }
@@ -196,7 +196,7 @@ TEST_CASE("Span Extract Ref TooSmall", "[ExtractRef]")
 TEST_CASE("Span Extract Ref Basic", "[ExtractRef]")
 {
     const std::vector<Int> v = {{4, 0, 0, 4}};
-    span<const Int> s = v;
+    std::span<const Int> s = v;
     CHECK(v[0] == extractRef<Int>(s));
     CHECK(s.empty());
 }
@@ -204,7 +204,7 @@ TEST_CASE("Span Extract Ref Basic", "[ExtractRef]")
 TEST_CASE("Span Extract Ref Larger", "[ExtractRef]")
 {
     const std::vector<Int> v{{3}, {4}, {5}};
-    span<const Int> s = v;
+    std::span<const Int> s = v;
     CHECK(v[0] == extractRef<Int>(s));
     CHECK(v.size() - 1 == s.size());
 }
@@ -262,12 +262,12 @@ TEST_CASE("As Span Arr", "[AsSpan]")
 TEST_CASE("As Span Span", "[AsSpan]")
 {
     std::array<char, 2> arr = {'a', 'b'};
-    auto sp1 = span<const char>(arr);
+    auto sp1 = std::span<const char>(arr);
     auto s1 = asSpan<uint8_t>(sp1);
     REQUIRE(s1.size() == 2);
     CHECK(s1[0] == arr[0]);
     CHECK(s1[1] == arr[1]);
-    auto sp2 = span<char>(arr);
+    auto sp2 = std::span<char>(arr);
     auto s2 = asSpan<uint8_t>(sp2);
     REQUIRE(s2.size() == 2);
     CHECK(s2[0] == arr[0]);

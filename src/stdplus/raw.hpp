@@ -1,7 +1,7 @@
 #pragma once
 #include <fmt/format.h>
+#include <span>
 #include <stdexcept>
-#include <stdplus/types.hpp>
 #include <string_view>
 #include <type_traits>
 
@@ -120,7 +120,7 @@ T extract(std::basic_string_view<CharT>& data)
 #ifdef STDPLUS_SPAN_TYPE
 template <typename T, typename IntT,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>>
-T extract(span<IntT>& data)
+T extract(std::span<IntT>& data)
 {
     T ret = copyFrom<T>(data);
     static_assert(sizeof(T) % sizeof(IntT) == 0);
@@ -147,7 +147,7 @@ const T& extractRef(std::basic_string_view<CharT>& data)
 template <typename T, typename IntT,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename Tp = detail::copyConst<T, IntT>>
-Tp& extractRef(span<IntT>& data)
+Tp& extractRef(std::span<IntT>& data)
 {
     Tp& ret = refFrom<Tp>(data);
     static_assert(sizeof(Tp) % sizeof(IntT) == 0);
@@ -156,7 +156,7 @@ Tp& extractRef(span<IntT>& data)
 }
 #endif
 
-/** @brief Returns the span referencing the data of the raw trivial type
+/** @brief Returns the std::span referencing the data of the raw trivial type
  *         or of trivial types in a contiguous container.
  *
  *  @param[in] t - The trivial raw data
@@ -181,12 +181,11 @@ std::enable_if_t<detail::hasData<Container>, std::basic_string_view<CharT>>
             std::size(c) * sizeof(*std::data(c)) / sizeof(CharT)};
 }
 
-#ifdef STDPLUS_SPAN_TYPE
 template <typename IntT, typename T,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename = std::enable_if_t<!detail::hasData<T>>,
           typename IntTp = detail::copyConst<IntT, T>>
-span<IntTp> asSpan(T& t) noexcept
+std::span<IntTp> asSpan(T& t) noexcept
 {
     static_assert(std::is_trivially_copyable_v<T>);
     static_assert(sizeof(T) % sizeof(IntTp) == 0);
@@ -196,14 +195,13 @@ template <typename IntT, typename Container,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename = std::enable_if_t<detail::hasData<Container>>,
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
-span<IntTp> asSpan(Container&& c) noexcept
+std::span<IntTp> asSpan(Container&& c) noexcept
 {
     static_assert(detail::trivialContainer<Container>);
     static_assert(sizeof(*std::data(c)) % sizeof(IntTp) == 0);
     return {reinterpret_cast<IntTp*>(std::data(c)),
             std::size(c) * sizeof(*std::data(c)) / sizeof(IntTp)};
 }
-#endif
 
 } // namespace raw
 } // namespace stdplus

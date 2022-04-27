@@ -74,7 +74,7 @@ class IoUring
 
     /** @brief Get current list of files descriptors registered on the ring.
      * Note this view potentially expires when registrations change. */
-    inline stdplus::span<const int> getFiles() const noexcept
+    inline std::span<const int> getFiles() const noexcept
     {
         return files;
     }
