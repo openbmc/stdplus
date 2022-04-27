@@ -15,7 +15,7 @@ namespace fd
 
 using namespace std::literals::string_view_literals;
 
-span<std::byte> FdImpl::read(span<std::byte> buf)
+std::span<std::byte> FdImpl::read(std::span<std::byte> buf)
 {
     ssize_t amt = ::read(get(), buf.data(), buf.size());
     if (amt == -1)
@@ -33,7 +33,7 @@ span<std::byte> FdImpl::read(span<std::byte> buf)
     return buf.subspan(0, amt);
 }
 
-span<std::byte> FdImpl::recv(span<std::byte> buf, RecvFlags flags)
+std::span<std::byte> FdImpl::recv(std::span<std::byte> buf, RecvFlags flags)
 {
     ssize_t amt =
         ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags));
@@ -52,7 +52,7 @@ span<std::byte> FdImpl::recv(span<std::byte> buf, RecvFlags flags)
     return buf.subspan(0, amt);
 }
 
-span<const std::byte> FdImpl::write(span<const std::byte> data)
+std::span<const std::byte> FdImpl::write(std::span<const std::byte> data)
 {
     ssize_t amt = ::write(get(), data.data(), data.size());
     if (amt == -1)
@@ -66,7 +66,8 @@ span<const std::byte> FdImpl::write(span<const std::byte> data)
     return data.subspan(0, amt);
 }
 
-span<const std::byte> FdImpl::send(span<const std::byte> data, SendFlags flags)
+std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
+                                        SendFlags flags)
 {
     ssize_t amt =
         ::send(get(), data.data(), data.size(), static_cast<int>(flags));
@@ -107,7 +108,7 @@ void FdImpl::truncate(off_t size)
     CHECK_ERRNO(::ftruncate(get(), size), fmt::format("ftruncate {}B", size));
 }
 
-void FdImpl::bind(span<const std::byte> sockaddr)
+void FdImpl::bind(std::span<const std::byte> sockaddr)
 {
     CHECK_ERRNO(
         ::bind(get(), reinterpret_cast<const struct sockaddr*>(sockaddr.data()),
@@ -120,8 +121,8 @@ void FdImpl::listen(int backlog)
     CHECK_ERRNO(::listen(get(), backlog), "listen");
 }
 
-std::tuple<std::optional<int>, span<std::byte>>
-    FdImpl::accept(span<std::byte> sockaddr)
+std::tuple<std::optional<int>, std::span<std::byte>>
+    FdImpl::accept(std::span<std::byte> sockaddr)
 {
     socklen_t len = sockaddr.size();
     auto fd = ::accept(
@@ -138,7 +139,7 @@ std::tuple<std::optional<int>, span<std::byte>>
 }
 
 void FdImpl::setsockopt(SockLevel level, SockOpt optname,
-                        span<const std::byte> opt)
+                        std::span<const std::byte> opt)
 {
     CHECK_ERRNO(::setsockopt(get(), static_cast<int>(level),
                              static_cast<int>(optname), opt.data(), opt.size()),

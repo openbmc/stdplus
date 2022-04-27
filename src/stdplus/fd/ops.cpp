@@ -11,7 +11,7 @@ namespace detail
 {
 
 template <typename Fun, typename Byte, typename... Args>
-static void opExact(const char* name, Fun&& fun, Fd& fd, span<Byte> data,
+static void opExact(const char* name, Fun&& fun, Fd& fd, std::span<Byte> data,
                     Args&&... args)
 {
     while (data.size() > 0)
@@ -26,31 +26,32 @@ static void opExact(const char* name, Fun&& fun, Fd& fd, span<Byte> data,
     }
 }
 
-void readExact(Fd& fd, span<std::byte> data)
+void readExact(Fd& fd, std::span<std::byte> data)
 {
     opExact("readExact", &Fd::read, fd, data);
 }
 
-void recvExact(Fd& fd, span<std::byte> data, RecvFlags flags)
+void recvExact(Fd& fd, std::span<std::byte> data, RecvFlags flags)
 {
     opExact("recvExact", &Fd::recv, fd, data, flags);
 }
 
-void writeExact(Fd& fd, span<const std::byte> data)
+void writeExact(Fd& fd, std::span<const std::byte> data)
 {
     opExact("writeExact", &Fd::write, fd, data);
 }
 
-void sendExact(Fd& fd, span<const std::byte> data, SendFlags flags)
+void sendExact(Fd& fd, std::span<const std::byte> data, SendFlags flags)
 {
     opExact("sendExact", &Fd::send, fd, data, flags);
 }
 
 template <typename Fun, typename Byte, typename... Args>
-static span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd, size_t align,
-                            span<Byte> data, Args&&... args)
+static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
+                                 size_t align, std::span<Byte> data,
+                                 Args&&... args)
 {
-    span<Byte> ret;
+    std::span<Byte> ret;
     do
     {
         auto r =
@@ -65,25 +66,26 @@ static span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd, size_t align,
     return ret;
 }
 
-span<std::byte> readAligned(Fd& fd, size_t align, span<std::byte> buf)
+std::span<std::byte> readAligned(Fd& fd, size_t align, std::span<std::byte> buf)
 {
     return opAligned("readAligned", &Fd::read, fd, align, buf);
 }
 
-span<std::byte> recvAligned(Fd& fd, size_t align, span<std::byte> buf,
-                            RecvFlags flags)
+std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
+                                 RecvFlags flags)
 {
     return opAligned("recvAligned", &Fd::recv, fd, align, buf, flags);
 }
 
-span<const std::byte> writeAligned(Fd& fd, size_t align,
-                                   span<const std::byte> data)
+std::span<const std::byte> writeAligned(Fd& fd, size_t align,
+                                        std::span<const std::byte> data)
 {
     return opAligned("writeAligned", &Fd::write, fd, align, data);
 }
 
-span<const std::byte> sendAligned(Fd& fd, size_t align,
-                                  span<const std::byte> data, SendFlags flags)
+std::span<const std::byte> sendAligned(Fd& fd, size_t align,
+                                       std::span<const std::byte> data,
+                                       SendFlags flags)
 {
     return opAligned("sendAligned", &Fd::send, fd, align, data, flags);
 }
