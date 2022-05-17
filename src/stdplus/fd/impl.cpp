@@ -5,6 +5,7 @@
 #include <stdplus/util/cexec.hpp>
 #include <string_view>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -177,6 +178,17 @@ void FdImpl::fcntlSetfl(FileFlags flags)
 FileFlags FdImpl::fcntlGetfl() const
 {
     return FileFlags(CHECK_ERRNO(::fcntl(get(), F_GETFL), "fcntl getfl"));
+}
+
+void* FdImpl::mmap(void* addr, size_t length, int prot, int flags, int fd,
+                   off_t offset) const
+{
+    return CHECK_ERRNO(::mmap(addr, length, prot, flags, fd, offset), "mmap");
+}
+
+int FdImpl::munmap(void* addr, size_t length) const
+{
+    return CHECK_ERRNO(::munmap(addr, length), "mmap");
 }
 
 } // namespace fd
