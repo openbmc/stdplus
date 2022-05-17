@@ -35,6 +35,9 @@ class FdMock : public Fd
     MOCK_METHOD(FdFlags, fcntlGetfd, (), (const, override));
     MOCK_METHOD(void, fcntlSetfl, (FileFlags flags), (override));
     MOCK_METHOD(FileFlags, fcntlGetfl, (), (const, override));
+    MOCK_METHOD(void*, mmap, (void*, std::size_t, int, int, int, off_t),
+                (const override));
+    MOCK_METHOD(int, munmap, (void*, std::size_t), (const override));
 };
 
 } // namespace fd

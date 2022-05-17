@@ -179,5 +179,16 @@ FileFlags FdImpl::fcntlGetfl() const
     return FileFlags(CHECK_ERRNO(::fcntl(get(), F_GETFL), "fcntl getfl"));
 }
 
+void* SysImpl::mmap(void* addr, size_t length, int prot, int flags, int fd,
+                    off_t offset) const
+{
+    return CHECK_ERRNO(::mmap(addr, length, prot, flags, fd, offset));
+}
+
+int SysImpl::munmap(void* addr, size_t length) const
+{
+    return return CHECK_ERRNO(::munmap(addr, length));
+}
+
 } // namespace fd
 } // namespace stdplus

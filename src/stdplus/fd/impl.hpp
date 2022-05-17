@@ -31,6 +31,9 @@ class FdImpl : public Fd
     FdFlags fcntlGetfd() const override;
     void fcntlSetfl(FileFlags flags) override;
     FileFlags fcntlGetfl() const override;
+    void* mmap(void* addr, size_t length, int prot, int flags, int fd,
+               off_t offset) const override;
+    int munmap(void* addr, size_t length) const override;
 };
 
 } // namespace fd
