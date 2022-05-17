@@ -179,5 +179,22 @@ FileFlags FdImpl::fcntlGetfl() const
     return FileFlags(CHECK_ERRNO(::fcntl(get(), F_GETFL), "fcntl getfl"));
 }
 
+std::span<std::byte> FdImpl::mmap(std::span<std::byte> window, ProtFlags prot,
+                                  MMapFlags flags, off_t offset)
+{
+    auto ret = ::mmap(window.data(), window.size(), static_cast<int>(prot),
+                      static_cast<int>(flags), get(), offset);
+    if (ret == MAP_FAILED)
+    {
+        util::doError(errno, "mmap");
+    }
+    return {reinterpret_cast<std::byte*>(ret), window.size()};
+}
+
+void FdImpl::munmap(std::span<std::byte> window)
+{
+    CHECK_ERRNO(::munmap(window.data(), window.size()), "munmap");
+}
+
 } // namespace fd
 } // namespace stdplus
