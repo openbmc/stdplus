@@ -106,6 +106,9 @@ class Fd
     virtual FdFlags fcntlGetfd() const = 0;
     virtual void fcntlSetfl(FileFlags flags) = 0;
     virtual FileFlags fcntlGetfl() const = 0;
+    virtual void* mmap(void* addr, size_t length, int prot, int flags, int fd,
+                       off_t offset) const = 0;
+    virtual int munmap(void* addr, size_t length) const = 0;
 };
 
 } // namespace fd
