@@ -57,6 +57,7 @@ if not get_option('fd').disabled()
     'stdplus/fd/dupable.cpp',
     'stdplus/fd/impl.cpp',
     'stdplus/fd/managed.cpp',
+    'stdplus/fd/mmap.cpp',
     'stdplus/fd/ops.cpp',
   ]
 
@@ -67,6 +68,7 @@ if not get_option('fd').disabled()
     'stdplus/fd/impl.hpp',
     'stdplus/fd/intf.hpp',
     'stdplus/fd/managed.hpp',
+    'stdplus/fd/mmap.hpp',
     'stdplus/fd/ops.hpp',
     subdir: 'stdplus/fd')
 elif get_option('fd').enabled()

@@ -31,6 +31,11 @@ class FdImpl : public Fd
     FdFlags fcntlGetfd() const override;
     void fcntlSetfl(FileFlags flags) override;
     FileFlags fcntlGetfl() const override;
+
+  protected:
+    std::span<std::byte> mmap(std::span<std::byte> window, ProtFlags prot,
+                              MMapFlags flags, off_t offset) override;
+    void munmap(std::span<std::byte> window) override;
 };
 
 } // namespace fd

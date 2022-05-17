@@ -1,0 +1,26 @@
+#include <array>
+#include <gtest/gtest.h>
+#include <stdplus/fd/create.hpp>
+#include <stdplus/fd/mmap.hpp>
+
+namespace stdplus
+{
+namespace fd
+{
+
+TEST(DupableFd, Noop)
+{
+    auto fd = open("/dev/zero", OpenAccess::ReadOnly);
+    auto map = MMap(fd, 32, ProtFlags().set(ProtFlag::Read),
+                    MMapFlags{MMapAccess::Private}, 0);
+    auto sp = map.get();
+    ASSERT_NE(nullptr, sp.data());
+    ASSERT_EQ(32, sp.size());
+    for (size_t i = 0; i < 32; ++i)
+    {
+        EXPECT_EQ(sp[i], std::byte{});
+    }
+}
+
+} // namespace fd
+} // namespace stdplus

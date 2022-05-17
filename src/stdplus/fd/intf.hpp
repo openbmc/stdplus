@@ -4,6 +4,7 @@
 #include <optional>
 #include <span>
 #include <stdplus/flags.hpp>
+#include <sys/mman.h>
 #include <sys/socket.h>
 #include <tuple>
 
@@ -80,6 +81,40 @@ enum class FileFlag : int
 };
 using FileFlags = BitFlags<int, FileFlag>;
 
+enum class ProtFlag : int
+{
+    Exec = PROT_EXEC,
+    Read = PROT_READ,
+    Write = PROT_WRITE,
+};
+using ProtFlags = BitFlags<int, ProtFlag>;
+
+enum class MMapAccess : int
+{
+    Shared = MAP_SHARED,
+    Private = MAP_PRIVATE,
+};
+
+enum class MMapFlag : int
+{
+};
+
+class MMapFlags : public BitFlags<int, MMapFlag>
+{
+  public:
+    inline MMapFlags(MMapAccess access) :
+        BitFlags<int, MMapFlag>(static_cast<int>(access))
+    {
+    }
+
+    inline MMapFlags(BitFlags<int, MMapFlag> flags) :
+        BitFlags<int, MMapFlag>(flags)
+    {
+    }
+};
+
+class MMap;
+
 class Fd
 {
   public:
@@ -106,6 +141,13 @@ class Fd
     virtual FdFlags fcntlGetfd() const = 0;
     virtual void fcntlSetfl(FileFlags flags) = 0;
     virtual FileFlags fcntlGetfl() const = 0;
+
+  protected:
+    virtual std::span<std::byte> mmap(std::span<std::byte> window,
+                                      ProtFlags prot, MMapFlags flags,
+                                      off_t offset) = 0;
+    virtual void munmap(std::span<std::byte> window) = 0;
+    friend class MMap;
 };
 
 } // namespace fd
