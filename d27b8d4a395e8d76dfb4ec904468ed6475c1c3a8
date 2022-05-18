@@ -53,6 +53,42 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f106acb_5fb54231",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-05-18T15:57:23Z",
+      "side": 1,
+      "message": "It took more effort than I thought at a glance, I kinda forgot mmaps had lifetimes you would want to manage separately.",
+      "parentUuid": "65722fb4_d31c3f6f",
+      "revId": "d27b8d4a395e8d76dfb4ec904468ed6475c1c3a8",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "167d5fa8_aff1c812",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-05-18T15:57:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "af7d1a19_37150414",
+      "revId": "d27b8d4a395e8d76dfb4ec904468ed6475c1c3a8",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "280969db_943a0d5f",
@@ -66,6 +102,30 @@
       "writtenOn": "2022-05-18T15:36:37Z",
       "side": 1,
       "message": "nit: indent",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 1
+      },
+      "revId": "d27b8d4a395e8d76dfb4ec904468ed6475c1c3a8",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d384c53f_1b8c78cc",
+        "filename": "test/meson.build",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-05-18T15:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "280969db_943a0d5f",
       "range": {
         "startLine": 48,
         "startChar": 0,
