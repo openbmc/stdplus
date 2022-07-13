@@ -29,9 +29,19 @@ gtests = [
   'util/string',
 ]
 
+gtest_deps = [
+  stdplus_dep,
+  gtest,
+  gmock,
+]
+
 if has_dl
   gtests += [
     'dl',
+  ]
+
+  gtest_deps += [
+    stdplus_dl_dep,
   ]
 elif build_tests.enabled()
   error('Not testing libdl feature')
@@ -49,6 +59,10 @@ if has_fd
     'fd/mock',
     'fd/ops',
   ]
+
+  gtest_deps += [
+    stdplus_fd_dep,
+  ]
 elif build_tests.enabled()
   error('Not testing file descriptor feature')
 else
@@ -58,6 +72,10 @@ endif
 if has_io_uring
   gtests += [
     'io_uring',
+  ]
+
+  gtest_deps += [
+    stdplus_io_uring_dep,
   ]
 elif build_tests.enabled()
   error('Not testing io_uring feature')
@@ -70,7 +88,7 @@ if gtest.found() and gmock.found()
     test(t, executable(t.underscorify(), t + '.cpp',
                        build_by_default: false,
                        implicit_include_directories: false,
-                       dependencies: [stdplus_dep, gtest, gmock]))
+                       dependencies: gtest_deps))
   endforeach
 endif
 

@@ -39,6 +39,16 @@ if get_option('io_uring').enabled() and not has_io_uring
 endif
 
 subdir('include')
+if has_dl
+  subdir('include-dl')
+endif
+if has_fd
+  subdir('include-fd')
+endif
+if has_io_uring
+  subdir('include-uring')
+endif
+
 subdir('src')
 
 build_tests = get_option('tests')

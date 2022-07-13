@@ -79,3 +79,36 @@ import('pkgconfig').generate(
   description: 'C++ helper utilities',
   version: meson.project_version(),
   requires: stdplus_reqs)
+
+if has_dl
+  stdplus_dl_dep = stdplus_dep
+
+  import('pkgconfig').generate(
+    stdplus_lib,
+    name: 'stdplus-dl',
+    description: 'C++ helper utilities',
+    version: meson.project_version(),
+    requires: stdplus_reqs)
+endif
+
+if has_fd
+  stdplus_fd_dep = stdplus_dep
+
+  import('pkgconfig').generate(
+    stdplus_lib,
+    name: 'stdplus-fd',
+    description: 'C++ helper utilities',
+    version: meson.project_version(),
+    requires: stdplus_reqs)
+endif
+
+if has_io_uring
+  stdplus_io_uring_dep = stdplus_dep
+
+  import('pkgconfig').generate(
+    stdplus_lib,
+    name: 'stdplus-io_uring',
+    description: 'C++ helper utilities',
+    version: meson.project_version(),
+    requires: stdplus_reqs)
+endif
