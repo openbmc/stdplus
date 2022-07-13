@@ -1,5 +1,3 @@
-stdplus_headers = include_directories('.')
-
 fmt_dep = dependency('fmt', required: false)
 if not fmt_dep.found()
   fmt_opts = import('cmake').subproject_options()
@@ -20,79 +18,39 @@ stdplus_deps = [
 ]
 
 stdplus_srcs = [
-  'stdplus/exception.cpp',
-  'stdplus/signal.cpp',
+  'exception.cpp',
+  'signal.cpp',
 ]
 
-has_dl = false
-if not get_option('dl').disabled()
-  dl_dep = meson.get_compiler('cpp').find_library('dl', required: false)
-  has_dl = meson.get_compiler('cpp').links('''
-    #include <dlfcn.h>
-    int main() { dlopen("", 0); }
-  ''', dependencies: dl_dep)
-endif
 if has_dl
   stdplus_deps += [
     dl_dep,
   ]
 
   stdplus_srcs += [
-    'stdplus/dl.cpp',
+    'dl.cpp',
   ]
-
-  install_headers(
-    'stdplus/dl.hpp',
-    subdir: 'stdplus')
-elif get_option('dl').enabled()
-  error('libdl support required')
 endif
 
-has_fd = false
-if not get_option('fd').disabled()
-  has_fd = true
-
+if has_fd
   stdplus_srcs += [
-    'stdplus/fd/create.cpp',
-    'stdplus/fd/dupable.cpp',
-    'stdplus/fd/impl.cpp',
-    'stdplus/fd/managed.cpp',
-    'stdplus/fd/mmap.cpp',
-    'stdplus/fd/ops.cpp',
+    'fd/create.cpp',
+    'fd/dupable.cpp',
+    'fd/impl.cpp',
+    'fd/managed.cpp',
+    'fd/mmap.cpp',
+    'fd/ops.cpp',
   ]
-
-  install_headers(
-    'stdplus/fd/create.hpp',
-    'stdplus/fd/dupable.hpp',
-    'stdplus/fd/gmock.hpp',
-    'stdplus/fd/impl.hpp',
-    'stdplus/fd/intf.hpp',
-    'stdplus/fd/managed.hpp',
-    'stdplus/fd/mmap.hpp',
-    'stdplus/fd/ops.hpp',
-    subdir: 'stdplus/fd')
-elif get_option('fd').enabled()
-  error('File descriptor support required')
 endif
 
-io_uring_dep = dependency('liburing', required: get_option('io_uring'))
-has_io_uring = false
-if not get_option('io_uring').disabled() and has_fd and io_uring_dep.found()
-  has_io_uring = true
-
+if has_io_uring
   stdplus_deps += [
     io_uring_dep,
   ]
 
   stdplus_srcs += [
-    'stdplus/io_uring.cpp',
+    'io_uring.cpp',
   ]
-
-  install_headers(
-    'stdplus/io_uring.hpp',
-    subdir: 'stdplus')
-elif get_option('io_uring').enabled()
-  error('File descriptor support required')
 endif
 
 stdplus_lib = library(
@@ -121,21 +79,3 @@ import('pkgconfig').generate(
   description: 'C++ helper utilities',
   version: meson.project_version(),
   requires: stdplus_reqs)
-
-install_headers(
-  'stdplus/cancel.hpp',
-  'stdplus/exception.hpp',
-  'stdplus/flags.hpp',
-  'stdplus/raw.hpp',
-  'stdplus/signal.hpp',
-  subdir: 'stdplus')
-
-install_headers(
-  'stdplus/handle/copyable.hpp',
-  'stdplus/handle/managed.hpp',
-  subdir: 'stdplus/handle')
-
-install_headers(
-  'stdplus/util/cexec.hpp',
-  'stdplus/util/string.hpp',
-  subdir: 'stdplus/util')
