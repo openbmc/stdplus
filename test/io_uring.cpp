@@ -6,6 +6,7 @@
 #include <stdplus/io_uring.hpp>
 #include <string_view>
 
+#include <fmt/format.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -178,14 +179,17 @@ TEST_F(IoUringTest, RegisterFiles)
     std::optional<IoUring::FileHandle> fh;
 
     // Slots are always allocated linearly and re-used if invalidated
+    fmt::print("register line {}\n", __LINE__);
     fh = ring.registerFile(0);
     EXPECT_GT(ring.getFiles().size(), 1);
     EXPECT_EQ(*fh, 0);
+    fmt::print("register line {}\n", __LINE__);
     fh = ring.registerFile(1);
     EXPECT_EQ(*fh, 1);
     EXPECT_EQ(ring.getFiles()[1], 1);
 
     // The first handle should have dropped and can be replaced
+    fmt::print("register line {}\n", __LINE__);
     fh = ring.registerFile(2);
     EXPECT_EQ(*fh, 0);
     EXPECT_EQ(ring.getFiles()[0], 2);
@@ -205,10 +209,12 @@ TEST_F(IoUringTest, RegisterFiles)
     EXPECT_EQ(ring.getFiles().size(), 9);
     for (size_t i = 0; i < 9; ++i)
     {
+        fmt::print("register line {} iter {}\n", __LINE__, i);
         fhs.emplace_back(ring.registerFile(2));
         testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
     }
     EXPECT_EQ(ring.getFiles().size(), 9);
+    fmt::print("register line {}\n", __LINE__);
     fhs.emplace_back(ring.registerFile(2));
     testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
     EXPECT_GE(ring.getFiles().size(), 10);
