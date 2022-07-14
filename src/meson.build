@@ -112,3 +112,39 @@ if has_io_uring
     version: meson.project_version(),
     requires: stdplus_reqs)
 endif
+
+if has_gtest
+  stdplus_gtest_deps = [
+    fmt_dep,
+    gtest_dep,
+  ]
+
+  stdplus_gtest_pre = declare_dependency(
+    include_directories: stdplus_gtest_headers,
+    dependencies: stdplus_gtest_deps)
+
+  stdplus_gtest_lib = library(
+    'stdplus-gtest',
+    'gtest/tmp.cpp',
+    dependencies: stdplus_gtest_pre,
+    implicit_include_directories: false,
+    version: meson.project_version(),
+    install: true)
+
+  stdplus_gtest_dep = declare_dependency(
+    dependencies: stdplus_gtest_pre,
+    link_with: stdplus_gtest_lib)
+
+  stdplus_gtest_reqs = []
+  foreach dep : stdplus_gtest_deps
+    if dep.type_name() == 'pkgconfig'
+      stdplus_gtest_reqs += dep
+    endif
+  endforeach
+
+  import('pkgconfig').generate(
+    stdplus_gtest_lib,
+    description: 'C++ helper utilities',
+    version: meson.project_version(),
+    requires: stdplus_gtest_reqs)
+endif

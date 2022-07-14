@@ -38,6 +38,43 @@ if get_option('io_uring').enabled() and not has_io_uring
   error('io_uring support is required')
 endif
 
+build_tests = get_option('tests')
+has_gtest = false
+if not build_tests.disabled() or not get_option('gtest').disabled()
+  gtest_dep = dependency('gtest', required: false)
+  gtest_main_dep = dependency('gtest', main: true, required: false)
+  gmock_dep = dependency('gmock', required: false)
+  if not gtest_dep.found() or not gmock_dep.found()
+    gtest_opts = import('cmake').subproject_options()
+    gtest_opts.add_cmake_defines({
+      'BUILD_SHARED_LIBS': 'ON',
+      'CMAKE_CXX_FLAGS': '-Wno-pedantic',
+    })
+    gtest_proj = import('cmake').subproject(
+      'googletest',
+      options: gtest_opts,
+      required: false)
+    if gtest_proj.found()
+      gtest_dep = declare_dependency(
+        dependencies: [
+          dependency('threads'),
+          gtest_proj.dependency('gtest'),
+        ])
+      gtest_main_dep = declare_dependency(
+        dependencies: [
+          gtest_dep,
+          gtest_proj.dependency('gtest_main'),
+        ])
+      gmock_dep = gtest_proj.dependency('gmock')
+    else
+      assert(not build_tests.enabled() and not get_option('gtest').enabled(), 'Googletest is required')
+    endif
+  endif
+  if not get_option('gtest').disabled() and gtest_dep.found()
+    has_gtest = true
+  endif
+endif
+
 subdir('include')
 if has_dl
   subdir('include-dl')
@@ -48,10 +85,12 @@ endif
 if has_io_uring
   subdir('include-uring')
 endif
+if has_gtest
+  subdir('include-gtest')
+endif
 
 subdir('src')
 
-build_tests = get_option('tests')
 build_examples = get_option('examples')
 
 if build_examples
