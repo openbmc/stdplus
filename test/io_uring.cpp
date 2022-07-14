@@ -6,6 +6,7 @@
 #include <stdplus/io_uring.hpp>
 #include <string_view>
 
+#include <fmt/format.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -178,25 +179,32 @@ TEST_F(IoUringTest, RegisterFiles)
     std::optional<IoUring::FileHandle> fh;
 
     // Slots are always allocated linearly and re-used if invalidated
-    fh = ring.registerFile(0);
+    fmt::print("register line {}\n", __LINE__);
+    fh = ring.registerFile(STDERR_FILENO);
     EXPECT_GT(ring.getFiles().size(), 1);
     EXPECT_EQ(*fh, 0);
-    fh = ring.registerFile(1);
+    fmt::print("register line {}\n", __LINE__);
+    fh = ring.registerFile(STDOUT_FILENO);
     EXPECT_EQ(*fh, 1);
-    EXPECT_EQ(ring.getFiles()[1], 1);
+    EXPECT_GT(ring.getFiles().size(), 2);
+    EXPECT_EQ(ring.getFiles()[0], -1);
+    EXPECT_EQ(ring.getFiles()[1], STDOUT_FILENO);
 
     // The first handle should have dropped and can be replaced
-    fh = ring.registerFile(2);
+    fmt::print("register line {}\n", __LINE__);
+    fh = ring.registerFile(STDERR_FILENO);
     EXPECT_EQ(*fh, 0);
-    EXPECT_EQ(ring.getFiles()[0], 2);
+    EXPECT_GT(ring.getFiles().size(), 1);
+    EXPECT_EQ(ring.getFiles()[0], STDERR_FILENO);
+    EXPECT_EQ(ring.getFiles()[1], -1);
 
     // We should be able to write to stderr via the fixed file and regular fd
-    testFdWrite(2, 0);
+    testFdWrite(STDERR_FILENO, 0);
     testFdWrite(*fh, IOSQE_FIXED_FILE);
 
     // Without registration we should only be able to write to the regular fd
     fh.reset();
-    testFdWrite(2, 0);
+    testFdWrite(STDERR_FILENO, 0);
     testFdWrite(*fh, IOSQE_FIXED_FILE, -EBADF);
 
     std::vector<IoUring::FileHandle> fhs;
@@ -205,11 +213,13 @@ TEST_F(IoUringTest, RegisterFiles)
     EXPECT_EQ(ring.getFiles().size(), 9);
     for (size_t i = 0; i < 9; ++i)
     {
-        fhs.emplace_back(ring.registerFile(2));
+        fmt::print("register line {} iter {}\n", __LINE__, i);
+        fhs.emplace_back(ring.registerFile(STDERR_FILENO));
         testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
     }
     EXPECT_EQ(ring.getFiles().size(), 9);
-    fhs.emplace_back(ring.registerFile(2));
+    fmt::print("register line {}\n", __LINE__);
+    fhs.emplace_back(ring.registerFile(STDERR_FILENO));
     testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
     EXPECT_GE(ring.getFiles().size(), 10);
 }
