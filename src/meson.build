@@ -43,16 +43,6 @@ if has_fd
   ]
 endif
 
-if has_io_uring
-  stdplus_deps += [
-    io_uring_dep,
-  ]
-
-  stdplus_srcs += [
-    'io_uring.cpp',
-  ]
-endif
-
 stdplus_lib = library(
   'stdplus',
   stdplus_srcs,
@@ -103,14 +93,40 @@ if has_fd
 endif
 
 if has_io_uring
-  stdplus_io_uring_dep = stdplus_dep
+  stdplus_io_uring_deps = [
+    stdplus_dep,
+    stdplus_fd_dep,
+    io_uring_dep,
+  ]
+
+  stdplus_io_uring_pre = declare_dependency(
+    include_directories: stdplus_io_uring_headers,
+    dependencies: stdplus_io_uring_deps)
+
+  stdplus_io_uring_lib = library(
+    'stdplus-io_uring',
+    'io_uring.cpp',
+    dependencies: stdplus_io_uring_pre,
+    implicit_include_directories: false,
+    version: meson.project_version(),
+    install: true)
+
+  stdplus_io_uring_dep = declare_dependency(
+    dependencies: stdplus_io_uring_pre,
+    link_with: stdplus_io_uring_lib)
+
+  stdplus_io_uring_reqs = []
+  foreach dep : stdplus_io_uring_deps
+    if dep.type_name() == 'pkgconfig'
+      stdplus_io_uring_reqs += dep
+    endif
+  endforeach
 
   import('pkgconfig').generate(
-    stdplus_lib,
-    name: 'stdplus-io_uring',
+    stdplus_io_uring_lib,
     description: 'C++ helper utilities',
     version: meson.project_version(),
-    requires: stdplus_reqs)
+    requires: stdplus_io_uring_reqs)
 endif
 
 if has_gtest
