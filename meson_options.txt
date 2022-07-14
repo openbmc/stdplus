@@ -1,5 +1,6 @@
 option('dl', type: 'feature', description: 'libdl wrapper support')
 option('fd', type: 'feature', description: 'Managed file descriptor support')
 option('io_uring', type: 'feature', description: 'io_uring wrapper support')
+option('gtest', type: 'feature', value: 'disabled', description: 'Build googletest support library')
 option('tests', type: 'feature', description: 'Build tests')
 option('examples', type: 'boolean', value: true, description: 'Build examples')
