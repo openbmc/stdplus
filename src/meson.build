@@ -147,4 +147,13 @@ if has_gtest
     description: 'C++ helper utilities',
     version: meson.project_version(),
     requires: stdplus_gtest_reqs)
+
+  install_data(
+    'run_with_tmp',
+    install_mode: 'rwxr-xr-x',
+    install_dir: get_option('bindir'))
+
+  meson.override_find_program('run_with_tmp', files('run_with_tmp'))
 endif
+
+run_with_tmp = find_program('run_with_tmp', native: true)

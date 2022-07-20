@@ -79,7 +79,7 @@ if gtest_dep.found() and gmock_dep.found()
   foreach t : gtests
     test(
       t,
-      files('run_with_tmp.sh'),
+      run_with_tmp,
       env: {'TMPTMPL': 'stdplus-test.XXXXXXXXXX'},
       args: executable(
         t.underscorify(), t + '.cpp',

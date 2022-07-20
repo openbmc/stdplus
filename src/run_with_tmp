@@ -1,0 +1,14 @@
+#!/bin/bash
+TMPDIR="$(mktemp -d --tmpdir "${TMPTMPL-tmp.XXXXXXXXXX}")" || exit
+rmtmp() {
+  if [ -n "${TMP_DEBUG-}" ]; then
+    echo "Removing TMPDIR=$TMPDIR" >&2
+  fi
+  rm -rf -- "$TMPDIR"
+}
+trap rmtmp EXIT
+export TMPDIR
+if [ -n "${TMP_DEBUG-}" ]; then
+  echo "Exec $* with TMPDIR=$TMPDIR" >&2
+fi
+"$@"
