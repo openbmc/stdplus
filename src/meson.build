@@ -37,6 +37,7 @@ if has_fd
     'fd/create.cpp',
     'fd/dupable.cpp',
     'fd/impl.cpp',
+    'fd/line.cpp',
     'fd/managed.cpp',
     'fd/mmap.cpp',
     'fd/ops.cpp',

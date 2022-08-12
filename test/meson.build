@@ -33,6 +33,7 @@ if has_fd
     'fd/managed',
     'fd/intf',
     'fd/impl',
+    'fd/line',
     'fd/mmap',
     'fd/mock',
     'fd/ops',
