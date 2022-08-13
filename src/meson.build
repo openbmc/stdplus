@@ -36,6 +36,7 @@ if has_fd
   stdplus_srcs += [
     'fd/create.cpp',
     'fd/dupable.cpp',
+    'fd/fmt.cpp',
     'fd/impl.cpp',
     'fd/line.cpp',
     'fd/managed.cpp',
