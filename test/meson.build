@@ -31,6 +31,7 @@ if has_fd
   gtests += [
     'fd/dupable',
     'fd/managed',
+    'fd/fmt',
     'fd/intf',
     'fd/impl',
     'fd/line',
