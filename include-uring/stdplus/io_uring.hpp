@@ -118,7 +118,7 @@ class IoUring
      *  @throws std::system_error if constructing the event fd fails
      *  @return A reference to the descriptor
      */
-    stdplus::ManagedFd& getEventFd();
+    ManagedFd& getEventFd();
 
     /** @brief Non-blocking process all outstanding eventFd events
      *         Should be used instead of process() to clear eventFd events.
@@ -127,7 +127,7 @@ class IoUring
 
   private:
     io_uring ring;
-    std::optional<stdplus::ManagedFd> event_fd;
+    std::optional<ManagedFd> event_fd;
     std::vector<CQEHandler*> handlers;
     std::vector<int> files;
     size_t filesAllocated = 0;

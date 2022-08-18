@@ -9,7 +9,7 @@ namespace stdplus
 namespace fd
 {
 
-FormatBuffer::FormatBuffer(stdplus::Fd& fd, size_t max) : fd(fd), max(max)
+FormatBuffer::FormatBuffer(Fd& fd, size_t max) : fd(fd), max(max)
 {
 }
 
@@ -22,7 +22,7 @@ void FormatBuffer::flush()
 {
     if (buf.size() > 0)
     {
-        stdplus::fd::writeExact(fd, buf);
+        writeExact(fd, buf);
         buf.clear();
     }
 }

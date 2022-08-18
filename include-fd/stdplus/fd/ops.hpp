@@ -113,7 +113,7 @@ inline void listen(Fd& fd, int backlog)
 }
 
 template <typename SockAddr>
-inline std::optional<stdplus::DupableFd> accept(Fd& fd, SockAddr&& sockaddr)
+inline std::optional<DupableFd> accept(Fd& fd, SockAddr&& sockaddr)
 {
     auto ret = fd.accept(raw::asSpan<std::byte>(sockaddr));
     if (!std::get<0>(ret))
@@ -124,17 +124,17 @@ inline std::optional<stdplus::DupableFd> accept(Fd& fd, SockAddr&& sockaddr)
     {
         throw std::runtime_error("Invalid sockaddr type for accept");
     }
-    return stdplus::DupableFd(std::move(*std::get<0>(ret)));
+    return DupableFd(std::move(*std::get<0>(ret)));
 }
 
-inline std::optional<stdplus::DupableFd> accept(Fd& fd)
+inline std::optional<DupableFd> accept(Fd& fd)
 {
     auto ret = std::get<0>(fd.accept(std::span<std::byte>{}));
     if (!ret)
     {
         return std::nullopt;
     }
-    return stdplus::DupableFd(std::move(*ret));
+    return DupableFd(std::move(*ret));
 }
 
 template <typename Opt>

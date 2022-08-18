@@ -24,7 +24,7 @@ struct CancelableF
     }
 };
 
-using CancelHandle = stdplus::Managed<Cancelable*>::HandleF<CancelableF>;
+using CancelHandle = Managed<Cancelable*>::HandleF<CancelableF>;
 
 } // namespace detail
 

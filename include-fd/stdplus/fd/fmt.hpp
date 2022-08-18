@@ -14,7 +14,7 @@ namespace fd
 class FormatBuffer
 {
   public:
-    explicit FormatBuffer(stdplus::Fd& fd, size_t max = 4096);
+    explicit FormatBuffer(Fd& fd, size_t max = 4096);
     ~FormatBuffer() noexcept(false);
     FormatBuffer(const FormatBuffer&) = delete;
     FormatBuffer(FormatBuffer&&) = default;
@@ -32,7 +32,7 @@ class FormatBuffer
     void flush();
 
   private:
-    std::reference_wrapper<stdplus::Fd> fd;
+    std::reference_wrapper<Fd> fd;
     fmt::memory_buffer buf;
     size_t max;
 
@@ -64,7 +64,7 @@ class FormatToFile
 
   private:
     std::string tmpname;
-    stdplus::ManagedFd fd;
+    ManagedFd fd;
     FormatBuffer buf;
 };
 

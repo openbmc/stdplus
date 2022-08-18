@@ -143,13 +143,13 @@ void IoUring::wait(std::chrono::nanoseconds timeout)
               "io_uring_wait_cqe_timeout");
 }
 
-stdplus::ManagedFd& IoUring::getEventFd()
+ManagedFd& IoUring::getEventFd()
 {
     if (event_fd)
     {
         return *event_fd;
     }
-    stdplus::ManagedFd efd(CHECK_RET(eventfd(0, EFD_NONBLOCK), "eventfd"));
+    ManagedFd efd(CHECK_RET(eventfd(0, EFD_NONBLOCK), "eventfd"));
     CHECK_RET(io_uring_register_eventfd(&ring, efd.get()),
               "io_uring_register_eventfd");
     return *(event_fd = std::move(efd));
@@ -159,7 +159,7 @@ void IoUring::processEvents()
 {
     auto& efd = getEventFd();
     std::byte b[8];
-    while (!stdplus::fd::read(efd, b).empty())
+    while (!fd::read(efd, b).empty())
     {
         process();
     }
