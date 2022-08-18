@@ -22,7 +22,7 @@ void FormatBuffer::flush()
 {
     if (buf.size() > 0)
     {
-        stdplus::fd::write(fd, buf);
+        stdplus::fd::writeExact(fd, buf);
         buf.clear();
     }
 }
