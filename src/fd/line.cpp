@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/line.hpp>
 #include <stdplus/fd/ops.hpp>
@@ -44,13 +45,17 @@ const std::string* LineReader::readLine()
         {
             if (buf_data[i] == '\n')
             {
-                line.insert(line.end(), buf_data.begin(), buf_data.begin() + i);
+                auto oldsize = line.size();
+                line.resize(oldsize + i);
+                std::memcpy(line.data() + oldsize, buf_data.data(), i);
                 buf_data = buf_data.subspan(i + 1);
                 line_complete = true;
                 return &line;
             }
         }
-        line.insert(line.end(), buf_data.begin(), buf_data.end());
+        auto oldsize = line.size();
+        line.resize(oldsize + buf_data.size());
+        std::memcpy(line.data() + oldsize, buf_data.data(), buf_data.size());
         buf_data = {};
     }
 }
