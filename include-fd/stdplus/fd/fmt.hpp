@@ -5,6 +5,16 @@
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/fd/managed.hpp>
 #include <string_view>
+#include <type_traits>
+
+namespace fmt
+{
+namespace detail
+{
+template <typename T>
+struct is_compiled_string;
+}
+} // namespace fmt
 
 namespace stdplus
 {
@@ -22,10 +32,19 @@ class FormatBuffer
     FormatBuffer& operator=(FormatBuffer&&) = default;
 
     template <typename... Args>
-    void append(fmt::format_string<Args...> fmt, Args&&... args)
+    inline void append(fmt::format_string<Args...> fmt, Args&&... args)
     {
         fmt::format_to(std::back_inserter(buf), fmt,
                        std::forward<Args>(args)...);
+        writeIfNeeded();
+    }
+
+    template <typename T, typename... Args,
+              std::enable_if_t<fmt::detail::is_compiled_string<T>::value,
+                               bool> = true>
+    inline void append(const T& t, Args&&... args)
+    {
+        fmt::format_to(std::back_inserter(buf), t, std::forward<Args>(args)...);
         writeIfNeeded();
     }
 
@@ -50,9 +69,16 @@ class FormatToFile
     FormatToFile& operator=(FormatToFile&&) = delete;
 
     template <typename... Args>
-    void append(fmt::format_string<Args...> fmt, Args&&... args)
+    inline void append(fmt::format_string<Args...> fmt, Args&&... args)
     {
         buf.append(fmt, std::forward<Args>(args)...);
+    }
+    template <typename T, typename... Args,
+              std::enable_if_t<fmt::detail::is_compiled_string<T>::value,
+                               bool> = true>
+    inline void append(const T& t, Args&&... args)
+    {
+        buf.append(t, std::forward<Args>(args)...);
     }
 
     void commit(const std::filesystem::path& out, int mode = 0644);
