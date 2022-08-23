@@ -31,6 +31,7 @@ endif
 
 if has_fd
   gtests += [
+    'fd/atomic',
     'fd/dupable',
     'fd/managed',
     'fd/fmt',
