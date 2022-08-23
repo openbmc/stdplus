@@ -23,6 +23,7 @@ if has_fd
   gtests += {
     'fd/dupable': [stdplus_fd_dep],
     'fd/managed': [stdplus_fd_dep],
+    'fd/fmt': [stdplus_fd_dep, stdplus_dep, gtest_main_dep],
     'fd/intf': [stdplus_fd_dep],
     'fd/impl': [stdplus_fd_dep],
     'fd/line': [stdplus_fd_dep, stdplus_dep, gmock_dep, gtest_main_dep],
@@ -32,12 +33,12 @@ if has_fd
   }
   if has_gtest
     gtests += {
-      'fd/fmt': [stdplus_fd_dep, stdplus_gtest_dep, stdplus_dep, gtest_main_dep],
+      'fd/atomic': [stdplus_fd_dep, stdplus_gtest_dep, gtest_main_dep],
     }
   elif build_tests.enabled()
-    error('Not testing fd/fmt feature')
+    error('Not testing fd/atomic feature')
   else
-    warning('Not testing fd/fmt feature')
+    warning('Not testing fd/atomic feature')
   endif
 elif build_tests.enabled()
   error('Not testing file descriptor feature')
