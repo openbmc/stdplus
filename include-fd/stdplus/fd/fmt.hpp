@@ -1,11 +1,9 @@
 #pragma once
-#include <filesystem>
 #include <fmt/format.h>
 #include <functional>
 #include <stdplus/fd/intf.hpp>
-#include <stdplus/fd/managed.hpp>
-#include <string_view>
 #include <type_traits>
+#include <utility>
 
 namespace fmt
 {
@@ -56,42 +54,6 @@ class FormatBuffer
     size_t max;
 
     void writeIfNeeded();
-};
-
-class FormatToFile
-{
-  public:
-    explicit FormatToFile(std::string_view tmpl = "/tmp/stdplus.XXXXXX");
-    ~FormatToFile();
-    FormatToFile(const FormatToFile&) = delete;
-    FormatToFile(FormatToFile&&) = delete;
-    FormatToFile& operator=(const FormatToFile&) = delete;
-    FormatToFile& operator=(FormatToFile&&) = delete;
-
-    template <typename... Args>
-    inline void append(fmt::format_string<Args...> fmt, Args&&... args)
-    {
-        buf.append(fmt, std::forward<Args>(args)...);
-    }
-    template <typename T, typename... Args,
-              std::enable_if_t<fmt::detail::is_compiled_string<T>::value,
-                               bool> = true>
-    inline void append(const T& t, Args&&... args)
-    {
-        buf.append(t, std::forward<Args>(args)...);
-    }
-
-    void commit(const std::filesystem::path& out, int mode = 0644);
-
-    inline const std::string& getTmpname() const
-    {
-        return tmpname;
-    }
-
-  private:
-    std::string tmpname;
-    ManagedFd fd;
-    FormatBuffer buf;
 };
 
 } // namespace fd

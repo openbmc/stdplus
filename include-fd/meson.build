@@ -1,6 +1,7 @@
 stdplus_headers += include_directories('.')
 
 install_headers(
+  'stdplus/fd/atomic.hpp',
   'stdplus/fd/create.hpp',
   'stdplus/fd/dupable.hpp',
   'stdplus/fd/fmt.hpp',
