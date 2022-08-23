@@ -1,11 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <filesystem>
 #include <fmt/compile.h>
-#include <memory>
 #include <stdplus/fd/fmt.hpp>
 #include <stdplus/fd/managed.hpp>
-#include <stdplus/gtest/tmp.hpp>
 #include <stdplus/util/cexec.hpp>
 #include <sys/mman.h>
 
@@ -40,46 +37,6 @@ TEST(FormatBuffer, Basic)
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
     }
     EXPECT_EQ(4109, fd.lseek(0, Whence::Cur));
-}
-
-class FormatToFileTest : public gtest::TestWithTmp
-{
-  protected:
-    std::string tmpname;
-    std::unique_ptr<FormatToFile> file;
-
-    FormatToFileTest() :
-        tmpname(fmt::format("{}/tmp.XXXXXX", CaseTmpDir())),
-        file(std::make_unique<FormatToFile>(tmpname))
-    {
-        tmpname = file->getTmpname();
-        EXPECT_TRUE(std::filesystem::exists(tmpname));
-    }
-
-    ~FormatToFileTest() noexcept(true)
-    {
-        file.reset();
-        EXPECT_FALSE(std::filesystem::exists(tmpname));
-    }
-};
-
-TEST_F(FormatToFileTest, NoCommit)
-{
-    file->append("hi\n");
-    EXPECT_EQ(0, std::filesystem::file_size(tmpname));
-}
-
-TEST_F(FormatToFileTest, Basic)
-{
-    file->append("hi\n");
-    file->append("hi\n"sv);
-    file->append(FMT_STRING("hi\n"));
-    file->append(FMT_COMPILE("hi\n"));
-    EXPECT_EQ(0, std::filesystem::file_size(tmpname));
-    auto filename = fmt::format("{}/out", CaseTmpDir());
-    file->commit(filename);
-    EXPECT_FALSE(std::filesystem::exists(tmpname));
-    EXPECT_EQ(12, std::filesystem::file_size(filename));
 }
 
 } // namespace fd
