@@ -24,6 +24,7 @@ stdplus_srcs = [
 
 if has_fd
   stdplus_srcs += [
+    'fd/atomic.cpp',
     'fd/create.cpp',
     'fd/dupable.cpp',
     'fd/fmt.cpp',
