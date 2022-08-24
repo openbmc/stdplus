@@ -1,28 +1,18 @@
-gtests = [
-  'cancel',
-  'exception',
-  'handle/copyable',
-  'handle/managed',
-  'raw',
-  'signal',
-  'util/cexec',
-  'util/string',
-]
-
-gtest_deps = [
-  stdplus_dep,
-  gtest_main_dep,
-  gmock_dep,
-]
+gtests = {
+  'cancel': [stdplus_dep, gtest_main_dep],
+  'exception': [stdplus_dep, gtest_main_dep],
+  'handle/copyable': [stdplus_dep, gtest_main_dep],
+  'handle/managed': [stdplus_dep, gtest_main_dep],
+  'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
+  'signal': [stdplus_dep, gtest_main_dep],
+  'util/cexec': [stdplus_dep, gtest_main_dep],
+  'util/string': [stdplus_dep, gtest_main_dep],
+}
 
 if has_dl
-  gtests += [
-    'dl',
-  ]
-
-  gtest_deps += [
-    stdplus_dl_dep,
-  ]
+  gtests += {
+    'dl': [stdplus_dl_dep, gtest_main_dep],
+  }
 elif build_tests.enabled()
   error('Not testing libdl feature')
 else
@@ -30,21 +20,25 @@ else
 endif
 
 if has_fd
-  gtests += [
-    'fd/dupable',
-    'fd/managed',
-    'fd/fmt',
-    'fd/intf',
-    'fd/impl',
-    'fd/line',
-    'fd/mmap',
-    'fd/mock',
-    'fd/ops',
-  ]
-
-  gtest_deps += [
-    stdplus_fd_dep,
-  ]
+  gtests += {
+    'fd/dupable': [stdplus_fd_dep],
+    'fd/managed': [stdplus_fd_dep],
+    'fd/intf': [stdplus_fd_dep],
+    'fd/impl': [stdplus_fd_dep],
+    'fd/line': [stdplus_fd_dep, stdplus_dep, gmock_dep, gtest_main_dep],
+    'fd/mmap': [stdplus_fd_dep, gtest_main_dep],
+    'fd/mock': [stdplus_fd_dep, gmock_dep, gtest_main_dep],
+    'fd/ops': [stdplus_fd_dep, gtest_main_dep],
+  }
+  if has_gtest
+    gtests += {
+      'fd/fmt': [stdplus_fd_dep, stdplus_gtest_dep, stdplus_dep, gtest_main_dep],
+    }
+  elif build_tests.enabled()
+    error('Not testing fd/fmt feature')
+  else
+    warning('Not testing fd/fmt feature')
+  endif
 elif build_tests.enabled()
   error('Not testing file descriptor feature')
 else
@@ -52,13 +46,9 @@ else
 endif
 
 if has_io_uring
-  gtests += [
-    'io_uring',
-  ]
-
-  gtest_deps += [
-    stdplus_io_uring_dep,
-  ]
+  gtests += {
+    'io_uring': [stdplus_io_uring_dep, gmock_dep, gtest_main_dep],
+  }
 elif build_tests.enabled()
   error('Not testing io_uring feature')
 else
@@ -66,13 +56,9 @@ else
 endif
 
 if has_gtest
-  gtests += [
-    'gtest/tmp',
-  ]
-
-  gtest_deps += [
-    stdplus_gtest_dep,
-  ]
+  gtests += {
+    'gtest/tmp': [stdplus_gtest_dep, gtest_main_dep],
+  }
 elif build_tests.enabled()
   error('Not testing gtest lib feature')
 else
@@ -91,13 +77,13 @@ add_test_setup(
   env: {'TMPTMPL': 'stdplus-test.XXXXXXXXXX'})
 
 if gtest_dep.found() and gmock_dep.found()
-  foreach t : gtests
+  foreach t, deps : gtests
     test(
       t,
       executable(
         t.underscorify(), t + '.cpp',
         build_by_default: false,
         implicit_include_directories: false,
-        dependencies: gtest_deps))
+        dependencies: deps))
   endforeach
 endif
