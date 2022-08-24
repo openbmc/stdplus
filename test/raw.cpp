@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif
 #include <endian.h>
+#include <span>
 #include <stdexcept>
 #include <stdplus/raw.hpp>
 #include <string_view>
@@ -160,7 +161,6 @@ TEST_CASE("As View View", "[AsView]")
     CHECK(s[1] == sv[1]);
 }
 
-#ifdef STDPLUS_SPAN_TYPE
 TEST_CASE("Span Extract TooSmall", "[Extract]")
 {
     const std::vector<char> v = {'c'};
@@ -273,8 +273,6 @@ TEST_CASE("As Span Span", "[AsSpan]")
     CHECK(s2[0] == arr[0]);
     CHECK(s2[1] == arr[1]);
 }
-
-#endif
 
 } // namespace
 } // namespace raw
