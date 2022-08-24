@@ -2,9 +2,12 @@
 
 #include <array>
 #include <chrono>
+#include <fmt/format.h>
 #include <optional>
 #include <stdplus/io_uring.hpp>
+#include <stdplus/util/cexec.hpp>
 #include <string_view>
+#include <sys/utsname.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -13,6 +16,14 @@ namespace stdplus
 {
 
 using testing::_;
+
+TEST(KernelInfo, Print)
+{
+    utsname uts;
+    ASSERT_NO_THROW(CHECK_ERRNO(uname(&uts), "uname"));
+    fmt::print("{} {} {} {} {}", uts.sysname, uts.nodename, uts.release,
+               uts.version, uts.machine);
+}
 
 TEST(Convert, ChronoToKTS)
 {
