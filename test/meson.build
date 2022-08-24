@@ -3,6 +3,7 @@ gtests = [
   'exception',
   'handle/copyable',
   'handle/managed',
+  'raw',
   'signal',
   'util/cexec',
   'util/string',
@@ -138,7 +139,6 @@ if not catch2.found()
 endif
 
 catch2_tests = [
-  'raw',
 ]
 
 if catch2.found()
