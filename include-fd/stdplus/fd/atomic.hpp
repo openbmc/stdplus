@@ -9,6 +9,11 @@ namespace stdplus
 namespace fd
 {
 
+namespace detail
+{
+extern bool tmpfile_support;
+}
+
 class AtomicWriter : public stdplus::FdImpl
 {
   public:
@@ -20,16 +25,14 @@ class AtomicWriter : public stdplus::FdImpl
 
     void commit(bool allow_copy = false);
 
-    inline const std::string& getTmpname() const
-    {
-        return tmpname;
-    }
+    const std::string& getTmpname() const;
 
     int get() const override;
 
   private:
     std::filesystem::path filename;
     int mode;
+    bool tmpexists;
     std::string tmpname;
     ManagedFd fd;
 
