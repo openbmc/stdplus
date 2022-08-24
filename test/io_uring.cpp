@@ -3,6 +3,7 @@
 #include <array>
 #include <charconv>
 #include <chrono>
+#include <fmt/format.h>
 #include <optional>
 #include <stdplus/io_uring.hpp>
 #include <stdplus/util/cexec.hpp>
@@ -61,6 +62,14 @@ static bool checkKernelSafe(uint8_t smajor, uint8_t sminor)
     utsname uts;
     CHECK_ERRNO(uname(&uts), "uname");
     return isKernelSafe(uts.release, smajor, sminor);
+}
+
+TEST(KernelInfo, Print)
+{
+    utsname uts;
+    ASSERT_NO_THROW(CHECK_ERRNO(uname(&uts), "uname"));
+    fmt::print("{} {} {} {} {}", uts.sysname, uts.nodename, uts.release,
+               uts.version, uts.machine);
 }
 
 TEST(Convert, ChronoToKTS)
