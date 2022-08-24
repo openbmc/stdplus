@@ -1,2 +1,4 @@
 /build*/
-/subprojects/*/
+/subprojects/*
+!/subprojects/fmt.wrap
+!/subprojects/googletest.wrap
