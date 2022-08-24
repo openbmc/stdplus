@@ -22,16 +22,6 @@ stdplus_srcs = [
   'signal.cpp',
 ]
 
-if has_dl
-  stdplus_deps += [
-    dl_dep,
-  ]
-
-  stdplus_srcs += [
-    'dl.cpp',
-  ]
-endif
-
 if has_fd
   stdplus_srcs += [
     'fd/create.cpp',
@@ -73,14 +63,39 @@ import('pkgconfig').generate(
   requires: stdplus_reqs)
 
 if has_dl
-  stdplus_dl_dep = stdplus_dep
+  stdplus_dl_deps = [
+    stdplus_dep,
+    dl_dep,
+  ]
+
+  stdplus_dl_pre = declare_dependency(
+    include_directories: stdplus_dl_headers,
+    dependencies: stdplus_dl_deps)
+
+  stdplus_dl_lib = library(
+    'stdplus-dl',
+    'dl.cpp',
+    dependencies: stdplus_dl_pre,
+    implicit_include_directories: false,
+    version: meson.project_version(),
+    install: true)
+
+  stdplus_dl_dep = declare_dependency(
+    dependencies: stdplus_dl_pre,
+    link_with: stdplus_dl_lib)
+
+  stdplus_dl_reqs = []
+  foreach dep : stdplus_dl_deps
+    if dep.type_name() == 'pkgconfig'
+      stdplus_dl_reqs += dep
+    endif
+  endforeach
 
   import('pkgconfig').generate(
-    stdplus_lib,
-    name: 'stdplus-dl',
+    stdplus_dl_lib,
     description: 'C++ helper utilities',
     version: meson.project_version(),
-    requires: stdplus_reqs)
+    requires: stdplus_dl_reqs)
 endif
 
 if has_fd
