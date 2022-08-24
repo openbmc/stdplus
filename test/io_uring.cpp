@@ -1,6 +1,7 @@
 #include <poll.h>
 
 #include <array>
+#include <charconv>
 #include <chrono>
 #include <fmt/format.h>
 #include <optional>
@@ -16,6 +17,52 @@ namespace stdplus
 {
 
 using testing::_;
+
+static std::string_view extractVerNum(std::string_view& str)
+{
+    auto ret = str.substr(0, str.find('.'));
+    str.remove_prefix(ret.size() + (ret.size() == str.size() ? 0 : 1));
+    return ret;
+}
+
+template <typename T>
+static T intFromStr(std::string_view str)
+{
+    T ret;
+    auto res = std::from_chars(str.data(), str.data() + str.size(), ret);
+    if (res.ec != std::errc{} || res.ptr != str.data() + str.size())
+    {
+        throw std::invalid_argument("Bad kernel version");
+    }
+    return ret;
+}
+
+static bool isKernelSafe(std::string_view ver, uint8_t smajor, uint8_t sminor)
+{
+    auto major = intFromStr<uint8_t>(extractVerNum(ver));
+    auto minor = intFromStr<uint8_t>(extractVerNum(ver));
+    return major > smajor || (major == smajor && minor >= sminor);
+}
+
+TEST(KernelInfo, VersionSafe)
+{
+    EXPECT_THROW(isKernelSafe("a", 5, 10), std::invalid_argument);
+    EXPECT_THROW(isKernelSafe("3a.3b.c", 5, 10), std::invalid_argument);
+    EXPECT_FALSE(isKernelSafe("4.11.20-nfd", 5, 10));
+    EXPECT_FALSE(isKernelSafe("4.11.20", 5, 10));
+    EXPECT_FALSE(isKernelSafe("4.11", 5, 10));
+    EXPECT_FALSE(isKernelSafe("5.9.0", 5, 10));
+    EXPECT_TRUE(isKernelSafe("5.10.1", 5, 10));
+    EXPECT_TRUE(isKernelSafe("6.0.0", 5, 10));
+    EXPECT_TRUE(isKernelSafe("6.0.0-abc", 5, 10));
+}
+
+static bool checkKernelSafe(uint8_t smajor, uint8_t sminor)
+{
+    utsname uts;
+    CHECK_ERRNO(uname(&uts), "uname");
+    return isKernelSafe(uts.release, smajor, sminor);
+}
 
 TEST(KernelInfo, Print)
 {
@@ -186,6 +233,12 @@ TEST_F(IoUringTest, HandleCalledOnDestroy)
 
 TEST_F(IoUringTest, RegisterFiles)
 {
+    // Earlier kernels had buggy support for registered files
+    if (!checkKernelSafe(5, 10))
+    {
+        GTEST_SKIP();
+    }
+
     std::optional<IoUring::FileHandle> fh;
 
     // Slots are always allocated linearly and re-used if invalidated
