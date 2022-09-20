@@ -44,6 +44,7 @@ stdplus_deps = [
 stdplus_srcs = [
   'exception.cpp',
   'signal.cpp',
+  'zstring.cpp',
   'zstring_view.cpp',
 ]
 
