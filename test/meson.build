@@ -7,6 +7,7 @@ gtests = {
   'signal': [stdplus_dep, gtest_main_dep],
   'util/cexec': [stdplus_dep, gtest_main_dep],
   'util/string': [stdplus_dep, gtest_main_dep],
+  'zstring_view': [stdplus_dep, gtest_main_dep],
 }
 
 if has_dl
