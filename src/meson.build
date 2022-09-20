@@ -20,6 +20,7 @@ stdplus_deps = [
 stdplus_srcs = [
   'exception.cpp',
   'signal.cpp',
+  'zstring_view.cpp',
 ]
 
 if has_fd
