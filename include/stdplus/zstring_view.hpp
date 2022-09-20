@@ -1,5 +1,6 @@
 #pragma once
 #include <stdexcept>
+#include <stdplus/zstring.hpp>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -24,19 +25,6 @@ inline constexpr auto
 {
     using SV = basic_zstring_view<CharT, Traits>;
     return SV(typename SV::unsafe(), sv);
-}
-
-template <typename CharT, std::size_t N>
-constexpr bool zstring_validate(const CharT (&str)[N]) noexcept
-{
-    for (size_t i = 0; i < N - 1; ++i)
-    {
-        if (str[i] == '\0')
-        {
-            return false;
-        }
-    }
-    return str[N - 1] == '\0';
 }
 
 template <typename CharT, std::size_t N>
@@ -67,6 +55,7 @@ class basic_zstring_view
 {
   private:
     using string_view_base = std::basic_string_view<CharT, Traits>;
+    using zstring_base = basic_zstring<const CharT, Traits>;
 
   public:
     using traits_type = string_view_base::traits_type;
@@ -120,16 +109,29 @@ class basic_zstring_view
         sv(str.data())
     {
 #ifndef NDEBUG
-        if (str.find('\0') != npos)
+        if (!detail::zstring_validate(str))
         {
             throw std::invalid_argument("stdplus::zstring_view");
         }
 #endif
     }
+    template <
+        typename T,
+        std::enable_if_t<std::is_same_v<value_type, std::remove_const_t<T>>,
+                         bool> = true>
+    inline constexpr basic_zstring_view(basic_zstring<T, Traits> str) noexcept :
+        sv(str.data())
+    {
+    }
 
     inline constexpr operator string_view_base() const noexcept
     {
         return sv;
+    }
+
+    inline constexpr operator zstring_base() const noexcept
+    {
+        return zstring_base(data());
     }
 
     inline constexpr const_iterator begin() const noexcept
