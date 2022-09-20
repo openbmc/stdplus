@@ -6,6 +6,7 @@ install_headers(
   'stdplus/flags.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
+  'stdplus/zstring_view.hpp',
   subdir: 'stdplus')
 
 install_headers(
