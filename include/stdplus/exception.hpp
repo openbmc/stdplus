@@ -1,14 +1,8 @@
 #pragma once
 #include <fmt/format.h>
+#include <source_location>
 #include <system_error>
 #include <utility>
-
-// Forward declare builtins in case they are unsupported
-#if !__has_builtin(__builtin_LINE)
-int __builtin_LINE();
-const char* __builtin_FILE();
-const char* __builtin_FUNCTION();
-#endif
 
 namespace stdplus
 {
@@ -28,9 +22,15 @@ struct Eof : public std::system_error
 };
 
 template <typename F>
-auto ignore(F&& f, const char* file = __builtin_FILE(),
-            int line = __builtin_LINE(),
-            const char* func = __builtin_FUNCTION()) noexcept
+auto ignore(F&& f, const std::source_location location =
+                       std::source_location::current())
+{
+    return ignore(std::forward<F>(f), location.file_name(), location.line(),
+                  location.function_name());
+}
+
+template <typename F>
+auto ignore(F&& f, const char* file, int line, const char* func) noexcept
 {
     return
         [f = std::move(f), file, line, func](auto&&... args) mutable noexcept {
