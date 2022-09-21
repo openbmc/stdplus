@@ -9,6 +9,7 @@ namespace stdplus
 {
 
 using std::literals::string_literals::operator""s;
+using std::literals::string_view_literals::operator""sv;
 using zstring_view_literals::operator""_zsv;
 
 TEST(ZstringView, Basic)
@@ -60,6 +61,14 @@ TEST(ZstringView, Suffix)
     EXPECT_EQ("c", s1.suffix(1));
     EXPECT_EQ("", s1.suffix(2));
     EXPECT_THROW(s1.suffix(3), std::out_of_range);
+}
+
+TEST(ZstringView, NoTypeCoercion)
+{
+    EXPECT_NE(""_zsv, "\0"sv);
+    EXPECT_NE("\0"sv, ""_zsv);
+    EXPECT_LT(""_zsv, "\0"sv);
+    EXPECT_GT("\0"sv, ""_zsv);
 }
 
 } // namespace stdplus
