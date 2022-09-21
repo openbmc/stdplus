@@ -4,10 +4,24 @@
 #include <system_error>
 #include <utility>
 
+#if __has_builtin(__builtin_source_location)
+#include <source_location>
+#else
+#include <experimental/source_location>
+#endif
+
 namespace stdplus
 {
 namespace exception
 {
+namespace detail
+{
+#if __has_builtin(__builtin_source_location)
+using source_location = std::source_location;
+#else
+using source_location = std::experimental::source_location;
+#endif
+} // namespace detail
 
 struct WouldBlock : public std::system_error
 {
@@ -22,8 +36,8 @@ struct Eof : public std::system_error
 };
 
 template <typename F>
-auto ignore(F&& f, const std::source_location location =
-                       std::source_location::current())
+auto ignore(F&& f, const detail::source_location location =
+                       detail::source_location::current())
 {
     return ignore(std::forward<F>(f), location.file_name(), location.line(),
                   location.function_name());
