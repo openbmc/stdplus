@@ -18,9 +18,12 @@ TEST(ZstringView, Basic)
     auto s = "b"s;
     auto s2 = zstring_view(s);
     std::string_view sv = s1;
+    char mut[] = "aa";
+    auto s3 = zstring_view(mut);
 
     EXPECT_NE(sv, s2);
     EXPECT_NE(s1, s2);
+    EXPECT_EQ(s3, "aa");
 
     EXPECT_EQ("ac"_zsv, s1);
     EXPECT_EQ("ac", s1);
@@ -50,7 +53,21 @@ TEST(ZstringView, Basic)
 TEST(ZstringView, ConstructError)
 {
     auto s = "hi\0"s;
+#ifdef NDEBUG
+    EXPECT_EQ("hi", zstring_view(s));
+#else
     EXPECT_THROW((zstring_view(s)), std::invalid_argument);
+#endif
+
+    char mut1[] = "aa\0";
+    char mut2[] = {'a', 'a'};
+#ifdef NDEBUG
+    EXPECT_EQ("aa\0", zstring_view(mut1));
+    EXPECT_EQ("a", zstring_view(mut2));
+#else
+    EXPECT_THROW((zstring_view(mut1)), std::invalid_argument);
+    EXPECT_THROW((zstring_view(mut2)), std::invalid_argument);
+#endif
 }
 
 TEST(ZstringView, Suffix)
@@ -65,6 +82,8 @@ TEST(ZstringView, Suffix)
 
 TEST(ZstringView, NoTypeCoercion)
 {
+    EXPECT_NE(""_zsv, "\0");
+    EXPECT_NE("\0", ""_zsv);
     EXPECT_NE(""_zsv, "\0"sv);
     EXPECT_NE("\0"sv, ""_zsv);
     EXPECT_LT(""_zsv, "\0"sv);
