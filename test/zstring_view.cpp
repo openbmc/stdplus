@@ -18,9 +18,12 @@ TEST(ZstringView, Basic)
     auto s = "b"s;
     auto s2 = zstring_view(s);
     std::string_view sv = s1;
+    char mut[] = "aa";
+    auto s3 = zstring_view(mut);
 
     EXPECT_NE(sv, s2);
     EXPECT_NE(s1, s2);
+    EXPECT_EQ(s3, "aa");
 
     EXPECT_EQ("ac"_zsv, s1);
     EXPECT_EQ("ac", s1);

@@ -78,15 +78,22 @@ class basic_zstring_view
 
     static constexpr size_type npos = string_view_base::npos;
 
-    inline constexpr basic_zstring_view(const_pointer str) noexcept : sv(str)
+    template <
+        typename T,
+        std::enable_if_t<std::is_same_v<value_type, std::remove_const_t<T>>,
+                         bool> = true>
+    inline constexpr basic_zstring_view(T* str) noexcept : sv(str)
     {
     }
-    template <typename Allocator>
-    constexpr basic_zstring_view(
-        const std::basic_string<CharT, Traits, Allocator>& str) :
-        sv(str)
+    template <typename T,
+              std::enable_if_t<
+                  std::is_same_v<std::basic_string<value_type, Traits,
+                                                   typename T::allocator_type>,
+                                 std::remove_cvref_t<T>>,
+                  bool> = true>
+    constexpr basic_zstring_view(T& str) : sv(str.data())
     {
-        if (sv.find('\0') != npos)
+        if (str.find('\0') != npos)
         {
             throw std::invalid_argument("stdplus::zstring_view");
         }
@@ -332,7 +339,7 @@ inline constexpr auto operator"" _zsv() noexcept
 
 } // namespace stdplus
 
-#define zstring_all(char_t, pfx)                                               \
+#define zstring_view_all(char_t, pfx)                                          \
     namespace stdplus                                                          \
     {                                                                          \
     using pfx##zstring_view = basic_zstring_view<char_t>;                      \
@@ -345,9 +352,9 @@ inline constexpr auto operator"" _zsv() noexcept
     {                                                                          \
     };                                                                         \
     }
-zstring_all(char, );
-zstring_all(char8_t, u8);
-zstring_all(char16_t, u16);
-zstring_all(char32_t, u32);
-zstring_all(wchar_t, w);
-#undef zstring_all
+zstring_view_all(char, );
+zstring_view_all(char8_t, u8);
+zstring_view_all(char16_t, u16);
+zstring_view_all(char32_t, u32);
+zstring_view_all(wchar_t, w);
+#undef zstring_view_all
