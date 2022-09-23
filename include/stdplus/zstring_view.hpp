@@ -27,6 +27,19 @@ inline constexpr auto
 }
 
 template <typename CharT, std::size_t N>
+constexpr bool zstring_validate(const CharT (&str)[N]) noexcept
+{
+    for (size_t i = 0; i < N - 1; ++i)
+    {
+        if (str[i] == '\0')
+        {
+            return false;
+        }
+    }
+    return str[N - 1] == '\0';
+}
+
+template <typename CharT, std::size_t N>
 struct compile_zstring_view
 {
     CharT data[N] = {};
@@ -34,17 +47,10 @@ struct compile_zstring_view
 
     constexpr compile_zstring_view(const CharT (&str)[N]) noexcept
     {
-        for (size_t i = 0; i < N - 1; ++i)
+        valid = zstring_validate(str);
+        for (std::size_t i = 0; i < N - 1; ++i)
         {
-            if (str[i] == '\0')
-            {
-                valid = false;
-            }
             data[i] = str[i];
-        }
-        if (str[N - 1] != '\0')
-        {
-            valid = false;
         }
     }
 
@@ -78,18 +84,47 @@ class basic_zstring_view
 
     static constexpr size_type npos = string_view_base::npos;
 
-    inline constexpr basic_zstring_view(const_pointer str) noexcept : sv(str)
+    template <
+        typename T, size_type N,
+        std::enable_if_t<std::is_same_v<value_type, std::remove_cvref_t<T>>,
+                         bool> = true>
+    constexpr basic_zstring_view(T (&str)[N])
+#ifdef NDEBUG
+        noexcept
+#endif
+        :
+        sv(str, N - 1)
     {
-    }
-    template <typename Allocator>
-    constexpr basic_zstring_view(
-        const std::basic_string<CharT, Traits, Allocator>& str) :
-        sv(str)
-    {
-        if (sv.find('\0') != npos)
+#ifndef NDEBUG
+        if (!detail::zstring_validate(str))
         {
             throw std::invalid_argument("stdplus::zstring_view");
         }
+#endif
+    }
+    template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
+    inline constexpr basic_zstring_view(T str) noexcept : sv(str)
+    {
+    }
+    template <typename T,
+              std::enable_if_t<
+                  std::is_same_v<std::basic_string<value_type, Traits,
+                                                   typename T::allocator_type>,
+                                 std::remove_cvref_t<T>>,
+                  bool> = true>
+    constexpr basic_zstring_view(T& str)
+#ifdef NDEBUG
+        noexcept
+#endif
+        :
+        sv(str.data())
+    {
+#ifndef NDEBUG
+        if (str.find('\0') != npos)
+        {
+            throw std::invalid_argument("stdplus::zstring_view");
+        }
+#endif
     }
 
     inline constexpr operator string_view_base() const noexcept
@@ -256,6 +291,28 @@ class basic_zstring_view
         return basic_zstring_view(unsafe(), sv.substr(pos));
     }
 
+    template <typename CharTO, size_type N>
+    inline constexpr bool operator==(const CharTO (&rhs)[N]) const noexcept
+    {
+        return *this == std::basic_string_view<CharTO, Traits>(rhs, N - 1);
+    }
+    constexpr bool
+        operator==(std::basic_string_view<CharT, Traits> rhs) const noexcept
+    {
+        return size() == rhs.size() && compare(rhs) == 0;
+    }
+    template <typename CharTO, size_type N>
+    inline constexpr Traits::comparison_category
+        operator<=>(const CharTO (&rhs)[N]) const noexcept
+    {
+        return *this <=> std::basic_string_view<CharTO, Traits>(rhs, N - 1);
+    }
+    constexpr Traits::comparison_category
+        operator<=>(std::basic_string_view<CharT, Traits> rhs) const noexcept
+    {
+        return compare(rhs) <=> 0;
+    }
+
   private:
     string_view_base sv;
 
@@ -268,49 +325,6 @@ class basic_zstring_view
     }
     friend auto detail::unsafe_zstring_view<CharT, Traits>(string_view_base sv);
 };
-
-template <class CharT, class Traits>
-constexpr bool operator==(basic_zstring_view<CharT, Traits> lhs,
-                          basic_zstring_view<CharT, Traits> rhs) noexcept
-{
-    return lhs.size() == rhs.size() && lhs.compare(rhs) == 0;
-}
-template <class CharT, class Traits>
-constexpr bool operator==(
-    basic_zstring_view<CharT, Traits> lhs,
-    std::type_identity_t<std::basic_string_view<CharT, Traits>> rhs) noexcept
-{
-    return lhs.size() == rhs.size() && lhs.compare(rhs) == 0;
-}
-template <class CharT, class Traits>
-constexpr bool
-    operator==(std::type_identity_t<std::basic_string_view<CharT, Traits>> lhs,
-               basic_zstring_view<CharT, Traits> rhs) noexcept
-{
-    return lhs.size() == rhs.size() && lhs.compare(rhs) == 0;
-}
-
-template <class CharT, class Traits>
-constexpr Traits::comparison_category
-    operator<=>(basic_zstring_view<CharT, Traits> lhs,
-                basic_zstring_view<CharT, Traits> rhs) noexcept
-{
-    return lhs.compare(rhs) <=> 0;
-}
-template <class CharT, class Traits>
-constexpr Traits::comparison_category operator<=>(
-    basic_zstring_view<CharT, Traits> lhs,
-    std::type_identity_t<std::basic_string_view<CharT, Traits>> rhs) noexcept
-{
-    return lhs.compare(rhs) <=> 0;
-}
-template <class CharT, class Traits>
-constexpr Traits::comparison_category
-    operator<=>(std::type_identity_t<std::basic_string_view<CharT, Traits>> lhs,
-                basic_zstring_view<CharT, Traits> rhs) noexcept
-{
-    return lhs.compare(rhs) <=> 0;
-}
 
 template <typename CharT, typename Traits>
 std::basic_ostream<CharT, Traits>&
@@ -332,7 +346,7 @@ inline constexpr auto operator"" _zsv() noexcept
 
 } // namespace stdplus
 
-#define zstring_all(char_t, pfx)                                               \
+#define zstring_view_all(char_t, pfx)                                          \
     namespace stdplus                                                          \
     {                                                                          \
     using pfx##zstring_view = basic_zstring_view<char_t>;                      \
@@ -345,9 +359,9 @@ inline constexpr auto operator"" _zsv() noexcept
     {                                                                          \
     };                                                                         \
     }
-zstring_all(char, );
-zstring_all(char8_t, u8);
-zstring_all(char16_t, u16);
-zstring_all(char32_t, u32);
-zstring_all(wchar_t, w);
-#undef zstring_all
+zstring_view_all(char, );
+zstring_view_all(char8_t, u8);
+zstring_view_all(char16_t, u16);
+zstring_view_all(char32_t, u32);
+zstring_view_all(wchar_t, w);
+#undef zstring_view_all
