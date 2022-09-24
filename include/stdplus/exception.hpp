@@ -36,14 +36,6 @@ struct Eof : public std::system_error
 };
 
 template <typename F>
-auto ignore(F&& f, const detail::source_location location =
-                       detail::source_location::current())
-{
-    return ignore(std::forward<F>(f), location.file_name(), location.line(),
-                  location.function_name());
-}
-
-template <typename F>
 auto ignore(F&& f, const char* file, int line, const char* func) noexcept
 {
     return
@@ -68,6 +60,14 @@ auto ignore(F&& f, const char* file, int line, const char* func) noexcept
                 return Ret();
             }
         };
+}
+
+template <typename F>
+auto ignore(F&& f, const detail::source_location location =
+                       detail::source_location::current()) noexcept
+{
+    return ignore(std::forward<F>(f), location.file_name(), location.line(),
+                  location.function_name());
 }
 
 template <typename F>
