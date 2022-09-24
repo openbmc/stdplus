@@ -32,7 +32,14 @@ TEST(Zstring, Construct)
     EXPECT_EQ("c", zstring(as));
     EXPECT_EQ("c", const_zstring(as));
 
+    auto str2 = "d"s;
+    auto zs = zstring(str2);
+    EXPECT_EQ(str2, zs);
+
     std::cerr << const_zstring(as);
+
+    auto from_str = [&](const_zstring cs) { EXPECT_EQ(cs, "ac"); };
+    from_str("ac"s);
 }
 
 TEST(Zstring, NoTypeCoercion)

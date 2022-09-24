@@ -73,10 +73,7 @@ class basic_zstring_view
 
     static constexpr size_type npos = string_view_base::npos;
 
-    template <
-        typename T, size_type N,
-        std::enable_if_t<std::is_same_v<value_type, std::remove_cvref_t<T>>,
-                         bool> = true>
+    template <typename T, size_type N>
     constexpr basic_zstring_view(T (&str)[N])
 #ifdef NDEBUG
         noexcept
@@ -96,12 +93,9 @@ class basic_zstring_view
     {
     }
     template <typename T,
-              std::enable_if_t<
-                  std::is_same_v<std::basic_string<value_type, Traits,
-                                                   typename T::allocator_type>,
-                                 std::remove_cvref_t<T>>,
-                  bool> = true>
-    constexpr basic_zstring_view(T& str)
+              std::enable_if_t<detail::same_string<T, CharT, Traits>::value,
+                               bool> = true>
+    constexpr basic_zstring_view(const T& str)
 #ifdef NDEBUG
         noexcept
 #endif

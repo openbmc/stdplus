@@ -12,6 +12,14 @@ using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;
 using zstring_view_literals::operator""_zsv;
 
+TEST(ZstringView, IsString)
+{
+    EXPECT_TRUE((
+        detail::same_string<std::string, char, std::char_traits<char>>::value));
+    EXPECT_FALSE((detail::same_string<std::string_view, char,
+                                      std::char_traits<char>>::value));
+}
+
 TEST(ZstringView, Basic)
 {
     auto s1 = zstring_view("ac");
@@ -48,6 +56,9 @@ TEST(ZstringView, Basic)
     std::set<zstring_view> set{s2, s2};
     EXPECT_EQ(0, set.count("ac"));
     EXPECT_EQ(1, set.count("b"));
+
+    auto from_str = [&](zstring_view cs) { EXPECT_EQ(cs, "ac"); };
+    from_str("ac"s);
 }
 
 TEST(ZstringView, ConstructError)

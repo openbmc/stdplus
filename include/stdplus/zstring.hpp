@@ -32,6 +32,17 @@ inline constexpr bool
     return str.find('\0') == str.npos;
 }
 
+template <typename T, typename CharT, typename Traits>
+struct same_string : std::false_type
+{
+};
+
+template <typename CharT, typename Traits, typename Allocator>
+struct same_string<std::basic_string<CharT, Traits, Allocator>, CharT, Traits>
+    : std::true_type
+{
+};
+
 } // namespace detail
 
 /**
@@ -56,9 +67,7 @@ class basic_zstring
     using const_reference = const value_type&;
     using size_type = std::size_t;
 
-    template <typename T, size_type N,
-              std::enable_if_t<std::is_same_v<decay_t, std::remove_cvref_t<T>>,
-                               bool> = true>
+    template <typename T, size_type N>
     constexpr basic_zstring(T (&str)[N])
 #ifdef NDEBUG
         noexcept
@@ -78,12 +87,10 @@ class basic_zstring
     {
     }
     template <typename T,
-              std::enable_if_t<
-                  std::is_same_v<std::basic_string<decay_t, Traits,
-                                                   typename T::allocator_type>,
-                                 std::remove_cvref_t<T>>,
-                  bool> = true>
-    constexpr basic_zstring(T& str)
+              std::enable_if_t<detail::same_string<std::remove_cvref_t<T>,
+                                                   decay_t, Traits>::value,
+                               bool> = true>
+    constexpr basic_zstring(T&& str)
 #ifdef NDEBUG
         noexcept
 #endif
