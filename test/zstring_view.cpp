@@ -67,18 +67,15 @@ TEST(ZstringView, ConstructError)
 {
     auto s = "hi\0"s;
 #ifdef NDEBUG
-    EXPECT_EQ("hi", zstring_view(s));
+    EXPECT_EQ("hi\0"sv, zstring_view(s));
 #else
     EXPECT_THROW((zstring_view(s)), std::invalid_argument);
 #endif
 
     char mut1[] = "aa\0";
+    EXPECT_EQ("aa", zstring_view(mut1));
+#ifndef NDEBUG
     char mut2[] = {'a', 'a'};
-#ifdef NDEBUG
-    EXPECT_EQ("aa\0", zstring_view(mut1));
-    EXPECT_EQ("a", zstring_view(mut2));
-#else
-    EXPECT_THROW((zstring_view(mut1)), std::invalid_argument);
     EXPECT_THROW((zstring_view(mut2)), std::invalid_argument);
 #endif
 }
@@ -95,8 +92,8 @@ TEST(ZstringView, Suffix)
 
 TEST(ZstringView, NoTypeCoercion)
 {
-    EXPECT_NE(""_zsv, "\0");
-    EXPECT_NE("\0", ""_zsv);
+    EXPECT_EQ(""_zsv, "\0");
+    EXPECT_EQ("\0", ""_zsv);
     EXPECT_NE(""_zsv, "\0"sv);
     EXPECT_NE("\0"sv, ""_zsv);
     EXPECT_LT(""_zsv, "\0"sv);

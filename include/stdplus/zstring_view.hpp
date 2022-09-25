@@ -36,7 +36,7 @@ struct compile_zstring_view
 
     constexpr compile_zstring_view(const CharT (&str)[N]) noexcept
     {
-        valid = zstring_validate(str);
+        valid = zstring_find_term(str, N - 1, N) >= 0;
         for (std::size_t i = 0; i < N - 1; ++i)
         {
             data[i] = str[i];
@@ -75,19 +75,15 @@ class basic_zstring_view
     static constexpr size_type npos = string_view_base::npos;
 
     template <typename T, size_type N>
-    constexpr basic_zstring_view(T (&str)[N])
+    inline constexpr basic_zstring_view(T (&str)[N])
 #ifdef NDEBUG
-        noexcept
-#endif
+        noexcept :
+        sv(str)
+#else
         :
-        sv(str, N - 1)
-    {
-#ifndef NDEBUG
-        if (!detail::zstring_validate(str))
-        {
-            throw std::invalid_argument("stdplus::zstring_view");
-        }
+        sv(str, detail::zstring_validate(str, 0, N))
 #endif
+    {
     }
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
     inline constexpr basic_zstring_view(T str) noexcept : sv(str)
@@ -96,19 +92,16 @@ class basic_zstring_view
     template <typename T,
               std::enable_if_t<detail::same_string<T, CharT, Traits>::value,
                                bool> = true>
-    constexpr basic_zstring_view(const T& str)
+    inline constexpr basic_zstring_view(const T& str)
 #ifdef NDEBUG
-        noexcept
-#endif
+        noexcept :
+        sv(str)
+#else
         :
-        sv(str.data())
-    {
-#ifndef NDEBUG
-        if (!detail::zstring_validate(str))
-        {
-            throw std::invalid_argument("stdplus::zstring_view");
-        }
+        sv(str.data(),
+           detail::zstring_validate(str.data(), str.size(), str.size() + 1))
 #endif
+    {
     }
     template <
         typename T,
@@ -288,21 +281,10 @@ class basic_zstring_view
         return basic_zstring_view(unsafe(), sv.substr(pos));
     }
 
-    template <typename CharTO, size_type N>
-    inline constexpr bool operator==(const CharTO (&rhs)[N]) const noexcept
-    {
-        return *this == std::basic_string_view<CharTO, Traits>(rhs, N - 1);
-    }
     constexpr bool
         operator==(std::basic_string_view<CharT, Traits> rhs) const noexcept
     {
         return size() == rhs.size() && compare(rhs) == 0;
-    }
-    template <typename CharTO, size_type N>
-    inline constexpr Traits::comparison_category
-        operator<=>(const CharTO (&rhs)[N]) const noexcept
-    {
-        return *this <=> std::basic_string_view<CharTO, Traits>(rhs, N - 1);
     }
     constexpr Traits::comparison_category
         operator<=>(std::basic_string_view<CharT, Traits> rhs) const noexcept

@@ -24,11 +24,7 @@ TEST(Zstring, Construct)
     EXPECT_THROW((const_zstring(str)), std::invalid_argument);
     EXPECT_THROW((const_zstring(cstr)), std::invalid_argument);
 #endif
-#ifdef NDEBUG
     EXPECT_EQ("b", const_zstring("b\0"));
-#else
-    EXPECT_THROW(const_zstring("b\0"), std::invalid_argument);
-#endif
     char as[] = "c";
     EXPECT_EQ("c", zstring(as));
     EXPECT_EQ("c", const_zstring(as));
@@ -51,14 +47,14 @@ TEST(Zstring, NoTypeCoercion)
     auto zs = zstring(empty);
     auto czs = const_zstring("");
 
-    EXPECT_NE(zs, "\0");
-    EXPECT_NE("\0", zs);
+    EXPECT_EQ(zs, "\0");
+    EXPECT_EQ("\0", zs);
     EXPECT_NE(zs, "\0"sv);
     EXPECT_NE("\0"sv, zs);
     EXPECT_LT(zs, "\0"sv);
     EXPECT_GT("\0"sv, zs);
-    EXPECT_NE(czs, "\0");
-    EXPECT_NE("\0", czs);
+    EXPECT_EQ(czs, "\0");
+    EXPECT_EQ("\0", czs);
     EXPECT_NE(czs, "\0"sv);
     EXPECT_NE("\0"sv, czs);
     EXPECT_LT(czs, "\0"sv);
