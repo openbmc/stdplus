@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/core.h>
 #include <stdexcept>
 #include <stdplus/zstring.hpp>
 #include <string>
@@ -361,3 +362,21 @@ zstring_view_all(char16_t, u16);
 zstring_view_all(char32_t, u32);
 zstring_view_all(wchar_t, w);
 #undef zstring_view_all
+
+namespace fmt
+{
+
+template <typename CharT, typename Traits>
+struct formatter<stdplus::basic_zstring_view<CharT, Traits>, CharT>
+    : formatter<basic_string_view<CharT>, CharT>
+{
+    template <typename FormatContext>
+    inline auto format(stdplus::basic_zstring_view<CharT, Traits> str,
+                       FormatContext& ctx) const
+    {
+        return formatter<basic_string_view<CharT>, CharT>::format(
+            static_cast<std::basic_string_view<CharT, Traits>>(str), ctx);
+    }
+};
+
+} // namespace fmt
