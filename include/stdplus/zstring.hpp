@@ -13,24 +13,37 @@ namespace stdplus
 namespace detail
 {
 
-template <typename CharT, std::size_t N>
-constexpr bool zstring_validate(const CharT (&str)[N]) noexcept
+template <typename CharT>
+constexpr std::ptrdiff_t zstring_find_term(const CharT* str, std::size_t min,
+                                           std::size_t max) noexcept
 {
-    for (size_t i = 0; i < N - 1; ++i)
+    for (size_t i = 0; i < min; ++i)
     {
         if (str[i] == '\0')
         {
-            return false;
+            return -1;
         }
     }
-    return str[N - 1] == '\0';
+    for (size_t i = min; i < max; ++i)
+    {
+        if (str[i] == '\0')
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
-template <typename CharT, typename Traits>
-inline constexpr bool
-    zstring_validate(const std::basic_string<CharT, Traits>& str) noexcept
+template <typename CharT>
+constexpr std::size_t zstring_validate(const CharT* str, std::size_t min,
+                                       std::size_t max)
 {
-    return str.find('\0') == str.npos;
+    auto ret = zstring_find_term(str, min, max);
+    if (ret < 0)
+    {
+        throw std::invalid_argument("stdplus::zstring");
+    }
+    return ret;
 }
 
 template <typename T, typename CharT, typename Traits>
@@ -69,7 +82,7 @@ class basic_zstring
     using size_type = std::size_t;
 
     template <typename T, size_type N>
-    constexpr basic_zstring(T (&str)[N])
+    inline constexpr basic_zstring(T (&str)[N])
 #ifdef NDEBUG
         noexcept
 #endif
@@ -77,10 +90,7 @@ class basic_zstring
         data_(str)
     {
 #ifndef NDEBUG
-        if (!detail::zstring_validate(str))
-        {
-            throw std::invalid_argument("stdplus::zstring");
-        }
+        detail::zstring_validate(str, 0, N);
 #endif
     }
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
@@ -91,7 +101,7 @@ class basic_zstring
               std::enable_if_t<detail::same_string<std::remove_cvref_t<T>,
                                                    decay_t, Traits>::value,
                                bool> = true>
-    constexpr basic_zstring(T&& str)
+    inline constexpr basic_zstring(T&& str)
 #ifdef NDEBUG
         noexcept
 #endif
@@ -99,10 +109,7 @@ class basic_zstring
         data_(str.data())
     {
 #ifndef NDEBUG
-        if (!detail::zstring_validate(str))
-        {
-            throw std::invalid_argument("stdplus::zstring");
-        }
+        detail::zstring_validate(str.data(), str.size(), str.size() + 1);
 #endif
     }
 

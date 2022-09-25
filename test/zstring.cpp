@@ -24,11 +24,7 @@ TEST(Zstring, Construct)
     EXPECT_THROW((const_zstring(str)), std::invalid_argument);
     EXPECT_THROW((const_zstring(cstr)), std::invalid_argument);
 #endif
-#ifdef NDEBUG
     EXPECT_EQ("b", const_zstring("b\0"));
-#else
-    EXPECT_THROW(const_zstring("b\0"), std::invalid_argument);
-#endif
     char as[] = "c";
     EXPECT_EQ("c", zstring(as));
     EXPECT_EQ("c", const_zstring(as));

@@ -73,12 +73,9 @@ TEST(ZstringView, ConstructError)
 #endif
 
     char mut1[] = "aa\0";
+    EXPECT_EQ("aa", zstring_view(mut1));
+#ifndef NDEBUG
     char mut2[] = {'a', 'a'};
-#ifdef NDEBUG
-    EXPECT_EQ("aa\0", zstring_view(mut1));
-    EXPECT_EQ("a", zstring_view(mut2));
-#else
-    EXPECT_THROW((zstring_view(mut1)), std::invalid_argument);
     EXPECT_THROW((zstring_view(mut2)), std::invalid_argument);
 #endif
 }
