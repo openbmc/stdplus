@@ -13,5 +13,10 @@ namespace signal
  */
 void block(int signum);
 
+/** @brief Handle the SIGSEGV signal and print out the stack trace before
+ * exiting the program.
+ */
+void stackTrace();
+
 } // namespace signal
 } // namespace stdplus
