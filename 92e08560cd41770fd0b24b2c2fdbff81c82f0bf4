@@ -93,6 +93,24 @@
       "parentUuid": "e9ffd431_35a65bb9",
       "revId": "92e08560cd41770fd0b24b2c2fdbff81c82f0bf4",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "176069f8_c783fbeb",
+        "filename": "src/signal.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-10-10T15:52:37Z",
+      "side": 1,
+      "message": "It seems like that also dump the memory data + register, so in that sense it provides the same info as coredump. I\u0027ll have to check if that\u0027s an issue or not.",
+      "parentUuid": "a5accf8d_75dd8bfe",
+      "revId": "92e08560cd41770fd0b24b2c2fdbff81c82f0bf4",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
