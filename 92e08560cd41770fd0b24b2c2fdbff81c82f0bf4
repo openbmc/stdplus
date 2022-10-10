@@ -57,6 +57,24 @@
       "parentUuid": "65a336e9_6955e787",
       "revId": "92e08560cd41770fd0b24b2c2fdbff81c82f0bf4",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9ffd431_35a65bb9",
+        "filename": "src/signal.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-10-10T15:26:22Z",
+      "side": 1,
+      "message": "Thanks for the feedback. I\u0027ll take a look at `libSegFault.so`.\n\nAs for just shipping the coredumps, I was talking to Benjamin about this the main points are the following\n- There might be security issues? The memory and register values are also exposed.\n  - It might not matter since that\u0027s just BMC stuff and don\u0027t have customer datas.\n- Can only BMC with out of band access. We need a way to for system without OOB to get some info.\n\nI was planning on getting the stack trace out as logs to get some basic info for systems that can\u0027t get the coredump out.\n\n---\n\nI\u0027ll abandon this after this discussion is done.",
+      "parentUuid": "437f8926_594ac4d3",
+      "revId": "92e08560cd41770fd0b24b2c2fdbff81c82f0bf4",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
