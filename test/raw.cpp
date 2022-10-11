@@ -30,6 +30,7 @@ TEST(CopyFrom, Empty)
     EXPECT_THROW(copyFrom<int>(cs), std::runtime_error);
     std::string_view s;
     EXPECT_THROW(copyFrom<int>(s), std::runtime_error);
+    EXPECT_THROW(copyFromStrict<char>(s), std::runtime_error);
 }
 
 TEST(CopyFrom, Basic)
@@ -37,12 +38,14 @@ TEST(CopyFrom, Basic)
     int a = 4;
     const std::string_view s(reinterpret_cast<char*>(&a), sizeof(a));
     EXPECT_EQ(a, copyFrom<int>(s));
+    EXPECT_EQ(a, copyFromStrict<int>(s));
 }
 
 TEST(CopyFrom, Partial)
 {
     const std::vector<char> s = {'a', 'b', 'c'};
     EXPECT_EQ('a', copyFrom<char>(s));
+    EXPECT_THROW(copyFromStrict<char>(s), std::runtime_error);
     const char s2[] = "def";
     EXPECT_EQ('d', copyFrom<char>(s2));
 }
@@ -63,6 +66,7 @@ TEST(RefFrom, Empty)
     EXPECT_THROW(refFrom<Int>(cs), std::runtime_error);
     std::string_view s;
     EXPECT_THROW(refFrom<Int>(s), std::runtime_error);
+    EXPECT_THROW(refFromStrict<Int>(s), std::runtime_error);
 }
 
 TEST(RefFrom, Basic)
@@ -70,12 +74,14 @@ TEST(RefFrom, Basic)
     Int a = {4, 0, 0, 4};
     const std::string_view s(reinterpret_cast<char*>(&a), sizeof(a));
     EXPECT_EQ(a, refFrom<Int>(s));
+    EXPECT_EQ(a, refFromStrict<Int>(s));
 }
 
 TEST(RefFrom, Partial)
 {
     const std::vector<char> s = {'a', 'b', 'c'};
     EXPECT_EQ('a', refFrom<char>(s));
+    EXPECT_THROW(refFromStrict<char>(s), std::runtime_error);
     const char s2[] = "def";
     EXPECT_EQ('d', refFrom<char>(s2));
 }

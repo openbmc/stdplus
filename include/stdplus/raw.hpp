@@ -66,42 +66,50 @@ bool equal(const A& a, const B& b) noexcept
  *  @param[in] data - The data buffer being copied from
  *  @return The copyable type with data populated
  */
-template <typename T, typename Container>
-T copyFrom(const Container& c)
-{
-    static_assert(std::is_trivially_copyable_v<T>);
-    static_assert(detail::trivialContainer<Container>);
-    T ret;
-    const size_t bytes = std::size(c) * sizeof(*std::data(c));
-    if (bytes < sizeof(ret))
-    {
-        throw std::runtime_error(
-            fmt::format("CopyFrom: {} < {}", bytes, sizeof(ret)));
+#define STDPLUS_COPY_FROM(func, comp)                                          \
+    template <typename T, typename Container>                                  \
+    T func(const Container& c)                                                 \
+    {                                                                          \
+        static_assert(std::is_trivially_copyable_v<T>);                        \
+        static_assert(detail::trivialContainer<Container>);                    \
+        T ret;                                                                 \
+        const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
+        if (bytes comp sizeof(ret))                                            \
+        {                                                                      \
+            throw std::runtime_error(                                          \
+                fmt::format(#func ": {} < {}", bytes, sizeof(ret)));           \
+        }                                                                      \
+        std::memcpy(&ret, std::data(c), sizeof(ret));                          \
+        return ret;                                                            \
     }
-    std::memcpy(&ret, std::data(c), sizeof(ret));
-    return ret;
-}
+STDPLUS_COPY_FROM(copyFrom, <)
+STDPLUS_COPY_FROM(copyFromStrict, !=)
+#undef STDPLUS_COPY_FROM
 
 /** @brief References the data from a buffer if aligned
  *
  *  @param[in] data - The data buffer being referenced
  *  @return The reference to the data in the new type
  */
-template <typename T, typename Container,
-          typename Tp = detail::copyConst<T, detail::dataType<Container>>>
-Tp& refFrom(Container&& c)
-{
-    static_assert(std::is_trivially_copyable_v<Tp>);
-    static_assert(detail::trivialContainer<Container>);
-    static_assert(sizeof(*std::data(c)) % alignof(Tp) == 0);
-    const size_t bytes = std::size(c) * sizeof(*std::data(c));
-    if (bytes < sizeof(Tp))
-    {
-        throw std::runtime_error(
-            fmt::format("RefFrom: {} < {}", bytes, sizeof(Tp)));
+#define STDPLUS_REF_FROM(func, comp)                                           \
+    template <typename T, typename Container,                                  \
+              typename Tp = detail::copyConst<T, detail::dataType<Container>>> \
+    Tp& func(Container&& c)                                                    \
+    {                                                                          \
+        static_assert(std::is_trivially_copyable_v<Tp>);                       \
+        static_assert(detail::trivialContainer<Container>);                    \
+        static_assert(sizeof(*std::data(c)) % alignof(Tp) == 0);               \
+        const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
+        if (bytes comp sizeof(Tp))                                             \
+        {                                                                      \
+            throw std::runtime_error(                                          \
+                fmt::format(#func ": {} < {}", bytes, sizeof(Tp)));            \
+        }                                                                      \
+        return *reinterpret_cast<Tp*>(std::data(c));                           \
     }
-    return *reinterpret_cast<Tp*>(std::data(c));
-}
+STDPLUS_REF_FROM(refFrom, <)
+STDPLUS_REF_FROM(refFromStrict, !=)
+#undef STDPLUS_REF_FROM
 
 /** @brief Extracts data from a buffer into a copyable type
  *         Updates the data buffer to show that data was removed
