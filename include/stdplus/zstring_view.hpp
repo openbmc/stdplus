@@ -240,13 +240,13 @@ class basic_zstring_view
     zstring_view_has(ends_with);
 #undef zstring_view_has
 
-#define zstring_view_find(func)                                                \
-    inline constexpr size_type func(string_view_base v, size_type pos = 0)     \
+#define zstring_view_find(func, def)                                           \
+    inline constexpr size_type func(string_view_base v, size_type pos = def)   \
         const noexcept                                                         \
     {                                                                          \
         return sv.func(v, pos);                                                \
     }                                                                          \
-    inline constexpr size_type func(value_type ch, size_type pos = 0)          \
+    inline constexpr size_type func(value_type ch, size_type pos = def)        \
         const noexcept                                                         \
     {                                                                          \
         return sv.func(ch, pos);                                               \
@@ -256,16 +256,17 @@ class basic_zstring_view
     {                                                                          \
         return sv.func(s, pos, count);                                         \
     }                                                                          \
-    inline constexpr size_type func(const_pointer s, size_type pos = 0) const  \
+    inline constexpr size_type func(const_pointer s, size_type pos = def)      \
+        const                                                                  \
     {                                                                          \
         return sv.func(s, pos);                                                \
     }
-    zstring_view_find(find);
-    zstring_view_find(rfind);
-    zstring_view_find(find_first_of);
-    zstring_view_find(find_last_of);
-    zstring_view_find(find_first_not_of);
-    zstring_view_find(find_last_not_of);
+    zstring_view_find(find, 0);
+    zstring_view_find(rfind, npos);
+    zstring_view_find(find_first_of, 0);
+    zstring_view_find(find_last_of, npos);
+    zstring_view_find(find_first_not_of, 0);
+    zstring_view_find(find_last_not_of, npos);
 #undef zstring_view_find
 
     inline constexpr const_pointer c_str() const noexcept

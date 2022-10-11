@@ -30,6 +30,10 @@ TEST(ZstringView, Basic)
     char mut[] = "aa";
     auto s3 = zstring_view(mut);
 
+    EXPECT_EQ(1, s1.find('c'));
+    EXPECT_EQ(0, s3.find('a'));
+    EXPECT_EQ(1, s3.rfind('a'));
+
     EXPECT_NE(sv, s2);
     EXPECT_NE(s1, s2);
     EXPECT_EQ(s3, "aa");
