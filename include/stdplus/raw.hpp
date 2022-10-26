@@ -91,19 +91,30 @@ STDPLUS_COPY_FROM(copyFrom, <)
 STDPLUS_COPY_FROM(copyFromStrict, !=)
 #undef STDPLUS_COPY_FROM
 
+/** @brief If you can guarantee the underlying data is properly aligned
+ *  for raw struct access this specifier is used to override compile checks. */
+struct Aligned
+{
+};
+struct UnAligned
+{
+};
+
 /** @brief References the data from a buffer if aligned
  *
  *  @param[in] data - The data buffer being referenced
  *  @return The reference to the data in the new type
  */
 #define STDPLUS_REF_FROM(func, comp)                                           \
-    template <typename T, typename Container,                                  \
+    template <typename T, typename A = stdplus::raw::UnAligned,                \
+              typename Container,                                              \
               typename Tp = detail::copyConst<T, detail::dataType<Container>>> \
     inline constexpr Tp& func(Container&& c)                                   \
     {                                                                          \
         static_assert(std::is_trivially_copyable_v<Tp>);                       \
         static_assert(detail::trivialContainer<Container>);                    \
-        static_assert(sizeof(*std::data(c)) % alignof(Tp) == 0);               \
+        static_assert(std::is_same_v<A, Aligned> ||                            \
+                      sizeof(*std::data(c)) % alignof(Tp) == 0);               \
         const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
         if (bytes comp sizeof(Tp))                                             \
         {                                                                      \
@@ -146,20 +157,20 @@ inline constexpr T extract(std::span<IntT>& data)
  *  @param[in,out] data - The data buffer being extracted from
  *  @return A reference to the data
  */
-template <typename T, typename CharT>
+template <typename T, typename A = stdplus::raw::UnAligned, typename CharT>
 inline constexpr const T& extractRef(std::basic_string_view<CharT>& data)
 {
-    const T& ret = refFrom<T>(data);
+    const T& ret = refFrom<T, A>(data);
     static_assert(sizeof(T) % sizeof(CharT) == 0);
     data.remove_prefix(sizeof(T) / sizeof(CharT));
     return ret;
 }
-template <typename T, typename IntT,
+template <typename T, typename A = stdplus::raw::UnAligned, typename IntT,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename Tp = detail::copyConst<T, IntT>>
 inline constexpr Tp& extractRef(std::span<IntT>& data)
 {
-    Tp& ret = refFrom<Tp>(data);
+    Tp& ret = refFrom<Tp, A>(data);
     static_assert(sizeof(Tp) % sizeof(IntT) == 0);
     data = data.subspan(sizeof(Tp) / sizeof(IntT));
     return ret;
