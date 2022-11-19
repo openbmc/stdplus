@@ -88,7 +88,9 @@ TEST(RefFrom, Partial)
 
 TEST(Extract, TooSmall)
 {
-    std::string_view s("a");
+    std::string str = "aaaa";
+    str.resize(1);
+    std::string_view s(str);
     EXPECT_THROW(extract<int>(s), std::runtime_error);
     EXPECT_EQ("a", s);
 }
