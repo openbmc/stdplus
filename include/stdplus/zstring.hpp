@@ -84,7 +84,7 @@ class basic_zstring
     using size_type = std::size_t;
 
     template <typename T, size_type N>
-    inline constexpr basic_zstring(T (&str)[N])
+    constexpr basic_zstring(T (&str)[N])
 #ifdef NDEBUG
         noexcept
 #endif
@@ -96,14 +96,14 @@ class basic_zstring
 #endif
     }
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
-    inline constexpr basic_zstring(T str) noexcept : data_(str)
+    constexpr basic_zstring(T str) noexcept : data_(str)
     {
     }
     template <typename T,
               std::enable_if_t<detail::same_string<std::remove_cvref_t<T>,
                                                    decay_t, Traits>::value,
                                bool> = true>
-    inline constexpr basic_zstring(T&& str)
+    constexpr basic_zstring(T&& str)
 #ifdef NDEBUG
         noexcept
 #endif
@@ -115,25 +115,24 @@ class basic_zstring
 #endif
     }
 
-    inline constexpr
-        operator basic_zstring<const CharT, Traits>() const noexcept
+    constexpr operator basic_zstring<const CharT, Traits>() const noexcept
     {
         return basic_zstring<const CharT, Traits>(data_);
     }
 
-    inline constexpr reference operator[](size_type pos) const noexcept
+    constexpr reference operator[](size_type pos) const noexcept
     {
         return data_[pos];
     }
-    inline constexpr reference front() const noexcept
+    constexpr reference front() const noexcept
     {
         return data_[0];
     }
-    inline constexpr pointer data() const noexcept
+    constexpr pointer data() const noexcept
     {
         return data_;
     }
-    inline constexpr const_pointer c_str() const noexcept
+    constexpr const_pointer c_str() const noexcept
     {
         return data_;
     }
@@ -142,11 +141,11 @@ class basic_zstring
         return data_ == nullptr || data_[0] == '\0';
     }
 
-    inline constexpr basic_zstring suffix(size_type size) const noexcept
+    constexpr basic_zstring suffix(size_type size) const noexcept
     {
         return data_ + size;
     }
-    inline constexpr basic_zstring<const CharT, Traits>
+    constexpr basic_zstring<const CharT, Traits>
         csuffix(size_type size) const noexcept
     {
         return data_ + size;
@@ -199,30 +198,29 @@ class basic_zstring
     }
 
     template <typename CharT1>
-    inline constexpr Traits::comparison_category
+    constexpr Traits::comparison_category
         operator<=>(basic_zstring<CharT1, Traits> rhs) const noexcept
     {
         return compare(rhs.data()) <=> 0;
     }
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
-    inline constexpr Traits::comparison_category
-        operator<=>(T rhs) const noexcept
+    constexpr Traits::comparison_category operator<=>(T rhs) const noexcept
     {
         return compare(rhs) <=> 0;
     }
     template <typename Allocator>
-    inline constexpr Traits::comparison_category operator<=>(
+    constexpr Traits::comparison_category operator<=>(
         const std::basic_string<decay_t, Traits, Allocator>& rhs) const noexcept
     {
         return compare(rhs.data(), rhs.size()) <=> 0;
     }
-    inline constexpr Traits::comparison_category
+    constexpr Traits::comparison_category
         operator<=>(std::basic_string_view<decay_t, Traits> rhs) const noexcept
     {
         return compare(rhs.data(), rhs.size()) <=> 0;
     }
 
-    inline constexpr bool operator==(const auto& rhs) const noexcept
+    constexpr bool operator==(const auto& rhs) const noexcept
     {
         return (*this <=> rhs) == 0;
     }

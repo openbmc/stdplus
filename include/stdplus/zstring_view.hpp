@@ -21,7 +21,7 @@ namespace detail
 {
 
 template <typename CharT, typename Traits>
-inline constexpr auto
+constexpr auto
     unsafe_zstring_view(std::basic_string_view<CharT, Traits> sv) noexcept
 {
     using SV = basic_zstring_view<CharT, Traits>;
@@ -75,7 +75,7 @@ class basic_zstring_view
     static constexpr size_type npos = string_view_base::npos;
 
     template <typename T, size_type N>
-    inline constexpr basic_zstring_view(T (&str)[N])
+    constexpr basic_zstring_view(T (&str)[N])
 #ifdef NDEBUG
         noexcept :
         sv(str)
@@ -86,13 +86,13 @@ class basic_zstring_view
     {
     }
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
-    inline constexpr basic_zstring_view(T str) noexcept : sv(str)
+    constexpr basic_zstring_view(T str) noexcept : sv(str)
     {
     }
     template <typename T,
               std::enable_if_t<detail::same_string<T, CharT, Traits>::value,
                                bool> = true>
-    inline constexpr basic_zstring_view(const T& str)
+    constexpr basic_zstring_view(const T& str)
 #ifdef NDEBUG
         noexcept :
         sv(str)
@@ -107,132 +107,131 @@ class basic_zstring_view
         typename T,
         std::enable_if_t<std::is_same_v<value_type, std::remove_const_t<T>>,
                          bool> = true>
-    inline constexpr basic_zstring_view(basic_zstring<T, Traits> str) noexcept :
+    constexpr basic_zstring_view(basic_zstring<T, Traits> str) noexcept :
         sv(str.data())
     {
     }
 
-    inline constexpr operator string_view_base() const noexcept
+    constexpr operator string_view_base() const noexcept
     {
         return sv;
     }
 
-    inline constexpr operator zstring_base() const noexcept
+    constexpr operator zstring_base() const noexcept
     {
         return zstring_base(data());
     }
 
-    inline constexpr const_iterator begin() const noexcept
+    constexpr const_iterator begin() const noexcept
     {
         return sv.begin();
     }
-    inline constexpr const_iterator end() const noexcept
+    constexpr const_iterator end() const noexcept
     {
         return sv.end();
     }
-    inline constexpr const_reverse_iterator rbegin() const noexcept
+    constexpr const_reverse_iterator rbegin() const noexcept
     {
         return sv.rbegin();
     }
-    inline constexpr const_reverse_iterator rend() const noexcept
+    constexpr const_reverse_iterator rend() const noexcept
     {
         return sv.rend();
     }
 
-    inline constexpr const_reference operator[](size_type pos) const noexcept
+    constexpr const_reference operator[](size_type pos) const noexcept
     {
         return sv[pos];
     }
-    inline constexpr const_reference at(size_type pos) const
+    constexpr const_reference at(size_type pos) const
     {
         return sv.at(pos);
     }
-    inline constexpr const_reference front() const noexcept
+    constexpr const_reference front() const noexcept
     {
         return sv.front();
     }
-    inline constexpr const_reference back() const noexcept
+    constexpr const_reference back() const noexcept
     {
         return sv.back();
     }
-    inline constexpr const_pointer data() const noexcept
+    constexpr const_pointer data() const noexcept
     {
         return sv.data();
     }
 
-    inline constexpr size_type size() const noexcept
+    constexpr size_type size() const noexcept
     {
         return sv.size();
     }
-    inline constexpr size_type length() const noexcept
+    constexpr size_type length() const noexcept
     {
         return sv.length();
     }
-    inline constexpr size_type max_size() noexcept
+    constexpr size_type max_size() noexcept
     {
         return sv.max_size();
     }
-    [[nodiscard]] inline constexpr bool empty() const noexcept
+    [[nodiscard]] constexpr bool empty() const noexcept
     {
         return sv.empty();
     }
 
-    inline constexpr void swap(basic_zstring_view& v) noexcept
+    constexpr void swap(basic_zstring_view& v) noexcept
     {
         sv.swap(v.sv);
     }
 
-    inline constexpr size_type copy(pointer dest, size_type count,
-                                    size_type pos = 0) const
+    constexpr size_type copy(pointer dest, size_type count,
+                             size_type pos = 0) const
     {
         return sv.copy(dest, count, pos);
     }
-    inline constexpr string_view_base substr(size_type pos = 0,
-                                             size_type count = npos) const
+    constexpr string_view_base substr(size_type pos = 0,
+                                      size_type count = npos) const
     {
         return sv.substr(pos, count);
     }
 
-    inline constexpr int compare(string_view_base v) const noexcept
+    constexpr int compare(string_view_base v) const noexcept
     {
         return sv.compare(v);
     }
-    inline constexpr int compare(size_type pos1, size_type count1,
-                                 string_view_base v) const
+    constexpr int compare(size_type pos1, size_type count1,
+                          string_view_base v) const
     {
         return sv.compare(pos1, count1, v);
     }
-    inline constexpr int compare(size_type pos1, size_type count1,
-                                 string_view_base v, size_type pos2,
-                                 size_type count2) const
+    constexpr int compare(size_type pos1, size_type count1, string_view_base v,
+                          size_type pos2, size_type count2) const
     {
         return sv.compare(pos1, count1, v, pos2, count2);
     }
-    inline constexpr int compare(const_pointer s) const
+    constexpr int compare(const_pointer s) const
     {
         return sv.compare(s);
     }
-    inline constexpr int compare(size_type pos1, size_type count1,
-                                 const_pointer s) const
+    constexpr int compare(size_type pos1, size_type count1,
+                          const_pointer s) const
     {
         return sv.compare(pos1, count1, s);
     }
-    inline constexpr int compare(size_type pos1, size_type count1,
-                                 const_pointer s, size_type count2) const
+    constexpr int compare(size_type pos1, size_type count1, const_pointer s,
+                          size_type count2) const
     {
         return sv.compare(pos1, count1, s, count2);
     }
 
 #define zstring_view_has(func)                                                 \
-    inline constexpr bool func(string_view_base sv) const noexcept             \
+    constexpr bool func(string_view_base sv) const noexcept                    \
     {                                                                          \
         return sv.func(sv);                                                    \
     }                                                                          \
-    inline constexpr bool func(value_type c) const noexcept                    \
+    constexpr bool func(value_type c) const noexcept                           \
     {                                                                          \
         return sv.func(c);                                                     \
     }                                                                          \
-    inline constexpr bool func(const_pointer s) const                          \
+    constexpr bool func(const_pointer s) const                                 \
     {                                                                          \
         return sv.func(s);                                                     \
     }
@@ -241,23 +240,22 @@ class basic_zstring_view
 #undef zstring_view_has
 
 #define zstring_view_find(func, def)                                           \
-    inline constexpr size_type func(string_view_base v, size_type pos = def)   \
+    constexpr size_type func(string_view_base v, size_type pos = def)          \
         const noexcept                                                         \
     {                                                                          \
         return sv.func(v, pos);                                                \
     }                                                                          \
-    inline constexpr size_type func(value_type ch, size_type pos = def)        \
+    constexpr size_type func(value_type ch, size_type pos = def)               \
         const noexcept                                                         \
     {                                                                          \
         return sv.func(ch, pos);                                               \
     }                                                                          \
-    inline constexpr size_type func(const_pointer s, size_type pos,            \
-                                    size_type count) const                     \
+    constexpr size_type func(const_pointer s, size_type pos, size_type count)  \
+        const                                                                  \
     {                                                                          \
         return sv.func(s, pos, count);                                         \
     }                                                                          \
-    inline constexpr size_type func(const_pointer s, size_type pos = def)      \
-        const                                                                  \
+    constexpr size_type func(const_pointer s, size_type pos = def) const       \
     {                                                                          \
         return sv.func(s, pos);                                                \
     }
@@ -269,7 +267,7 @@ class basic_zstring_view
     zstring_view_find(find_last_not_of, npos);
 #undef zstring_view_find
 
-    inline constexpr const_pointer c_str() const noexcept
+    constexpr const_pointer c_str() const noexcept
     {
         return sv.data();
     }
@@ -299,8 +297,7 @@ class basic_zstring_view
     struct unsafe
     {
     };
-    inline constexpr basic_zstring_view(unsafe, string_view_base sv) noexcept :
-        sv(sv)
+    constexpr basic_zstring_view(unsafe, string_view_base sv) noexcept : sv(sv)
     {
     }
     friend auto detail::unsafe_zstring_view<CharT, Traits>(string_view_base sv);
@@ -317,7 +314,7 @@ std::basic_ostream<CharT, Traits>&
 namespace zstring_view_literals
 {
 template <detail::compile_zstring_view Str>
-inline constexpr auto operator"" _zsv() noexcept
+constexpr auto operator"" _zsv() noexcept
 {
     static_assert(Str.valid, "stdplus::zstring_view");
     return Str.getzsv();

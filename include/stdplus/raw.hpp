@@ -54,7 +54,7 @@ inline constexpr bool hasData<T, std::void_t<dataType<T>, sizeType<T>>> = true;
  *  @return True if they are the same, false otherwise
  */
 template <typename A, typename B>
-inline constexpr bool equal(const A& a, const B& b) noexcept
+constexpr bool equal(const A& a, const B& b) noexcept
 {
     static_assert(std::is_trivially_copyable_v<A>);
     static_assert(std::is_trivially_copyable_v<B>);
@@ -71,7 +71,7 @@ inline constexpr bool equal(const A& a, const B& b) noexcept
  */
 #define STDPLUS_COPY_FROM(func, comp)                                          \
     template <typename T, typename Container>                                  \
-    inline constexpr T func(const Container& c)                                \
+    constexpr T func(const Container& c)                                       \
     {                                                                          \
         static_assert(std::is_trivially_copyable_v<T>);                        \
         static_assert(detail::trivialContainer<Container>);                    \
@@ -109,7 +109,7 @@ struct UnAligned
     template <typename T, typename A = stdplus::raw::UnAligned,                \
               typename Container,                                              \
               typename Tp = detail::copyConst<T, detail::dataType<Container>>> \
-    inline constexpr Tp& func(Container&& c)                                   \
+    constexpr Tp& func(Container&& c)                                          \
     {                                                                          \
         static_assert(std::is_trivially_copyable_v<Tp>);                       \
         static_assert(detail::trivialContainer<Container>);                    \
@@ -134,7 +134,7 @@ STDPLUS_REF_FROM(refFromStrict, !=)
  *  @return The copyable type with data populated
  */
 template <typename T, typename CharT>
-inline constexpr T extract(std::basic_string_view<CharT>& data)
+constexpr T extract(std::basic_string_view<CharT>& data)
 {
     T ret = copyFrom<T>(data);
     static_assert(sizeof(T) % sizeof(CharT) == 0);
@@ -143,7 +143,7 @@ inline constexpr T extract(std::basic_string_view<CharT>& data)
 }
 template <typename T, typename IntT,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>>
-inline constexpr T extract(std::span<IntT>& data)
+constexpr T extract(std::span<IntT>& data)
 {
     T ret = copyFrom<T>(data);
     static_assert(sizeof(T) % sizeof(IntT) == 0);
@@ -158,7 +158,7 @@ inline constexpr T extract(std::span<IntT>& data)
  *  @return A reference to the data
  */
 template <typename T, typename A = stdplus::raw::UnAligned, typename CharT>
-inline constexpr const T& extractRef(std::basic_string_view<CharT>& data)
+constexpr const T& extractRef(std::basic_string_view<CharT>& data)
 {
     const T& ret = refFrom<T, A>(data);
     static_assert(sizeof(T) % sizeof(CharT) == 0);
@@ -168,7 +168,7 @@ inline constexpr const T& extractRef(std::basic_string_view<CharT>& data)
 template <typename T, typename A = stdplus::raw::UnAligned, typename IntT,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename Tp = detail::copyConst<T, IntT>>
-inline constexpr Tp& extractRef(std::span<IntT>& data)
+constexpr Tp& extractRef(std::span<IntT>& data)
 {
     Tp& ret = refFrom<Tp, A>(data);
     static_assert(sizeof(Tp) % sizeof(IntT) == 0);
@@ -183,8 +183,7 @@ inline constexpr Tp& extractRef(std::span<IntT>& data)
  *  @return A view over the input with the given output integral type
  */
 template <typename CharT, typename T>
-inline constexpr std::enable_if_t<!detail::hasData<T>,
-                                  std::basic_string_view<CharT>>
+constexpr std::enable_if_t<!detail::hasData<T>, std::basic_string_view<CharT>>
     asView(const T& t) noexcept
 {
     static_assert(std::is_trivially_copyable_v<T>);
@@ -193,8 +192,8 @@ inline constexpr std::enable_if_t<!detail::hasData<T>,
 }
 
 template <typename CharT, typename Container>
-inline constexpr std::enable_if_t<detail::hasData<Container>,
-                                  std::basic_string_view<CharT>>
+constexpr std::enable_if_t<detail::hasData<Container>,
+                           std::basic_string_view<CharT>>
     asView(const Container& c) noexcept
 {
     static_assert(detail::trivialContainer<Container>);
@@ -207,7 +206,7 @@ template <typename IntT, typename T,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename = std::enable_if_t<!detail::hasData<T>>,
           typename IntTp = detail::copyConst<IntT, T>>
-inline constexpr std::span<IntTp> asSpan(T& t) noexcept
+constexpr std::span<IntTp> asSpan(T& t) noexcept
 {
     static_assert(std::is_trivially_copyable_v<T>);
     static_assert(sizeof(T) % sizeof(IntTp) == 0);
@@ -217,7 +216,7 @@ template <typename IntT, typename Container,
           typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
           typename = std::enable_if_t<detail::hasData<Container>>,
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
-inline constexpr std::span<IntTp> asSpan(Container&& c) noexcept
+constexpr std::span<IntTp> asSpan(Container&& c) noexcept
 {
     static_assert(detail::trivialContainer<Container>);
     static_assert(sizeof(*std::data(c)) % sizeof(IntTp) == 0);
