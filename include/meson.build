@@ -4,6 +4,7 @@ install_headers(
   'stdplus/cancel.hpp',
   'stdplus/exception.hpp',
   'stdplus/flags.hpp',
+  'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
   'stdplus/zstring.hpp',
