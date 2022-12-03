@@ -12,10 +12,10 @@ static_assert(!noexcept(Pinned<std::string>("4")));
 TEST(Pinned, Basic)
 {
     EXPECT_EQ("hi", Pinned<std::string>("hi"));
-    EXPECT_EQ("hi", Pinned<std::string>(std::string("hi")));
+    EXPECT_EQ("hi", Pinned(std::string("hi")));
     auto s = std::string("hi");
-    EXPECT_EQ("hi", Pinned<std::string>(s));
-    EXPECT_EQ("hi", Pinned<std::string>(std::move(s)));
+    EXPECT_EQ("hi", Pinned(s));
+    EXPECT_EQ("hi", Pinned(std::move(s)));
     Pinned<std::string> ps = "hi";
     EXPECT_EQ("hi", Pinned<std::string>(ps));
     // EXPECT_EQ("hi", Pinned<std::string>(std::move(ps)));
@@ -37,7 +37,7 @@ TEST(Pinned, Basic)
 
 TEST(Pinned, Fundamental)
 {
-    Pinned<int> pi = 4;
+    Pinned pi = 4;
     EXPECT_EQ(4, [](int& f) { return f; }(pi));
     EXPECT_EQ(4, [](int f) { return f; }(pi));
 }
@@ -66,7 +66,7 @@ struct NoMove3
 TEST(PinnedRef, Basic)
 {
     auto uptr = std::make_unique<std::string>("hi");
-    PinnedRef<std::string>(uptr).get()[0] = 'd';
+    PinnedRef(uptr).get()[0] = 'd';
     EXPECT_EQ("di", *uptr);
     PinnedRef<const std::string> cref(uptr);
     // cref.get()[0] = 'e';
@@ -81,6 +81,7 @@ TEST(PinnedRef, Basic)
     const Pinned<std::string> cpstr("hi");
     // EXPECT_EQ("hi", PinnedRef<std::string>(cpstr).get());
     EXPECT_EQ("hi", PinnedRef<const std::string>(cpstr).get());
+    EXPECT_EQ("hi", PinnedRef(cpstr).get());
 }
 
 TEST(PinnedRef, Fundamental)
@@ -102,6 +103,7 @@ TEST(PinnedREf, NoMove)
     // PinnedRef<NoMove2> rnm2(nm2);
     NoMove3 nm3;
     PinnedRef<NoMove3> rnm3(nm3);
+    PinnedRef rnm3i(nm3);
 }
 
 } // namespace stdplus

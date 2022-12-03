@@ -63,6 +63,9 @@ struct Pinned : CT
 };
 
 template <typename T>
+Pinned(T t) -> Pinned<std::remove_cvref_t<T>>;
+
+template <typename T>
 struct PinnedRef : std::reference_wrapper<T>
 {
     using type = T;
@@ -98,6 +101,21 @@ struct PinnedRef : std::reference_wrapper<T>
     {
     }
 };
+
+template <typename T>
+PinnedRef(T t) -> PinnedRef<std::remove_reference_t<T>>;
+
+template <typename T>
+PinnedRef(Pinned<T>& t) -> PinnedRef<T>;
+
+template <typename T>
+PinnedRef(const Pinned<T>& t) -> PinnedRef<const T>;
+
+template <typename T, typename Deleter>
+PinnedRef(const std::unique_ptr<T, Deleter>& t) -> PinnedRef<T>;
+
+template <typename T>
+PinnedRef(const std::shared_ptr<T>& t) -> PinnedRef<T>;
 
 } // namespace stdplus
 
