@@ -42,8 +42,16 @@ stdplus_deps = [
 ]
 
 stdplus_srcs = [
+  'cancel.cpp',
   'exception.cpp',
+  'flags.cpp',
+  'handle/copyable.cpp',
+  'handle/managed.cpp',
+  'pinned.cpp',
+  'raw.cpp',
   'signal.cpp',
+  'util/cexec.cpp',
+  'util/string.cpp',
   'zstring.cpp',
   'zstring_view.cpp',
 ]

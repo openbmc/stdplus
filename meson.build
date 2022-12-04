@@ -2,7 +2,7 @@ project(
   'stdplus',
   'cpp',
   version: '0.1',
-  meson_version: '>=0.57.0',
+  meson_version: '>=0.63.0',
   default_options: [
     'warning_level=3',
     'cpp_std=c++20',
