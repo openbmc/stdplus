@@ -1,5 +1,4 @@
 #pragma once
-#include <cstring>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -11,12 +10,33 @@ namespace util
 namespace detail
 {
 
-template <typename... Views>
-void strAppendViews(std::string& dst, Views... views)
+template <typename CharT, typename Traits, typename Alloc, typename... Views>
+constexpr void strAppendViews(std::basic_string<CharT, Traits, Alloc>& dst,
+                              Views... views)
 {
     dst.reserve((dst.size() + ... + views.size()));
     (dst.append(views), ...);
 }
+
+template <typename CharT,
+          typename Traits = std::basic_string_view<CharT>::traits_type>
+struct DedSV : std::basic_string_view<CharT, Traits>
+{
+    template <typename... Args>
+    constexpr DedSV(Args&&... args) :
+        std::basic_string_view<CharT, Traits>(std::forward<Args>(args)...)
+    {
+    }
+};
+
+template <typename CharT>
+DedSV(const CharT*) -> DedSV<CharT>;
+
+template <typename CharT, typename Traits, typename Alloc>
+DedSV(const std::basic_string<CharT, Traits, Alloc>&) -> DedSV<CharT, Traits>;
+
+template <typename CharT, typename Traits>
+DedSV(std::basic_string_view<CharT, Traits>) -> DedSV<CharT, Traits>;
 
 } // namespace detail
 
@@ -27,7 +47,7 @@ void strAppendViews(std::string& dst, Views... views)
  */
 template <typename Str, typename = std::enable_if_t<
                             std::is_same_v<std::remove_cv_t<Str>, std::string>>>
-auto cStr(Str& str)
+constexpr auto cStr(Str& str)
 {
     return str.data();
 }
@@ -36,7 +56,7 @@ template <
     typename = std::enable_if_t<
         std::is_pointer_v<Str> &&
         std::is_same_v<std::remove_cv_t<std::remove_pointer_t<Str>>, char>>>
-auto cStr(Str str)
+constexpr auto cStr(Str str)
 {
     return str;
 }
@@ -47,10 +67,11 @@ auto cStr(Str str)
  *  @param[in, out] dst - The string being appended to
  *  @param[in] ...strs  - An arbitrary number of strings to concatenate
  */
-template <typename... Strs>
-void strAppend(std::string& dst, const Strs&... strs)
+template <typename CharT, typename Traits, typename Alloc, typename... Strs>
+constexpr void strAppend(std::basic_string<CharT, Traits, Alloc>& dst,
+                         const Strs&... strs)
 {
-    detail::strAppendViews(dst, std::string_view(strs)...);
+    detail::strAppendViews(dst, detail::DedSV(strs)...);
 }
 
 /** @brief Concatenates multiple strings together in the most optimal
@@ -59,17 +80,21 @@ void strAppend(std::string& dst, const Strs&... strs)
  *  @param[in] ...strs - An arbitrary number of strings to concatenate
  *  @return The concatenated result string
  */
-template <typename... Strs>
-std::string strCat(const Strs&... strs)
+template <typename CharT = char,
+          typename Traits = std::basic_string<CharT>::traits_type,
+          typename Alloc = std::basic_string<CharT>::allocator_type,
+          typename... Strs>
+constexpr std::basic_string<CharT, Traits, Alloc> strCat(const Strs&... strs)
 {
-    std::string ret;
+    std::basic_string<CharT, Traits, Alloc> ret;
     strAppend(ret, strs...);
     return ret;
 }
-template <typename... Strs>
-std::string strCat(std::string&& in, const Strs&... strs)
+template <typename CharT, typename Traits, typename Alloc, typename... Strs>
+constexpr std::basic_string<CharT, Traits, Alloc>
+    strCat(std::basic_string<CharT, Traits, Alloc>&& in, const Strs&... strs)
 {
-    std::string ret = std::move(in);
+    std::basic_string<CharT, Traits, Alloc> ret = std::move(in);
     strAppend(ret, strs...);
     return ret;
 }
