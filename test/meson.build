@@ -3,6 +3,7 @@ gtests = {
   'exception': [stdplus_dep, gtest_main_dep],
   'handle/copyable': [stdplus_dep, gtest_main_dep],
   'handle/managed': [stdplus_dep, gtest_main_dep],
+  'numeric/string': [stdplus_dep, gtest_main_dep],
   'pinned': [stdplus_dep, gtest_main_dep],
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
   'signal': [stdplus_dep, gtest_main_dep],
