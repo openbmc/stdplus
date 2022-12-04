@@ -13,6 +13,7 @@ install_headers(
   'stdplus/net/addr/ip.hpp',
   'stdplus/net/addr/subnet.hpp',
   'stdplus/numeric/endian.hpp',
+  'stdplus/numeric/str.hpp',
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
