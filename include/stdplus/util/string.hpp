@@ -40,27 +40,6 @@ DedSV(std::basic_string_view<CharT, Traits>) -> DedSV<CharT, Traits>;
 
 } // namespace detail
 
-/** @brief Converts the string into its underlying nul-terminated c-str
- *
- *  @param[in] str - The string reference
- *  @return The c-str
- */
-template <typename Str, typename = std::enable_if_t<
-                            std::is_same_v<std::remove_cv_t<Str>, std::string>>>
-constexpr auto cStr(Str& str)
-{
-    return str.data();
-}
-template <
-    typename Str,
-    typename = std::enable_if_t<
-        std::is_pointer_v<Str> &&
-        std::is_same_v<std::remove_cv_t<std::remove_pointer_t<Str>>, char>>>
-constexpr auto cStr(Str str)
-{
-    return str;
-}
-
 /** @brief Appends multiple strings to the end of the destination string
  *         in the most optimal way for the given inputs.
  *
