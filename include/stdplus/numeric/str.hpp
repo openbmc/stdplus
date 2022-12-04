@@ -1,0 +1,111 @@
+#pragma once
+#include <stdplus/str/conv.hpp>
+
+#include <algorithm>
+#include <array>
+#include <bit>
+#include <concepts>
+#include <cstdint>
+#include <limits>
+#include <string>
+#include <type_traits>
+
+namespace stdplus
+{
+
+namespace detail
+{
+
+inline constexpr auto maxBase = 36;
+
+inline constexpr auto singleIntTable = []() {
+    std::array<char, maxBase> ret;
+    for (int8_t i = 0; i < 10; ++i)
+    {
+        ret[i] = i + '0';
+    }
+    for (int8_t i = 0; i < 26; ++i)
+    {
+        ret[i + 10] = i + 'a';
+    }
+    static_assert(maxBase == 36);
+    return ret;
+}();
+
+template <uint8_t base, typename T, typename CharT>
+constexpr CharT* uintToStr(CharT* buf, T v, uint8_t min_width) noexcept
+{
+    static_assert(std::is_unsigned_v<T>);
+    uint8_t i = 0;
+    do
+    {
+        if constexpr (std::popcount(base) == 1)
+        {
+            constexpr auto shift = std::countr_zero(base);
+            constexpr auto mask = (1 << shift) - 1;
+            buf[i] = detail::singleIntTable[v & mask];
+            v >>= shift;
+        }
+        else
+        {
+            buf[i] = detail::singleIntTable[v % base];
+            v /= base;
+        }
+        i += 1;
+    } while (v > 0);
+    auto end = buf + std::max(i, min_width);
+    std::fill(buf + i, end, '0');
+    std::reverse(buf, end);
+    return end;
+}
+
+template <uint8_t base, std::integral T, typename CharT>
+constexpr CharT* intToStr(CharT* buf, T v, uint8_t min_width) noexcept
+{
+    if constexpr (std::is_signed_v<T>)
+    {
+        if (v < 0)
+        {
+            *(buf++) = '-';
+            v = -v;
+        }
+    }
+    return uintToStr<base>(buf, std::make_unsigned_t<T>(v), min_width);
+}
+
+} // namespace detail
+
+template <uint8_t base, std::integral T>
+struct IntToStr
+{
+    static_assert(base > 1 && base <= detail::maxBase);
+
+    static inline constexpr size_t buf_size = []() {
+        T v = std::numeric_limits<T>::max();
+        uint8_t i = 0;
+        for (; v != 0; ++i)
+        {
+            v /= base;
+        }
+        return i + std::is_signed_v<T>;
+    }();
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, T v,
+                                uint8_t min_width = 0) const noexcept
+    {
+        using ptr_t =
+            std::conditional_t<std::is_signed_v<T>, intptr_t, uintptr_t>;
+        return detail::intToStr<
+            base, std::conditional_t<sizeof(T) <= sizeof(ptr_t), ptr_t, T>>(
+            buf, v, min_width);
+    }
+};
+
+template <std::integral T>
+struct ToStr<T> : IntToStr<10, T>
+{
+    using type = T;
+};
+
+} // namespace stdplus
