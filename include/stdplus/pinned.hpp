@@ -25,7 +25,7 @@ struct PinWrap<T, true>
         {
             return v;
         }
-        constexpr operator T() const
+        constexpr operator const T&() const
         {
             return v;
         }
@@ -63,7 +63,7 @@ struct Pinned : CT
 };
 
 template <typename T>
-Pinned(T t) -> Pinned<std::remove_cvref_t<T>>;
+Pinned(T&& t) -> Pinned<std::remove_cvref_t<T>>;
 
 template <typename T>
 struct PinnedRef : std::reference_wrapper<T>
@@ -92,6 +92,11 @@ struct PinnedRef : std::reference_wrapper<T>
     }
 
     template <typename U>
+    constexpr PinnedRef(PinnedRef<U> u) noexcept : wrapper(u)
+    {
+    }
+
+    template <typename U>
     constexpr PinnedRef(const std::unique_ptr<U>& u) noexcept : wrapper(*u)
     {
     }
@@ -103,7 +108,7 @@ struct PinnedRef : std::reference_wrapper<T>
 };
 
 template <typename T>
-PinnedRef(T t) -> PinnedRef<std::remove_reference_t<T>>;
+PinnedRef(T&& t) -> PinnedRef<std::remove_reference_t<T>>;
 
 template <typename T>
 PinnedRef(Pinned<T>& t) -> PinnedRef<T>;
@@ -112,7 +117,13 @@ template <typename T>
 PinnedRef(const Pinned<T>& t) -> PinnedRef<const T>;
 
 template <typename T, typename Deleter>
+PinnedRef(std::unique_ptr<T, Deleter>& t) -> PinnedRef<T>;
+
+template <typename T, typename Deleter>
 PinnedRef(const std::unique_ptr<T, Deleter>& t) -> PinnedRef<T>;
+
+template <typename T>
+PinnedRef(std::shared_ptr<T>& t) -> PinnedRef<T>;
 
 template <typename T>
 PinnedRef(const std::shared_ptr<T>& t) -> PinnedRef<T>;
