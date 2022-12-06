@@ -5,8 +5,6 @@
 
 namespace stdplus
 {
-namespace util
-{
 namespace detail
 {
 
@@ -39,6 +37,9 @@ template <typename CharT, typename Traits>
 DedSV(std::basic_string_view<CharT, Traits>) -> DedSV<CharT, Traits>;
 
 } // namespace detail
+
+inline namespace util
+{
 
 /** @brief Appends multiple strings to the end of the destination string
  *         in the most optimal way for the given inputs.
