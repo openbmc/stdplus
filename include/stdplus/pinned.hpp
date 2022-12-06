@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -95,16 +94,6 @@ struct PinnedRef : std::reference_wrapper<T>
     constexpr PinnedRef(PinnedRef<U> u) noexcept : wrapper(u)
     {
     }
-
-    template <typename U>
-    constexpr PinnedRef(const std::unique_ptr<U>& u) noexcept : wrapper(*u)
-    {
-    }
-
-    template <typename U>
-    constexpr PinnedRef(const std::shared_ptr<U>& u) noexcept : wrapper(*u)
-    {
-    }
 };
 
 template <typename T>
@@ -115,18 +104,6 @@ PinnedRef(Pinned<T>& t) -> PinnedRef<T>;
 
 template <typename T>
 PinnedRef(const Pinned<T>& t) -> PinnedRef<const T>;
-
-template <typename T, typename Deleter>
-PinnedRef(std::unique_ptr<T, Deleter>& t) -> PinnedRef<T>;
-
-template <typename T, typename Deleter>
-PinnedRef(const std::unique_ptr<T, Deleter>& t) -> PinnedRef<T>;
-
-template <typename T>
-PinnedRef(std::shared_ptr<T>& t) -> PinnedRef<T>;
-
-template <typename T>
-PinnedRef(const std::shared_ptr<T>& t) -> PinnedRef<T>;
 
 } // namespace stdplus
 
