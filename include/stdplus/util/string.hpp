@@ -5,7 +5,7 @@
 
 namespace stdplus
 {
-namespace util
+inline namespace util
 {
 namespace detail
 {
