@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <memory>
 #include <stdplus/pinned.hpp>
 #include <string>
 
@@ -65,16 +64,6 @@ struct NoMove3
 
 TEST(PinnedRef, Basic)
 {
-    auto uptr = std::make_unique<std::string>("hi");
-    PinnedRef(uptr).get()[0] = 'd';
-    EXPECT_EQ("di", *uptr);
-    PinnedRef<const std::string> cref(uptr);
-    // cref.get()[0] = 'e';
-    EXPECT_EQ("di", cref.get());
-
-    auto sptr = std::make_shared<std::string>("hi");
-    EXPECT_EQ("hi", PinnedRef<std::string>(sptr).get());
-
     Pinned<std::string> pstr("hi");
     EXPECT_EQ("hi", PinnedRef<std::string>(pstr).get());
     EXPECT_EQ("hi", PinnedRef<const std::string>(pstr).get());
