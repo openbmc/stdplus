@@ -6,6 +6,7 @@ gtests = {
   'pinned': [stdplus_dep, gtest_main_dep],
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
   'signal': [stdplus_dep, gtest_main_dep],
+  'strconv': [stdplus_dep, gmock_dep, gtest_main_dep],
   'util/cexec': [stdplus_dep, gtest_main_dep],
   'util/string': [stdplus_dep, gtest_main_dep],
   'zstring': [stdplus_dep, gtest_main_dep],
