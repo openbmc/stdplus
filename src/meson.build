@@ -47,6 +47,7 @@ stdplus_srcs = [
   'flags.cpp',
   'handle/copyable.cpp',
   'handle/managed.cpp',
+  'numeric/endian.cpp',
   'numeric/str.cpp',
   'pinned.cpp',
   'raw.cpp',
