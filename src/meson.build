@@ -51,6 +51,7 @@ stdplus_srcs = [
   'raw.cpp',
   'signal.cpp',
   'str/cat.cpp',
+  'str/conv.cpp',
   'util/cexec.cpp',
   'zstring.cpp',
   'zstring_view.cpp',

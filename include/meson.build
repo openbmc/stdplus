@@ -10,6 +10,7 @@ install_headers(
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
   'stdplus/str/cat.hpp',
+  'stdplus/str/conv.hpp',
   'stdplus/util/cexec.hpp',
   'stdplus/util/string.hpp',
   'stdplus/zstring.hpp',
