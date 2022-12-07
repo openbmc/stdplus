@@ -1,13 +1,9 @@
 #include <gtest/gtest.h>
-#include <stdplus/util/string.hpp>
+#include <stdplus/str/cat.hpp>
 #include <string>
 #include <string_view>
 
 namespace stdplus
-{
-namespace util
-{
-namespace
 {
 
 using namespace std::string_literals;
@@ -34,6 +30,4 @@ TEST(StrCat, MoveStr)
     EXPECT_EQ("func world", strCat("func"s, " world"));
 }
 
-} // namespace
-} // namespace util
 } // namespace stdplus

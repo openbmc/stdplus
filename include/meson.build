@@ -9,6 +9,7 @@ install_headers(
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
+  'stdplus/str/cat.hpp',
   'stdplus/util/cexec.hpp',
   'stdplus/util/string.hpp',
   'stdplus/zstring.hpp',
