@@ -18,7 +18,6 @@ static constexpr auto makeIncStr(std::size_t len)
 }
 
 constexpr auto data = cexprSv<[]() { return makeIncStr(sizeof(StrBuf) + 10); }>;
-// constexpr auto data = cexprSv<[]() { return makeIncStr(32); }>;
 
 TEST(StrBuf, BasicInline)
 {
