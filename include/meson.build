@@ -18,6 +18,7 @@ install_headers(
   'stdplus/signal.hpp',
   'stdplus/str/cat.hpp',
   'stdplus/str/cexpr.hpp',
+  'stdplus/str/conv.hpp',
   'stdplus/str/maps.hpp',
   'stdplus/util/cexec.hpp',
   'stdplus/util/string.hpp',
