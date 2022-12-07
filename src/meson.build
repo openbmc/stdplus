@@ -50,8 +50,8 @@ stdplus_srcs = [
   'pinned.cpp',
   'raw.cpp',
   'signal.cpp',
+  'str/cat.cpp',
   'util/cexec.cpp',
-  'util/string.cpp',
   'zstring.cpp',
   'zstring_view.cpp',
 ]
