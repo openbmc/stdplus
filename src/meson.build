@@ -59,6 +59,7 @@ stdplus_srcs = [
   'signal.cpp',
   'str/cat.cpp',
   'str/cexpr.cpp',
+  'str/conv.cpp',
   'str/maps.cpp',
   'util/cexec.cpp',
   'variant.cpp',

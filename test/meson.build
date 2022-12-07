@@ -14,6 +14,7 @@ gtests = {
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
   'signal': [stdplus_dep, gtest_main_dep],
   'str/cat': [stdplus_dep, gtest_main_dep],
+  'str/conv': [stdplus_dep, gmock_dep, gtest_main_dep],
   'str/maps': [stdplus_dep, gmock_dep, gtest_main_dep],
   'util/cexec': [stdplus_dep, gtest_main_dep],
   'variant': [stdplus_dep, gtest_main_dep],
