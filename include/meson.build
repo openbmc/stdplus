@@ -9,6 +9,7 @@ install_headers(
   'stdplus/hash.hpp',
   'stdplus/hash/array.hpp',
   'stdplus/hash/tuple.hpp',
+  'stdplus/numeric/endian.hpp',
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
