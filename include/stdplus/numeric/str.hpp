@@ -7,6 +7,7 @@
 #include <concepts>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 
@@ -130,6 +131,104 @@ constexpr CharT* intToStr(CharT* buf, T v, uint8_t min_width) noexcept
     return uintToStr<base>(buf, std::make_unsigned_t<T>(v), min_width);
 }
 
+inline constexpr auto charTable = []() {
+    std::array<int8_t, 256> ret;
+    std::fill(ret.begin(), ret.end(), -1);
+    for (int8_t i = 0; i < 10; ++i)
+    {
+        ret[i + '0'] = i;
+    }
+    for (int8_t i = 0; i < 26; ++i)
+    {
+        ret[i + 'A'] = i + 10;
+        ret[i + 'a'] = i + 10;
+    }
+    return ret;
+}();
+
+template <uint8_t base, typename T, typename CharT>
+constexpr T strToUInt(std::basic_string_view<CharT> str)
+{
+    static_assert(std::is_unsigned_v<T>);
+    if (str.empty())
+    {
+        throw std::invalid_argument("Empty Str");
+    }
+    constexpr auto max = std::numeric_limits<T>::max();
+    T ret = 0;
+    for (auto c : str)
+    {
+        constexpr auto cmax = 1 << (sizeof(CharT) << 3);
+        if constexpr (detail::charTable.size() < cmax)
+        {
+            if (detail::charTable.size() <= c)
+            {
+                throw std::invalid_argument("Invalid numeral");
+            }
+        }
+        auto v = detail::charTable[c];
+        if (v < 0 || v >= base)
+        {
+            throw std::invalid_argument("Invalid numeral");
+        }
+        if constexpr (std::popcount(base) == 1)
+        {
+            constexpr auto shift = std::countr_zero(base);
+            constexpr auto maxshift = max >> shift;
+            if (ret > maxshift)
+            {
+                throw std::overflow_error("Integer Decode Overflow");
+            }
+            ret = (ret << shift) | v;
+        }
+        else
+        {
+            constexpr auto maxbase = max / base;
+            if (ret > maxbase)
+            {
+                throw std::overflow_error("Integer Decode Overflow");
+            }
+            ret *= base;
+            if (max - v < ret)
+            {
+                throw std::overflow_error("Integer Decode Overflow");
+            }
+            ret += v;
+        }
+    }
+    return ret;
+}
+
+template <uint8_t base, typename T, typename CharT>
+constexpr T strToUInt0(std::basic_string_view<CharT> str)
+{
+    if constexpr (base > 0)
+    {
+        return strToUInt<base, T>(str);
+    }
+    if (str.starts_with("0x"))
+    {
+        return strToUInt<16, T>(str.substr(2));
+    }
+    return strToUInt<10, T>(str);
+}
+
+template <uint8_t base, std::integral T, typename CharT>
+constexpr T strToInt(std::basic_string_view<CharT> str)
+{
+    if constexpr (std::is_unsigned_v<T>)
+    {
+        return strToUInt0<base, T>(str);
+    }
+    bool is_neg = str.starts_with('-');
+    auto ret = strToUInt0<base, std::make_unsigned_t<T>>(str.substr(is_neg));
+    if (ret > std::numeric_limits<T>::max())
+    {
+        throw std::overflow_error("Integer Decode Overflow");
+    }
+    return is_neg ? -static_cast<T>(ret) : ret;
+}
+
 } // namespace detail
 
 template <uint8_t base, std::integral T>
@@ -163,6 +262,32 @@ struct IntToStr
 
 template <std::integral T>
 struct ToStr<T> : IntToStr<10, T>
+{
+    using type = T;
+};
+
+template <uint8_t base, std::integral T>
+struct StrToInt
+{
+    static_assert(base <= detail::maxBase);
+
+    constexpr T operator()(const auto& str) const
+    {
+        using ptr_t =
+            std::conditional_t<std::is_signed_v<T>, intptr_t, uintptr_t>;
+        auto ret = detail::strToInt<
+            base, std::conditional_t<sizeof(T) <= sizeof(ptr_t), ptr_t, T>>(
+            std::basic_string_view(str));
+        if (ret > std::numeric_limits<T>::max())
+        {
+            throw std::overflow_error("Integer Decode");
+        }
+        return ret;
+    }
+};
+
+template <std::integral T>
+struct FromStr<T> : StrToInt<0, T>
 {
     using type = T;
 };

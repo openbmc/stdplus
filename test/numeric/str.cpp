@@ -100,4 +100,95 @@ TEST(ToString, perf)
     EXPECT_TRUE(false);
 }
 
+TEST(StrToInt, Uint8_10)
+{
+    StrToInt<10, uint8_t> dec;
+    EXPECT_EQ(42, dec("42"));
+    EXPECT_EQ(255, dec("255"));
+    EXPECT_THROW(dec(""), std::invalid_argument);
+    EXPECT_THROW(dec("-1"), std::invalid_argument);
+    EXPECT_THROW(dec("a0"), std::invalid_argument);
+    EXPECT_THROW(dec(".0"), std::invalid_argument);
+    EXPECT_THROW(dec("257"), std::overflow_error);
+    EXPECT_THROW(dec("300"), std::overflow_error);
+}
+
+TEST(StrToInt, Uint8_11)
+{
+    StrToInt<11, uint8_t> dec;
+    EXPECT_EQ(112, dec("a2"));
+    EXPECT_EQ(255, dec("212"));
+    EXPECT_THROW(dec(""), std::invalid_argument);
+    EXPECT_THROW(dec("-1"), std::invalid_argument);
+    EXPECT_THROW(dec("b0"), std::invalid_argument);
+    EXPECT_THROW(dec(".0"), std::invalid_argument);
+    EXPECT_THROW(dec("213"), std::overflow_error);
+    EXPECT_THROW(dec("300"), std::overflow_error);
+}
+
+TEST(StrToInt, Uint16_16)
+{
+    StrToInt<16, uint16_t> dec;
+    EXPECT_EQ(0x42, dec("42"));
+    EXPECT_EQ(0xfacf, dec("facf"));
+    EXPECT_THROW(dec(""), std::invalid_argument);
+    EXPECT_THROW(dec("-1"), std::invalid_argument);
+    EXPECT_THROW(dec("g0"), std::invalid_argument);
+    EXPECT_THROW(dec(".0"), std::invalid_argument);
+    EXPECT_THROW(dec("10000"), std::overflow_error);
+}
+
+TEST(StrToInt, Uint16_8)
+{
+    StrToInt<8, uint16_t> dec;
+    EXPECT_EQ(042, dec("42"));
+    EXPECT_EQ(0177777, dec("177777"));
+    EXPECT_THROW(dec(""), std::invalid_argument);
+    EXPECT_THROW(dec("-1"), std::invalid_argument);
+    EXPECT_THROW(dec("g0"), std::invalid_argument);
+    EXPECT_THROW(dec(".0"), std::invalid_argument);
+    EXPECT_THROW(dec("277777"), std::overflow_error);
+}
+
+TEST(StrToInt, Int8_16)
+{
+    StrToInt<16, int8_t> dec;
+    EXPECT_EQ(-1, dec("-1"));
+    EXPECT_EQ(0x42, dec("42"));
+    EXPECT_EQ(-0x7f, dec("-7f"));
+    EXPECT_THROW(dec(""), std::invalid_argument);
+    EXPECT_THROW(dec("--1"), std::invalid_argument);
+    EXPECT_THROW(dec("g0"), std::invalid_argument);
+    EXPECT_THROW(dec(".0"), std::invalid_argument);
+    EXPECT_THROW(dec("ff"), std::overflow_error);
+    EXPECT_THROW(dec("10000"), std::overflow_error);
+}
+
+TEST(StrToInt, Int8_0)
+{
+    StrToInt<0, int8_t> dec;
+    EXPECT_EQ(-1, dec("-1"));
+    EXPECT_EQ(42, dec("42"));
+    EXPECT_EQ(0x42, dec("0x42"));
+    EXPECT_EQ(-42, dec("-42"));
+    EXPECT_EQ(-0x42, dec("-0x42"));
+    EXPECT_THROW(dec(""), std::invalid_argument);
+    EXPECT_THROW(dec("--1"), std::invalid_argument);
+    EXPECT_THROW(dec("ac"), std::invalid_argument);
+    EXPECT_THROW(dec(".0"), std::invalid_argument);
+    EXPECT_THROW(dec("0xff"), std::overflow_error);
+    EXPECT_THROW(dec("10000"), std::overflow_error);
+}
+
+TEST(StrToInt, Perf)
+{
+    GTEST_SKIP();
+    StrToInt<16, size_t> dec;
+    for (size_t i = 0; i < 100000000; ++i)
+    {
+        dec("53036893");
+    }
+    EXPECT_TRUE(false);
+}
+
 } // namespace stdplus
