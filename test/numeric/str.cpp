@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 
+using std::literals::string_view_literals::operator""sv;
+
 namespace stdplus
 {
 
@@ -96,6 +98,97 @@ TEST(ToString, perf)
     for (size_t i = 0; i < 100000000; ++i)
     {
         enc(buf, i);
+    }
+    EXPECT_TRUE(false);
+}
+
+TEST(StrToInt, Uint8_10)
+{
+    StrToInt<10, uint8_t> dec;
+    EXPECT_EQ(42, dec("42"sv));
+    EXPECT_EQ(255, dec("255"sv));
+    EXPECT_THROW(dec(""sv), std::invalid_argument);
+    EXPECT_THROW(dec("-1"sv), std::invalid_argument);
+    EXPECT_THROW(dec("a0"sv), std::invalid_argument);
+    EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("257"sv), std::overflow_error);
+    EXPECT_THROW(dec("300"sv), std::overflow_error);
+}
+
+TEST(StrToInt, Uint8_11)
+{
+    StrToInt<11, uint8_t> dec;
+    EXPECT_EQ(112, dec("a2"sv));
+    EXPECT_EQ(255, dec("212"sv));
+    EXPECT_THROW(dec(""sv), std::invalid_argument);
+    EXPECT_THROW(dec("-1"sv), std::invalid_argument);
+    EXPECT_THROW(dec("b0"sv), std::invalid_argument);
+    EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("213"sv), std::overflow_error);
+    EXPECT_THROW(dec("300"sv), std::overflow_error);
+}
+
+TEST(StrToInt, Uint16_16)
+{
+    StrToInt<16, uint16_t> dec;
+    EXPECT_EQ(0x42, dec("42"sv));
+    EXPECT_EQ(0xfacf, dec("facf"sv));
+    EXPECT_THROW(dec(""sv), std::invalid_argument);
+    EXPECT_THROW(dec("-1"sv), std::invalid_argument);
+    EXPECT_THROW(dec("g0"sv), std::invalid_argument);
+    EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("10000"sv), std::overflow_error);
+}
+
+TEST(StrToInt, Uint16_8)
+{
+    StrToInt<8, uint16_t> dec;
+    EXPECT_EQ(042, dec("42"sv));
+    EXPECT_EQ(0177777, dec("177777"sv));
+    EXPECT_THROW(dec(""sv), std::invalid_argument);
+    EXPECT_THROW(dec("-1"sv), std::invalid_argument);
+    EXPECT_THROW(dec("g0"sv), std::invalid_argument);
+    EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("277777"sv), std::overflow_error);
+}
+
+TEST(StrToInt, Int8_16)
+{
+    StrToInt<16, int8_t> dec;
+    EXPECT_EQ(-1, dec("-1"sv));
+    EXPECT_EQ(0x42, dec("42"sv));
+    EXPECT_EQ(-0x7f, dec("-7f"sv));
+    EXPECT_THROW(dec(""sv), std::invalid_argument);
+    EXPECT_THROW(dec("--1"sv), std::invalid_argument);
+    EXPECT_THROW(dec("g0"sv), std::invalid_argument);
+    EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("ff"sv), std::overflow_error);
+    EXPECT_THROW(dec("10000"sv), std::overflow_error);
+}
+
+TEST(StrToInt, Int8_0)
+{
+    StrToInt<0, int8_t> dec;
+    EXPECT_EQ(-1, dec("-1"sv));
+    EXPECT_EQ(42, dec("42"sv));
+    EXPECT_EQ(0x42, dec("0x42"sv));
+    EXPECT_EQ(-42, dec("-42"sv));
+    EXPECT_EQ(-0x42, dec("-0x42"sv));
+    EXPECT_THROW(dec(""sv), std::invalid_argument);
+    EXPECT_THROW(dec("--1"sv), std::invalid_argument);
+    EXPECT_THROW(dec("ac"sv), std::invalid_argument);
+    EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("0xff"sv), std::overflow_error);
+    EXPECT_THROW(dec("10000"sv), std::overflow_error);
+}
+
+TEST(StrToInt, Perf)
+{
+    GTEST_SKIP();
+    StrToInt<16, size_t> dec;
+    for (size_t i = 0; i < 100000000; ++i)
+    {
+        dec("53036893"sv);
     }
     EXPECT_TRUE(false);
 }
