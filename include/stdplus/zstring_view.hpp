@@ -1,6 +1,7 @@
 #pragma once
 #include <fmt/core.h>
 #include <stdexcept>
+#include <stdplus/str/cexpr.hpp>
 #include <stdplus/zstring.hpp>
 #include <string>
 #include <string_view>
@@ -320,6 +321,16 @@ constexpr auto operator"" _zsv() noexcept
     return Str.getzsv();
 }
 } // namespace zstring_view_literals
+
+template <auto f>
+consteval auto cexprToZsv()
+{
+    constexpr auto& d = detail::cexprStrData<f>;
+    static_assert(detail::zstring_find_term(d.data(), d.size() - 1, d.size()) >=
+                  0);
+    return detail::unsafe_zstring_view(
+        std::basic_string_view(d.begin(), d.end() - 1));
+}
 
 } // namespace stdplus
 
