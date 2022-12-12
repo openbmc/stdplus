@@ -6,6 +6,7 @@ install_headers(
   'stdplus/flags.hpp',
   'stdplus/handle/copyable.hpp',
   'stdplus/handle/managed.hpp',
+  'stdplus/hash.hpp',
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
