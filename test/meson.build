@@ -12,6 +12,7 @@ gtests = {
   'signal': [stdplus_dep, gtest_main_dep],
   'str/cat': [stdplus_dep, gtest_main_dep],
   'str/cexpr': [stdplus_dep, gtest_main_dep],
+  'str/maps': [stdplus_dep, gmock_dep, gtest_main_dep],
   'util/cexec': [stdplus_dep, gtest_main_dep],
   'zstring': [stdplus_dep, gtest_main_dep],
   'zstring_view': [stdplus_dep, gtest_main_dep],
