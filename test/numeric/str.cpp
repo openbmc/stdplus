@@ -8,7 +8,7 @@ namespace stdplus
 TEST(IntToStr, Uint8_10)
 {
     IntToStr<10, uint8_t> enc;
-    static_assert(enc.bufSize == 3);
+    static_assert(enc.bufSize == 4);
     char buf[enc.bufSize];
     EXPECT_EQ("0", std::string_view(buf, enc(buf, 0)));
     EXPECT_EQ("42", std::string_view(buf, enc(buf, 42)));
@@ -20,7 +20,7 @@ TEST(IntToStr, Uint8_10)
 TEST(IntToStr, Int8_10)
 {
     IntToStr<10, int8_t> enc;
-    static_assert(enc.bufSize == 4);
+    static_assert(enc.bufSize == 5);
     char buf[enc.bufSize];
     EXPECT_EQ("42", std::string_view(buf, enc(buf, 42)));
     EXPECT_EQ("-127", std::string_view(buf, enc(buf, -127)));
@@ -29,7 +29,7 @@ TEST(IntToStr, Int8_10)
 TEST(IntToStr, Uint16_10)
 {
     IntToStr<10, uint16_t> enc;
-    static_assert(enc.bufSize == 5);
+    static_assert(enc.bufSize == 6);
     char buf[enc.bufSize];
     EXPECT_EQ("55255", std::string_view(buf, enc(buf, 55255, 3)));
 }
