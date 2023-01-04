@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <cstddef>
 #include <tuple>
 #include <utility>
@@ -62,9 +63,62 @@ constexpr std::size_t hashMulti(const T& t, const Ts&... ts) noexcept(
     return detail::hashMultiS(hashMulti(t), ts...);
 }
 
+namespace detail
+{
+
+template <typename T>
+constexpr std::size_t
+    hashArr(std::size_t seed, const T* ts,
+            std::size_t n) noexcept(noexcept(hashMulti(std::declval<T>())))
+{
+    if (n == 1)
+    {
+        return updateSeed(seed, hashMulti(*ts));
+    }
+    return hashArr(updateSeed(seed, hashMulti(*ts)), ts + 1, n - 1);
+}
+
+template <typename T>
+constexpr std::size_t
+    hashArr(const T* ts,
+            std::size_t n) noexcept(noexcept(hashMulti(std::declval<T>())))
+{
+    if (n == 0)
+    {
+        return 0;
+    }
+    if (n == 1)
+    {
+        return hashMulti(*ts);
+    }
+    return hashArr(hashMulti(*ts), ts + 1, n - 1);
+}
+
+} // namespace detail
+
 template <class Key>
 struct hash : std::hash<Key>
 {};
+
+template <typename T, std::size_t N>
+struct hash<std::array<T, N>>
+{
+    constexpr std::size_t operator()(const std::array<T, N>& a) noexcept(
+        noexcept(hashMulti(std::declval<T>())))
+    {
+        return detail::hashArr(a.data(), N);
+    }
+};
+
+template <typename T, std::size_t N>
+struct hash<T[N]>
+{
+    constexpr std::size_t operator()(const T (&a)[N]) noexcept(
+        noexcept(hashMulti(std::declval<T>())))
+    {
+        return detail::hashArr(a, N);
+    }
+};
 
 template <typename... Ts>
 struct hash<std::tuple<Ts...>>
