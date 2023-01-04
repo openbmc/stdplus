@@ -6,6 +6,7 @@ gtests = {
   'hash': [stdplus_dep, gtest_main_dep],
   'hash/array': [stdplus_dep, gtest_main_dep],
   'hash/tuple': [stdplus_dep, gtest_main_dep],
+  'net/addr/ip': [stdplus_dep, gtest_main_dep],
   'numeric/endian': [stdplus_dep, gtest_main_dep],
   'pinned': [stdplus_dep, gtest_main_dep],
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
