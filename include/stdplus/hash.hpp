@@ -1,5 +1,6 @@
 #pragma once
 #include <cstddef>
+#include <tuple>
 #include <utility>
 
 namespace std
@@ -64,5 +65,15 @@ constexpr std::size_t hashMulti(const T& t, const Ts&... ts) noexcept(
 template <class Key>
 struct hash : std::hash<Key>
 {};
+
+template <typename... Ts>
+struct hash<std::tuple<Ts...>>
+{
+    constexpr std::size_t operator()(const std::tuple<Ts...>& ts) noexcept(
+        noexcept(hashMulti(std::declval<Ts>()...)))
+    {
+        return std::apply(hashMulti<Ts...>, ts);
+    }
+};
 
 } // namespace stdplus
