@@ -1,0 +1,26 @@
+#include <stdplus/net/addr/ip.hpp>
+#include <stdplus/numeric/endian.hpp>
+
+#include <gtest/gtest.h>
+
+namespace stdplus
+{
+
+TEST(EqualOperator, In4Addr)
+{
+    EXPECT_EQ((In4Addr{255, 0, 255, 0}), (in_addr{hton(0xff00ff00)}));
+    EXPECT_EQ((in_addr{}), (In4Addr{}));
+    EXPECT_NE((In4Addr{1}), (In4Addr{in_addr{}}));
+    std::hash<In4Addr>{}(In4Addr{});
+}
+
+TEST(EqualOperator, In6Addr)
+{
+    EXPECT_EQ((In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+              (in6_addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+    EXPECT_EQ((in6_addr{}), (In6Addr{}));
+    EXPECT_NE((In6Addr{1}), (In6Addr{in6_addr{}}));
+    std::hash<In6Addr>{}(In6Addr{});
+}
+
+} // namespace stdplus
