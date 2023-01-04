@@ -48,6 +48,7 @@ stdplus_srcs = [
   'handle/copyable.cpp',
   'handle/managed.cpp',
   'hash.cpp',
+  'hash/array.cpp',
   'hash/tuple.cpp',
   'pinned.cpp',
   'raw.cpp',

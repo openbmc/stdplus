@@ -7,6 +7,7 @@ install_headers(
   'stdplus/handle/copyable.hpp',
   'stdplus/handle/managed.hpp',
   'stdplus/hash.hpp',
+  'stdplus/hash/array.hpp',
   'stdplus/hash/tuple.hpp',
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
