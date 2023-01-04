@@ -16,6 +16,16 @@ namespace stdplus
 namespace detail
 {
 
+template <typename T>
+constexpr auto pow(T t, uint8_t n) noexcept
+{
+    if (n == 0)
+    {
+        return T{1};
+    }
+    return t * pow(t, n - 1);
+}
+
 inline constexpr auto maxBase = 36;
 
 inline constexpr auto singleIntTable = []() {
@@ -32,27 +42,74 @@ inline constexpr auto singleIntTable = []() {
     return ret;
 }();
 
+template <uint8_t size, uint8_t base>
+inline constexpr auto multiIntTable = []() {
+    static_assert(size > 1);
+    static_assert(base <= maxBase);
+    std::array<char, pow<size_t>(base, size) * size> ret;
+    for (size_t i = 0; i < pow<size_t>(base, size); ++i)
+    {
+        for (size_t j = 0; j < size; ++j)
+        {
+            ret[i * size + j] = singleIntTable[i / pow<size_t>(base, j) % base];
+        }
+    }
+    return ret;
+}();
+
+template <uint8_t size, uint8_t base>
+constexpr void intStrWrite(auto str, auto v) noexcept
+{
+    if constexpr (size > 1)
+    {
+        auto it = &detail::multiIntTable<size, base>[v * size];
+        std::copy(it, it + size, str);
+    }
+    else
+    {
+        *str = detail::singleIntTable[v];
+    }
+}
+
+inline constexpr auto multiIntSupport = []() {
+    std::array<uint8_t, maxBase> ret;
+    std::fill(ret.begin(), ret.end(), 1);
+    // Decimals are common enough and have slow division
+    ret[10] = 2;
+    return ret;
+}();
+
 template <uint8_t base, typename T, typename CharT>
 constexpr CharT* uintToStr(CharT* buf, T v, uint8_t min_width) noexcept
 {
     static_assert(std::is_unsigned_v<T>);
     uint8_t i = 0;
+    constexpr auto multi = detail::multiIntSupport[base];
     do
     {
+        constexpr auto div = detail::pow<size_t>(base, multi);
         if constexpr (std::popcount(base) == 1)
         {
-            constexpr auto shift = std::countr_zero(base);
+            constexpr auto shift = std::countr_zero(div);
             constexpr auto mask = (1 << shift) - 1;
-            buf[i] = detail::singleIntTable[v & mask];
+            intStrWrite<multi, base>(buf + i, v & mask);
             v >>= shift;
         }
         else
         {
-            buf[i] = detail::singleIntTable[v % base];
-            v /= base;
+            intStrWrite<multi, base>(buf + i, v % div);
+            v /= div;
         }
-        i += 1;
+        i += multi;
     } while (v > 0);
+    if constexpr (multi > 1)
+    {
+        const auto width = std::max<uint8_t>(min_width, 1);
+        while (i > width && buf[i - 1] == '0')
+        {
+            --i;
+        }
+    }
     auto end = buf + std::max(i, min_width);
     std::fill(buf + i, end, '0');
     std::reverse(buf, end);
@@ -89,7 +146,9 @@ struct IntToStr
         {
             v /= base;
         }
-        return i + std::is_signed_v<T>;
+        // Normalize to support multi-int
+        auto div = detail::multiIntSupport[base];
+        return (i + div - 1) / div * div + std::is_signed_v<T>;
     }();
 
     template <typename CharT>
