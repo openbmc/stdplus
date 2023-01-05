@@ -23,4 +23,25 @@ TEST(EqualOperator, In6Addr)
     std::hash<In6Addr>{}(In6Addr{});
 }
 
+TEST(EqualOperator, InAnyAddr)
+{
+    EXPECT_EQ(InAnyAddr(In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                0xff}),
+              (In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+    EXPECT_NE(InAnyAddr(In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                0xff}),
+              (in_addr{}));
+    EXPECT_EQ((In6Addr{}), InAnyAddr(In6Addr{}));
+    EXPECT_NE((In4Addr{}), InAnyAddr(In6Addr{}));
+    EXPECT_EQ((In4Addr{}), InAnyAddr(In4Addr{}));
+    EXPECT_NE((In6Addr{}), InAnyAddr(In4Addr{}));
+    EXPECT_EQ(InAnyAddr(In6Addr{}), (in6_addr{}));
+    EXPECT_EQ(InAnyAddr(In4Addr{}), (in_addr{}));
+    EXPECT_NE(InAnyAddr(In6Addr{1}), InAnyAddr(In6Addr{}));
+    EXPECT_EQ(InAnyAddr(In6Addr{1}), InAnyAddr(In6Addr{1}));
+
+    std::hash<InAnyAddr>{}(In4Addr{});
+    std::hash<InAnyAddr>{}(In6Addr{});
+}
+
 } // namespace stdplus

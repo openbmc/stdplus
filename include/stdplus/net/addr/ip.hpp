@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 
 #include <stdplus/hash.hpp>
+#include <stdplus/variant.hpp>
 
 #include <algorithm>
 #include <variant>
@@ -69,6 +70,24 @@ struct In6Addr : in6_addr
     }
 };
 
+namespace detail
+{
+using InAnyAddrV = std::variant<In4Addr, In6Addr>;
+}
+
+struct InAnyAddr : detail::InAnyAddrV
+{
+    constexpr InAnyAddr(in_addr a) noexcept : detail::InAnyAddrV(In4Addr{a}) {}
+    constexpr InAnyAddr(In4Addr a) noexcept : detail::InAnyAddrV(a) {}
+    constexpr InAnyAddr(in6_addr a) noexcept : detail::InAnyAddrV(In6Addr{a}) {}
+    constexpr InAnyAddr(In6Addr a) noexcept : detail::InAnyAddrV(a) {}
+
+    constexpr bool operator==(auto rhs) const noexcept
+    {
+        return variantEqFuzzy(*this, rhs);
+    }
+};
+
 } // namespace stdplus
 
 template <>
@@ -86,5 +105,14 @@ struct std::hash<stdplus::In6Addr>
     constexpr std::size_t operator()(in6_addr addr) const noexcept
     {
         return stdplus::hashMulti(addr.s6_addr32);
+    }
+};
+
+template <>
+struct std::hash<stdplus::InAnyAddr>
+{
+    inline std::size_t operator()(stdplus::InAnyAddr a) const noexcept
+    {
+        return std::hash<stdplus::detail::InAnyAddrV>{}(a);
     }
 };
