@@ -20,6 +20,7 @@ install_headers(
   'stdplus/str/maps.hpp',
   'stdplus/util/cexec.hpp',
   'stdplus/util/string.hpp',
+  'stdplus/variant.hpp',
   'stdplus/zstring.hpp',
   'stdplus/zstring_view.hpp',
   preserve_path: true)

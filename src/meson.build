@@ -60,6 +60,7 @@ stdplus_srcs = [
   'str/cexpr.cpp',
   'str/maps.cpp',
   'util/cexec.cpp',
+  'variant.cpp',
   'zstring.cpp',
   'zstring_view.cpp',
 ]
