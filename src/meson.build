@@ -50,6 +50,7 @@ stdplus_srcs = [
   'hash.cpp',
   'hash/array.cpp',
   'hash/tuple.cpp',
+  'net/addr/ether.cpp',
   'net/addr/ip.cpp',
   'numeric/endian.cpp',
   'pinned.cpp',
