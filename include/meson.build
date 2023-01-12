@@ -11,6 +11,7 @@ install_headers(
   'stdplus/hash/tuple.hpp',
   'stdplus/net/addr/ether.hpp',
   'stdplus/net/addr/ip.hpp',
+  'stdplus/net/addr/subnet.hpp',
   'stdplus/numeric/endian.hpp',
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
