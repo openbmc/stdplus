@@ -115,7 +115,10 @@ TEST(Extract, Partial)
 
 TEST(ExtractRef, TooSmall)
 {
-    std::string_view s("a");
+    // Trick the compiler with a bigger buffer so it doesn't complain
+    std::array<char, sizeof(Int)> buf{};
+    buf[0] = 'a';
+    std::string_view s(buf.data(), 1);
     EXPECT_THROW(extractRef<Int>(s), std::runtime_error);
     EXPECT_EQ("a", s);
 }
