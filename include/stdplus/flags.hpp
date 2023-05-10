@@ -8,9 +8,7 @@ template <typename Int, typename Flag = Int>
 class BitFlags
 {
   public:
-    inline explicit BitFlags(Int val = 0) noexcept : val(val)
-    {
-    }
+    inline explicit BitFlags(Int val = 0) noexcept : val(val) {}
 
     inline BitFlags& set(Flag flag) & noexcept
     {

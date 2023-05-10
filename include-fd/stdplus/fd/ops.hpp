@@ -1,9 +1,10 @@
 #pragma once
-#include <span>
-#include <stdexcept>
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/raw.hpp>
+
+#include <span>
+#include <stdexcept>
 #include <utility>
 
 namespace stdplus

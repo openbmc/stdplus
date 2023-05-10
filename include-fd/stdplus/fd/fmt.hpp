@@ -1,7 +1,9 @@
 #pragma once
 #include <fmt/format.h>
-#include <functional>
+
 #include <stdplus/fd/intf.hpp>
+
+#include <functional>
 #include <type_traits>
 #include <utility>
 

@@ -28,13 +28,11 @@ class DlOpenFlags : public stdplus::BitFlags<int, DlOpenFlag>
   public:
     inline DlOpenFlags(DlOpenType type) :
         BitFlags<int, DlOpenFlag>(static_cast<int>(type))
-    {
-    }
+    {}
 
     inline DlOpenFlags(BitFlags<int, DlOpenFlag> flags) :
         BitFlags<int, DlOpenFlag>(flags)
-    {
-    }
+    {}
 };
 
 class Dl

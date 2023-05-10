@@ -1,5 +1,6 @@
-#include <functional>
 #include <stdplus/cancel.hpp>
+
+#include <functional>
 
 #include <gtest/gtest.h>
 

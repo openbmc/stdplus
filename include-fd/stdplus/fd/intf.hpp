@@ -1,11 +1,13 @@
 #pragma once
-#include <cstddef>
 #include <fcntl.h>
-#include <optional>
-#include <span>
-#include <stdplus/flags.hpp>
 #include <sys/mman.h>
 #include <sys/socket.h>
+
+#include <stdplus/flags.hpp>
+
+#include <cstddef>
+#include <optional>
+#include <span>
 #include <tuple>
 
 namespace stdplus
@@ -104,13 +106,11 @@ class MMapFlags : public BitFlags<int, MMapFlag>
   public:
     inline MMapFlags(MMapAccess access) :
         BitFlags<int, MMapFlag>(static_cast<int>(access))
-    {
-    }
+    {}
 
     inline MMapFlags(BitFlags<int, MMapFlag> flags) :
         BitFlags<int, MMapFlag>(flags)
-    {
-    }
+    {}
 };
 
 class MMap;

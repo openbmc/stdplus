@@ -1,9 +1,11 @@
 #include <fmt/format.h>
+#include <unistd.h>
+
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/managed.hpp>
 #include <stdplus/fd/ops.hpp>
 #include <stdplus/util/cexec.hpp>
-#include <unistd.h>
+
 #include <utility>
 
 namespace stdplus
@@ -20,9 +22,7 @@ void drop(int&& fd)
 
 } // namespace detail
 
-ManagedFd::ManagedFd() noexcept : handle(std::nullopt)
-{
-}
+ManagedFd::ManagedFd() noexcept : handle(std::nullopt) {}
 
 ManagedFd::ManagedFd(int&& fd) : handle(std::move(fd))
 {
@@ -31,12 +31,9 @@ ManagedFd::ManagedFd(int&& fd) : handle(std::move(fd))
 
 ManagedFd::ManagedFd(DupableFd&& other) noexcept :
     handle(static_cast<detail::ManagedFdHandle&&>(other.handle))
-{
-}
+{}
 
-ManagedFd::ManagedFd(const DupableFd& other) : ManagedFd(DupableFd(other))
-{
-}
+ManagedFd::ManagedFd(const DupableFd& other) : ManagedFd(DupableFd(other)) {}
 
 ManagedFd& ManagedFd::operator=(DupableFd&& other) noexcept
 {

@@ -23,8 +23,7 @@ struct DedSV : std::basic_string_view<CharT, Traits>
     template <typename... Args>
     constexpr DedSV(Args&&... args) :
         std::basic_string_view<CharT, Traits>(std::forward<Args>(args)...)
-    {
-    }
+    {}
 };
 
 template <typename CharT>

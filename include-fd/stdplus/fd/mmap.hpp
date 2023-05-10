@@ -1,9 +1,10 @@
 #pragma once
+#include <stdplus/fd/intf.hpp>
+#include <stdplus/handle/managed.hpp>
+
 #include <cstddef>
 #include <functional>
 #include <span>
-#include <stdplus/fd/intf.hpp>
-#include <stdplus/handle/managed.hpp>
 
 namespace stdplus
 {
@@ -19,8 +20,7 @@ class MMap
             fd,
             std::span<std::byte>{static_cast<std::byte*>(nullptr), window_size},
             prot, flags, offset)
-    {
-    }
+    {}
     MMap(Fd& fd, std::span<std::byte> window, ProtFlags prot, MMapFlags flags,
          off_t offset);
 

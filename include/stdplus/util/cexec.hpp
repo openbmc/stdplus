@@ -53,7 +53,7 @@
                           "Unimplemented check routine");                      \
         }                                                                      \
         return check_errno_ret;                                                \
-    }((expr))
+        }((expr))
 
 /** @brief   Wraps common c style error handling for exception throwing
  *           This requires the callee to provide error information in -r.
@@ -77,7 +77,7 @@
                           "Unimplemented check routine");                      \
         }                                                                      \
         return check_ret_ret;                                                  \
-    }((expr))
+        }((expr))
 
 namespace stdplus
 {
@@ -156,7 +156,7 @@ inline std::enable_if_t<std::is_invocable_v<Fun, int>, void> doError(int error,
  *  @throws std::system_error for an error case.
  *  @return A successful return value based on the function type
  */
-template <auto(*makeError)(int, const char*) = makeSystemError,
+template <auto (*makeError)(int, const char*) = makeSystemError,
           typename... Args>
 inline auto callCheckErrno(const char* msg, Args&&... args)
 {
@@ -181,7 +181,7 @@ inline auto callCheckErrno(const char* msg, Args&&... args)
         static_assert(std::is_same_v<Ret, int>, "Unimplemented check routine");
     }
 }
-template <auto(*makeError)(int, const char*) = makeSystemError,
+template <auto (*makeError)(int, const char*) = makeSystemError,
           typename... Args>
 inline auto callCheckErrno(const std::string& msg, Args&&... args)
 {
@@ -198,7 +198,7 @@ inline auto callCheckErrno(const std::string& msg, Args&&... args)
  *  @throws std::system_error for an error case.
  *  @return A successful return value based on the function type
  */
-template <auto(*makeError)(int, const char*) = makeSystemError,
+template <auto (*makeError)(int, const char*) = makeSystemError,
           typename... Args>
 inline auto callCheckRet(const char* msg, Args&&... args)
 {
@@ -216,7 +216,7 @@ inline auto callCheckRet(const char* msg, Args&&... args)
         static_assert(std::is_same_v<Ret, int>, "Unimplemented check routine");
     }
 }
-template <auto(*makeError)(int, const char*) = makeSystemError,
+template <auto (*makeError)(int, const char*) = makeSystemError,
           typename... Args>
 inline auto callCheckRet(const std::string& msg, Args&&... args)
 {

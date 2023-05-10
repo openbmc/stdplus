@@ -1,6 +1,8 @@
-#include <filesystem>
-#include <gtest/gtest.h>
 #include <stdplus/gtest/tmp.hpp>
+
+#include <filesystem>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {
@@ -8,8 +10,7 @@ namespace gtest
 {
 
 class TestWithTmpTest : public TestWithTmp
-{
-};
+{};
 
 TEST_F(TestWithTmpTest, One)
 {
@@ -28,8 +29,7 @@ TEST_F(TestWithTmpTest, Two)
 }
 
 class TestWithTmpTest2 : public TestWithTmp
-{
-};
+{};
 
 TEST_F(TestWithTmpTest2, One)
 {

@@ -1,16 +1,15 @@
-#include <cstring>
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/line.hpp>
 #include <stdplus/fd/ops.hpp>
+
+#include <cstring>
 
 namespace stdplus
 {
 namespace fd
 {
 
-LineReader::LineReader(Fd& fd) : fd(fd)
-{
-}
+LineReader::LineReader(Fd& fd) : fd(fd) {}
 
 const std::string* LineReader::readLine()
 {

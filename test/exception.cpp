@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
 #include <stdplus/exception.hpp>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

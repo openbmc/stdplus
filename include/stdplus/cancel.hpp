@@ -30,24 +30,19 @@ using CancelHandle = Managed<Cancelable*>::HandleF<CancelableF>;
 
 struct Cancel : detail::CancelHandle
 {
-    Cancel() : detail::CancelHandle(std::nullopt)
-    {
-    }
+    Cancel() : detail::CancelHandle(std::nullopt) {}
     template <typename T>
     explicit Cancel(T&& t) : detail::CancelHandle(t)
-    {
-    }
+    {}
 };
 
 namespace detail
 {
 
 struct fAny
-{
-};
+{};
 struct fPtr : fAny
-{
-};
+{};
 
 template <typename>
 struct validator
@@ -83,14 +78,12 @@ class AlwaysCallOnce
     template <typename Fi, typename... Vs>
     explicit AlwaysCallOnce(Fi&& fi, Vs&&... default_args) :
         f(std::forward<Fi>(fi)), default_args(std::forward<Vs>(default_args)...)
-    {
-    }
+    {}
     AlwaysCallOnce(const AlwaysCallOnce&) = delete;
     AlwaysCallOnce(AlwaysCallOnce&& other) noexcept :
         f(std::move(other.f)), default_args(std::move(other.default_args)),
         called(std::exchange(other.called, true))
-    {
-    }
+    {}
     AlwaysCallOnce& operator=(const AlwaysCallOnce&) = delete;
     AlwaysCallOnce& operator=(AlwaysCallOnce&& other) noexcept
     {

@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
 #include <stdplus/dl.hpp>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

@@ -1,8 +1,9 @@
 #include <fcntl.h>
 #include <fmt/format.h>
+#include <sys/socket.h>
+
 #include <stdplus/fd/create.hpp>
 #include <stdplus/util/cexec.hpp>
-#include <sys/socket.h>
 
 namespace stdplus
 {
