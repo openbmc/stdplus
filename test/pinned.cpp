@@ -1,6 +1,8 @@
-#include <gtest/gtest.h>
 #include <stdplus/pinned.hpp>
+
 #include <string>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

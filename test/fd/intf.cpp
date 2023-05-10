@@ -1,4 +1,2 @@
 #include <stdplus/fd/intf.hpp>
-int main(int, char*[])
-{
-}
+int main(int, char*[]) {}

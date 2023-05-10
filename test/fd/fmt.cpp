@@ -1,13 +1,14 @@
-#include <gtest/gtest.h>
-
 #include <fmt/compile.h>
+#include <sys/mman.h>
+
 #include <stdplus/fd/fmt.hpp>
 #include <stdplus/fd/managed.hpp>
 #include <stdplus/util/cexec.hpp>
-#include <sys/mman.h>
 
 #include <string>
 #include <string_view>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

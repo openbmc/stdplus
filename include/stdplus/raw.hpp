@@ -1,6 +1,7 @@
 #pragma once
-#include <algorithm>
 #include <fmt/format.h>
+
+#include <algorithm>
 #include <span>
 #include <stdexcept>
 #include <string_view>
@@ -94,11 +95,9 @@ STDPLUS_COPY_FROM(copyFromStrict, !=)
 /** @brief If you can guarantee the underlying data is properly aligned
  *  for raw struct access this specifier is used to override compile checks. */
 struct Aligned
-{
-};
+{};
 struct UnAligned
-{
-};
+{};
 
 /** @brief References the data from a buffer if aligned
  *

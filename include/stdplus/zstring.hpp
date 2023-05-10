@@ -1,6 +1,7 @@
 #pragma once
-#include <cstddef>
 #include <fmt/core.h>
+
+#include <cstddef>
 #include <limits>
 #include <string>
 #include <type_traits>
@@ -50,14 +51,12 @@ constexpr std::size_t zstring_validate(const CharT* str, std::size_t min,
 
 template <typename T, typename CharT, typename Traits>
 struct same_string : std::false_type
-{
-};
+{};
 
 template <typename CharT, typename Traits, typename Allocator>
-struct same_string<std::basic_string<CharT, Traits, Allocator>, CharT, Traits>
-    : std::true_type
-{
-};
+struct same_string<std::basic_string<CharT, Traits, Allocator>, CharT, Traits> :
+    std::true_type
+{};
 
 } // namespace detail
 
@@ -97,8 +96,7 @@ class basic_zstring
     }
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
     constexpr basic_zstring(T str) noexcept : data_(str)
-    {
-    }
+    {}
     template <typename T,
               std::enable_if_t<detail::same_string<std::remove_cvref_t<T>,
                                                    decay_t, Traits>::value,
@@ -254,8 +252,8 @@ namespace fmt
 
 template <typename CharT, typename Traits>
 struct formatter<stdplus::basic_zstring<CharT, Traits>,
-                 std::remove_const_t<CharT>>
-    : formatter<const CharT*, std::remove_const_t<CharT>>
+                 std::remove_const_t<CharT>> :
+    formatter<const CharT*, std::remove_const_t<CharT>>
 {
     template <typename FormatContext>
     inline auto format(stdplus::basic_zstring<CharT, Traits> str,

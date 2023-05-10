@@ -1,7 +1,9 @@
 #include <fcntl.h>
+
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/ops.hpp>
 #include <stdplus/util/cexec.hpp>
+
 #include <utility>
 
 namespace stdplus
@@ -18,13 +20,9 @@ int ref(const int& fd)
 
 } // namespace detail
 
-DupableFd::DupableFd() noexcept : handle(std::nullopt)
-{
-}
+DupableFd::DupableFd() noexcept : handle(std::nullopt) {}
 
-DupableFd::DupableFd(const int& fd) : handle(fd)
-{
-}
+DupableFd::DupableFd(const int& fd) : handle(fd) {}
 
 DupableFd::DupableFd(int&& fd) : handle(std::move(fd))
 {

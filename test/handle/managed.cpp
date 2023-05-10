@@ -1,10 +1,12 @@
-#include <gtest/gtest.h>
-#include <optional>
 #include <stdplus/handle/managed.hpp>
+
+#include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

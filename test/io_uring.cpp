@@ -1,14 +1,15 @@
+#include <fmt/format.h>
 #include <poll.h>
+#include <sys/utsname.h>
+
+#include <stdplus/io_uring.hpp>
+#include <stdplus/util/cexec.hpp>
 
 #include <array>
 #include <charconv>
 #include <chrono>
-#include <fmt/format.h>
 #include <optional>
-#include <stdplus/io_uring.hpp>
-#include <stdplus/util/cexec.hpp>
 #include <string_view>
-#include <sys/utsname.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

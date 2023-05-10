@@ -1,7 +1,9 @@
 #pragma once
 #include <fmt/core.h>
-#include <stdexcept>
+
 #include <stdplus/zstring.hpp>
+
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -83,12 +85,10 @@ class basic_zstring_view
         :
         sv(str, detail::zstring_validate(str, 0, N))
 #endif
-    {
-    }
+    {}
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
     constexpr basic_zstring_view(T str) noexcept : sv(str)
-    {
-    }
+    {}
     template <typename T,
               std::enable_if_t<detail::same_string<T, CharT, Traits>::value,
                                bool> = true>
@@ -101,16 +101,14 @@ class basic_zstring_view
         sv(str.data(),
            detail::zstring_validate(str.data(), str.size(), str.size() + 1))
 #endif
-    {
-    }
+    {}
     template <
         typename T,
         std::enable_if_t<std::is_same_v<value_type, std::remove_const_t<T>>,
                          bool> = true>
     constexpr basic_zstring_view(basic_zstring<T, Traits> str) noexcept :
         sv(str.data())
-    {
-    }
+    {}
 
     constexpr operator string_view_base() const noexcept
     {
@@ -295,11 +293,9 @@ class basic_zstring_view
     string_view_base sv;
 
     struct unsafe
-    {
-    };
+    {};
     constexpr basic_zstring_view(unsafe, string_view_base sv) noexcept : sv(sv)
-    {
-    }
+    {}
     friend auto detail::unsafe_zstring_view<CharT, Traits>(string_view_base sv);
 };
 
@@ -331,10 +327,9 @@ constexpr auto operator"" _zsv() noexcept
     namespace std                                                              \
     {                                                                          \
     template <>                                                                \
-    struct hash<stdplus::basic_zstring_view<char_t>>                           \
-        : hash<basic_string_view<char_t>>                                      \
-    {                                                                          \
-    };                                                                         \
+    struct hash<stdplus::basic_zstring_view<char_t>> :                         \
+        hash<basic_string_view<char_t>>                                        \
+    {};                                                                        \
     }
 zstring_view_all(char, );
 zstring_view_all(char8_t, u8);
@@ -347,8 +342,8 @@ namespace fmt
 {
 
 template <typename CharT, typename Traits>
-struct formatter<stdplus::basic_zstring_view<CharT, Traits>, CharT>
-    : formatter<basic_string_view<CharT>, CharT>
+struct formatter<stdplus::basic_zstring_view<CharT, Traits>, CharT> :
+    formatter<basic_string_view<CharT>, CharT>
 {
     template <typename FormatContext>
     inline auto format(stdplus::basic_zstring_view<CharT, Traits> str,

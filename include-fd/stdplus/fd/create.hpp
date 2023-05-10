@@ -1,8 +1,10 @@
 #pragma once
 #include <fcntl.h>
 #include <netinet/ip.h>
+
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/flags.hpp>
+
 #include <string>
 
 namespace stdplus
@@ -43,13 +45,11 @@ class OpenFlags : public BitFlags<int, OpenFlag>
   public:
     inline OpenFlags(OpenAccess access) :
         BitFlags<int, OpenFlag>(static_cast<int>(access))
-    {
-    }
+    {}
 
     inline OpenFlags(BitFlags<int, OpenFlag> flags) :
         BitFlags<int, OpenFlag>(flags)
-    {
-    }
+    {}
 };
 
 DupableFd open(const char* pathname, OpenFlags flags, mode_t mode = 0);

@@ -1,6 +1,7 @@
 #pragma once
-#include <optional>
 #include <stdplus/handle/managed.hpp>
+
+#include <optional>
 #include <type_traits>
 #include <utility>
 
@@ -57,14 +58,12 @@ struct Copyable
                                                            T>&&>(),
                                                    std::declval<Vs>()...))) :
             MHandleF(std::move(maybeV), std::forward<Vs>(vs)...)
-        {
-        }
+        {}
         template <typename... Vs>
         constexpr explicit HandleF(T&& maybeV, Vs&&... vs) noexcept(
             noexcept(MHandleF(std::declval<T&&>(), std::declval<Vs>()...))) :
             MHandleF(std::move(maybeV), std::forward<Vs>(vs)...)
-        {
-        }
+        {}
 
         constexpr HandleF(const HandleF& other) noexcept(noexcept(MHandleF(
             std::nullopt,
@@ -81,8 +80,7 @@ struct Copyable
         constexpr HandleF(HandleF&& other) noexcept(
             std::is_nothrow_move_constructible_v<MHandleF>) :
             MHandleF(std::move(other))
-        {
-        }
+        {}
 
         constexpr HandleF& operator=(const HandleF& other) noexcept(
             noexcept(std::declval<HandleF>().reset()) &&

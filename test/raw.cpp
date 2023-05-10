@@ -1,12 +1,15 @@
-#include <array>
 #include <endian.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+
+#include <stdplus/raw.hpp>
+
+#include <array>
 #include <span>
 #include <stdexcept>
-#include <stdplus/raw.hpp>
 #include <string_view>
 #include <vector>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

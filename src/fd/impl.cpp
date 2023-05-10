@@ -1,12 +1,14 @@
 #include <fcntl.h>
 #include <fmt/format.h>
-#include <stdplus/exception.hpp>
-#include <stdplus/fd/impl.hpp>
-#include <stdplus/util/cexec.hpp>
-#include <string_view>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
+#include <stdplus/exception.hpp>
+#include <stdplus/fd/impl.hpp>
+#include <stdplus/util/cexec.hpp>
+
+#include <string_view>
 
 namespace stdplus
 {
@@ -35,8 +37,8 @@ std::span<std::byte> FdImpl::read(std::span<std::byte> buf)
 
 std::span<std::byte> FdImpl::recv(std::span<std::byte> buf, RecvFlags flags)
 {
-    ssize_t amt =
-        ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags));
+    ssize_t amt = ::recv(get(), buf.data(), buf.size(),
+                         static_cast<int>(flags));
     if (amt == -1)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -69,8 +71,8 @@ std::span<const std::byte> FdImpl::write(std::span<const std::byte> data)
 std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
                                         SendFlags flags)
 {
-    ssize_t amt =
-        ::send(get(), data.data(), data.size(), static_cast<int>(flags));
+    ssize_t amt = ::send(get(), data.data(), data.size(),
+                         static_cast<int>(flags));
     if (amt == -1)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)

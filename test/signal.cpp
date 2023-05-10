@@ -1,7 +1,10 @@
-#include <cstring>
-#include <gtest/gtest.h>
 #include <signal.h>
+
 #include <stdplus/signal.hpp>
+
+#include <cstring>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

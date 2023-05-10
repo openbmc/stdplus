@@ -31,7 +31,6 @@ namespace stdplus
 template <typename T, typename... As>
 struct Managed
 {
-
     template <typename Drop>
     class HandleF
     {
@@ -50,16 +49,14 @@ struct Managed
                 std::tuple<As...>(std::declval<Vs>()...))) :
             as(std::forward<Vs>(vs)...),
             maybeT(std::move(maybeV))
-        {
-        }
+        {}
         template <typename... Vs>
         constexpr explicit HandleF(T&& maybeV, Vs&&... vs) noexcept(
             std::is_nothrow_move_constructible_v<std::optional<T>>&& noexcept(
                 std::tuple<As...>(std::declval<Vs>()...))) :
             as(std::forward<Vs>(vs)...),
             maybeT(std::move(maybeV))
-        {
-        }
+        {}
 
         HandleF(const HandleF& other) = delete;
         HandleF& operator=(const HandleF& other) = delete;
