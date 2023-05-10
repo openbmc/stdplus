@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "70bf1a4e_4b96bcd5",
+        "filename": "include/stdplus/util/string.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2023-05-10T21:30:21Z",
+      "side": 1,
+      "message": "Drop this file back to a symlink",
+      "revId": "f6aaae53a604045c281bda8b0454c0a7f2d0cdd8",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "9611fe0c_71b082f2",
