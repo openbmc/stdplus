@@ -1,7 +1,9 @@
-#include <array>
-#include <gtest/gtest.h>
 #include <stdplus/fd/create.hpp>
 #include <stdplus/fd/mmap.hpp>
+
+#include <array>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

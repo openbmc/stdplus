@@ -1,7 +1,9 @@
-#include <gtest/gtest.h>
 #include <stdplus/str/cat.hpp>
+
 #include <string>
 #include <string_view>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

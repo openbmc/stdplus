@@ -1,4 +1,5 @@
-#include <gtest/gtest.h>
+#include <sys/mman.h>
+
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/gmock.hpp>
 #include <stdplus/fd/line.hpp>
@@ -6,8 +7,10 @@
 #include <stdplus/fd/ops.hpp>
 #include <stdplus/raw.hpp>
 #include <stdplus/util/cexec.hpp>
+
 #include <string_view>
-#include <sys/mman.h>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {
@@ -70,7 +73,10 @@ using testing::_;
 inline auto readSv(std::string_view s)
 {
     return [s](std::span<std::byte> buf) {
-        memcpy(buf.data(), s.data(), s.size());
+        if (s.size())
+        {
+            memcpy(buf.data(), s.data(), s.size());
+        }
         return buf.subspan(0, s.size());
     };
 }

@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
 #include <stdplus/fd/ops.hpp>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

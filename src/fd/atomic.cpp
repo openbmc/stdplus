@@ -1,10 +1,12 @@
-#include <cstdlib>
-#include <filesystem>
 #include <fmt/format.h>
+#include <sys/stat.h>
+
 #include <stdplus/fd/atomic.hpp>
 #include <stdplus/fd/managed.hpp>
 #include <stdplus/util/cexec.hpp>
-#include <sys/stat.h>
+
+#include <cstdlib>
+#include <filesystem>
 #include <system_error>
 #include <utility>
 
@@ -16,8 +18,8 @@ namespace fd
 static std::string makeTmpName(const std::filesystem::path& filename)
 {
     auto name = filename.filename();
-    auto path =
-        filename.parent_path() / fmt::format(".{}.XXXXXX", name.native());
+    auto path = filename.parent_path() /
+                fmt::format(".{}.XXXXXX", name.native());
     return path.native();
 }
 
@@ -38,8 +40,7 @@ AtomicWriter::AtomicWriter(const std::filesystem::path& filename, int mode,
     mode(mode),
     tmpname(!tmpl.empty() ? std::string(tmpl) : makeTmpName(filename)),
     fd(mktemp(tmpname))
-{
-}
+{}
 
 AtomicWriter::AtomicWriter(AtomicWriter&& other) :
     filename(std::move(other.filename)), mode(other.mode),

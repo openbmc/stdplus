@@ -1,9 +1,11 @@
-#include <gtest/gtest.h>
-#include <optional>
 #include <stdplus/handle/copyable.hpp>
+
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

@@ -1,6 +1,7 @@
 #pragma once
-#include <gmock/gmock.h>
 #include <stdplus/fd/intf.hpp>
+
+#include <gmock/gmock.h>
 
 namespace stdplus
 {

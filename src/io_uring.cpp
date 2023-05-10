@@ -1,5 +1,4 @@
 #include <liburing.h>
-
 #include <sys/eventfd.h>
 
 #include <stdplus/fd/managed.hpp>
@@ -45,8 +44,7 @@ IoUring::~IoUring()
 
 IoUring::FileHandle::FileHandle(unsigned slot, IoUring& ring) :
     slot(slot, &ring)
-{
-}
+{}
 
 void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
 {

@@ -1,9 +1,12 @@
 #include <fmt/format.h>
-#include <gtest/gtest.h>
-#include <iostream>
+
 #include <stdplus/zstring.hpp>
+
+#include <iostream>
 #include <string>
 #include <string_view>
+
+#include <gtest/gtest.h>
 
 using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;

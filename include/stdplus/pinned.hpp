@@ -49,8 +49,7 @@ struct Pinned : CT
     constexpr Pinned(Args&&... args) noexcept(
         noexcept(CT(std::declval<Args>()...))) :
         CT(std::forward<Args>(args)...)
-    {
-    }
+    {}
 
     template <typename Arg>
     constexpr Pinned& operator=(Arg&& arg) noexcept(
@@ -76,24 +75,20 @@ struct PinnedRef : std::reference_wrapper<T>
                       !std::is_move_assignable_v<std::remove_cvref_t<U>>,
                   bool> = true>
     constexpr PinnedRef(U& u) noexcept : wrapper(u)
-    {
-    }
+    {}
 
     template <typename U>
     constexpr PinnedRef(Pinned<U>& u) noexcept : wrapper(u)
-    {
-    }
+    {}
     template <typename U,
               std::enable_if_t<!std::is_same_v<U, void> && std::is_const_v<T>,
                                bool> = true>
     constexpr PinnedRef(const Pinned<U>& u) noexcept : wrapper(u)
-    {
-    }
+    {}
 
     template <typename U>
     constexpr PinnedRef(PinnedRef<U> u) noexcept : wrapper(u)
-    {
-    }
+    {}
 };
 
 template <typename T>

@@ -1,10 +1,13 @@
 #include <fmt/format.h>
-#include <gtest/gtest.h>
+
+#include <stdplus/zstring_view.hpp>
+
 #include <iostream>
 #include <set>
-#include <stdplus/zstring_view.hpp>
 #include <string>
 #include <unordered_set>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

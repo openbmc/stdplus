@@ -1,7 +1,9 @@
-#include <gtest/gtest.h>
 #include <stdplus/util/cexec.hpp>
+
 #include <string_view>
 #include <system_error>
+
+#include <gtest/gtest.h>
 
 namespace stdplus
 {

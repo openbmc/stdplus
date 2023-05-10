@@ -9,8 +9,7 @@ namespace fd
 MMap::MMap(Fd& fd, std::span<std::byte> window, ProtFlags prot, MMapFlags flags,
            off_t offset) :
     mapping(fd.mmap(window, prot, flags, offset), fd)
-{
-}
+{}
 
 std::span<std::byte> MMap::get() const
 {

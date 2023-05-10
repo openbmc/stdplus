@@ -1,6 +1,8 @@
 #include <fmt/format.h>
+
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/ops.hpp>
+
 #include <utility>
 
 namespace stdplus
@@ -54,8 +56,8 @@ static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
     std::span<Byte> ret;
     do
     {
-        auto r =
-            (fd.*fun)(data.subspan(ret.size()), std::forward<Args>(args)...);
+        auto r = (fd.*fun)(data.subspan(ret.size()),
+                           std::forward<Args>(args)...);
         if (ret.size() != 0 && r.size() == 0)
         {
             throw exception::WouldBlock(

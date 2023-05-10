@@ -8,8 +8,7 @@ namespace stdplus
 
 Dl::Dl(const char* file, DlOpenFlags flags) :
     handle(open(file, static_cast<int>(flags)))
-{
-}
+{}
 
 struct link_map* Dl::linkMap()
 {
