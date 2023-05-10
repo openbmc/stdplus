@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "714400f4_33575b88",
+        "filename": "include/stdplus/util/string.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2023-05-10T21:52:49Z",
+      "side": 1,
+      "message": "Done.  I wonder why clang-format messed this up.",
+      "parentUuid": "70bf1a4e_4b96bcd5",
+      "revId": "f6aaae53a604045c281bda8b0454c0a7f2d0cdd8",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "9611fe0c_71b082f2",
         "filename": "test/fd/line.cpp",
         "patchSetId": 2
