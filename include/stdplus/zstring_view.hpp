@@ -296,7 +296,8 @@ class basic_zstring_view
     {};
     constexpr basic_zstring_view(unsafe, string_view_base sv) noexcept : sv(sv)
     {}
-    friend auto detail::unsafe_zstring_view<CharT, Traits>(string_view_base sv);
+    friend constexpr auto detail::unsafe_zstring_view<CharT, Traits>(
+        string_view_base sv) noexcept;
 };
 
 template <typename CharT, typename Traits>
