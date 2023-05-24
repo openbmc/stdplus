@@ -20,11 +20,11 @@ struct PinWrap<T, true>
     using type = struct
     {
         T v;
-        constexpr operator T&()
+        constexpr operator T&() noexcept
         {
             return v;
         }
-        constexpr operator const T&() const
+        constexpr operator const T&() const noexcept
         {
             return v;
         }
