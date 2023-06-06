@@ -104,8 +104,8 @@ TEST(PinnedRef, NoMove)
     PinnedRef<const NoMove3> rnm3c(nm3);
     PinnedRef<const NoMove3> rnm3cr(rnm3);
     PinnedRef rnm3i(nm3);
-    PinnedRef rnm3ir(rnm3);
-    PinnedRef rnm3ic(rnm3c);
+    [[maybe_unused]] PinnedRef rnm3ir(rnm3);
+    [[maybe_unused]] PinnedRef rnm3ic(rnm3c);
 
     const NoMove3 cnm3;
     // PinnedRef<NoMove3> crnm3(cnm3);

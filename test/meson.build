@@ -98,6 +98,7 @@ if gtest_dep.found() and gmock_dep.found()
         t.underscorify(), t + '.cpp',
         build_by_default: false,
         implicit_include_directories: false,
+        cpp_args: '-Wno-missing-braces',
         dependencies: deps))
   endforeach
 endif

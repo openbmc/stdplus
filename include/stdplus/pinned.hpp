@@ -17,7 +17,7 @@ struct PinWrap
 template <typename T>
 struct PinWrap<T, true>
 {
-    using type = struct
+    struct type
     {
         T v;
         constexpr operator T&() noexcept

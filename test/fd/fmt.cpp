@@ -15,7 +15,6 @@ namespace stdplus
 namespace fd
 {
 
-using fmt::operator""_cf;
 using std::literals::string_view_literals::operator""sv;
 
 TEST(FormatBuffer, Basic)
@@ -31,7 +30,7 @@ TEST(FormatBuffer, Basic)
         EXPECT_EQ(6, fd.lseek(0, Whence::Cur));
         buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
         EXPECT_EQ(6, fd.lseek(0, Whence::Cur));
-        buf.append("{}"_cf, std::string(2050, 'a'));
+        buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
 
         buf.append(FMT_STRING("hi\n"));
