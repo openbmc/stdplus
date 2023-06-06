@@ -172,7 +172,7 @@ constexpr Tp& extractRef(std::span<IntT>& data)
     Tp& ret = refFrom<Tp, A>(data);
     static_assert(sizeof(Tp) % sizeof(IntT) == 0);
     data = data.subspan(sizeof(Tp) / sizeof(IntT));
-    return ret;
+    return ret; // NOLINT(clang-analyzer-cplusplus.InnerPointer)
 }
 
 /** @brief Returns the std::span referencing the data of the raw trivial type

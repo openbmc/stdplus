@@ -39,6 +39,7 @@ TEST(Pinned, Basic)
 TEST(Pinned, Fundamental)
 {
     Pinned pi = 4;
+    // NOLINTNEXTLINE(clang-analyzer-core.uninitialized.UndefReturn)
     EXPECT_EQ(4, [](int& f) { return f; }(pi));
     EXPECT_EQ(4, [](int f) { return f; }(pi));
 }

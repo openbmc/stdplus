@@ -13,10 +13,11 @@ namespace detail
 __attribute__((no_sanitize("undefined"))) constexpr uint32_t
     addr32Mask(std::ptrdiff_t pfx) noexcept
 {
+    // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
+    auto v = ~uint32_t{0} << (32 - pfx);
     // Positive prefix check + mask to handle UB when the left shift becomes
     // more than 31 bits
-    return hton(static_cast<uint32_t>(-int32_t{pfx > 0}) & ~uint32_t{0}
-                                                               << (32 - pfx));
+    return hton(static_cast<uint32_t>(-int32_t{pfx > 0}) & v);
 }
 
 constexpr In4Addr addrToSubnet(In4Addr a, std::size_t pfx) noexcept

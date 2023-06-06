@@ -217,6 +217,7 @@ TEST_F(ManagedHandleTest, MoveConstructWithStorage)
         StoreHandle h2(std::move(h1));
         EXPECT_TRUE(dropped.empty());
         EXPECT_FALSE(h1);
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
         EXPECT_THROW(h1.value(), std::bad_optional_access);
         EXPECT_TRUE(h2);
         EXPECT_EQ(expected, *h2);
@@ -240,6 +241,7 @@ TEST_F(ManagedHandleTest, MoveAssignWithStorage)
         EXPECT_EQ(std::vector{expected2}, dropped);
         dropped.clear();
         EXPECT_FALSE(h1);
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
         EXPECT_THROW(h1.value(), std::bad_optional_access);
         EXPECT_TRUE(h2);
         EXPECT_EQ(expected, *h2);
