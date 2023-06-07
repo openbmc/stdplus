@@ -14,18 +14,13 @@ gtests = {
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
   'signal': [stdplus_dep, gtest_main_dep],
   'str/cat': [stdplus_dep, gtest_main_dep],
+  'str/cexpr': [stdplus_dep, gtest_main_dep],
   'str/maps': [stdplus_dep, gmock_dep, gtest_main_dep],
   'util/cexec': [stdplus_dep, gtest_main_dep],
   'variant': [stdplus_dep, gtest_main_dep],
   'zstring': [stdplus_dep, gtest_main_dep],
   'zstring_view': [stdplus_dep, gtest_main_dep],
 }
-
-if meson.get_compiler('cpp').get_id() != 'clang'
-  gtests += {
-    'str/cexpr': [stdplus_dep, gtest_main_dep],
-  }
-endif
 
 if has_dl
   gtests += {
