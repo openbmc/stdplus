@@ -57,6 +57,7 @@ stdplus_srcs = [
   'pinned.cpp',
   'raw.cpp',
   'signal.cpp',
+  'str/buf.cpp',
   'str/cat.cpp',
   'str/cexpr.cpp',
   'str/maps.cpp',
