@@ -16,6 +16,7 @@ install_headers(
   'stdplus/pinned.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
+  'stdplus/str/buf.hpp',
   'stdplus/str/cat.hpp',
   'stdplus/str/cexpr.hpp',
   'stdplus/str/maps.hpp',
