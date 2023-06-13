@@ -13,6 +13,7 @@ gtests = {
   'pinned': [stdplus_dep, gtest_main_dep],
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
   'signal': [stdplus_dep, gtest_main_dep],
+  'str/buf': [stdplus_dep, gtest_main_dep],
   'str/cat': [stdplus_dep, gtest_main_dep],
   'str/cexpr': [stdplus_dep, gtest_main_dep],
   'str/maps': [stdplus_dep, gmock_dep, gtest_main_dep],
