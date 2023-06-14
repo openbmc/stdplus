@@ -30,6 +30,30 @@ struct EtherAddr : ether_addr
 };
 
 template <>
+struct ToStr<EtherAddr>
+{
+    using type = EtherAddr;
+    using ToHex = IntToStr<16, uint8_t>;
+    // 6 octets * 2 hex chars + 5 separators
+    static inline constexpr uint8_t buf_size = 15 + ToHex::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, EtherAddr v) const noexcept
+    {
+        for (auto ptr = buf + 2; ptr < buf + buf_size; ptr += 3)
+        {
+            *ptr = ':';
+        }
+        auto ptr = buf;
+        for (std::size_t i = 0; i < 6; ++i, ptr += 3)
+        {
+            ToHex{}(ptr, v.ether_addr_octet[i], 2);
+        }
+        return buf + buf_size;
+    }
+};
+
+template <>
 struct FromStr<EtherAddr>
 {
     template <typename CharT>
@@ -72,3 +96,8 @@ struct std::hash<stdplus::EtherAddr>
         return stdplus::hashMulti(addr.ether_addr_octet);
     }
 };
+
+template <typename CharT>
+struct fmt::formatter<stdplus::EtherAddr, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::EtherAddr>, CharT>
+{};
