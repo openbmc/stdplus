@@ -13,6 +13,17 @@ TEST(EqualOperator, EtherAddr)
     std::hash<EtherAddr>{}(EtherAddr{});
 }
 
+TEST(BufMaker, EthAddr)
+{
+    ToStrHandle<ToStr<EtherAddr>> tsh;
+    EXPECT_EQ("11:22:33:44:55:66",
+              tsh(EtherAddr{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}));
+    EXPECT_EQ("01:02:03:04:05:67",
+              tsh(EtherAddr{0x01, 0x02, 0x03, 0x04, 0x05, 0x67}));
+    EXPECT_EQ("00:00:00:00:00:00",
+              tsh(ether_addr{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}));
+}
+
 TEST(FromStr, EtherAddr)
 {
     EXPECT_THROW(FromStr<EtherAddr>{}("0x:00:00:00:00:00"),
