@@ -54,6 +54,26 @@ struct In4Addr : detail::In4AddrInner
 };
 
 template <>
+struct ToStr<In4Addr>
+{
+    using type = In4Addr;
+    // 4 octets * 3 dec chars + 3 separators
+    static constexpr uint8_t buf_size = 15;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, In4Addr v) const noexcept
+    {
+        auto n = bswap(ntoh(v.s4_addr32));
+        for (size_t i = 0; i < 3; ++i)
+        {
+            buf = IntToStr<10, uint8_t>{}(buf, n & 0xff);
+            (buf++)[0] = '.';
+            n >>= 8;
+        }
+        return IntToStr<10, uint8_t>{}(buf, n & 0xff);
+    }
+};
+template <>
 struct FromStr<In4Addr>
 {
     constexpr In4Addr operator()(const auto& str) const

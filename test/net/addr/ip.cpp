@@ -30,6 +30,14 @@ TEST(FromStr, In4Addr)
     EXPECT_EQ((In4Addr{192, 168, 1, 1}), FromStr<In4Addr>{}("192.168.001.1"));
 }
 
+TEST(ToStr, In4Addr)
+{
+    ToStrHandle<ToStr<In4Addr>> tsh;
+    EXPECT_EQ("255.255.255.255", tsh(in_addr{0xffffffff}));
+    EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
+    EXPECT_EQ("0.0.0.0", tsh(In4Addr{}));
+}
+
 TEST(EqualOperator, In6Addr)
 {
     EXPECT_EQ((In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
