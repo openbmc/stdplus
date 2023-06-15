@@ -54,6 +54,27 @@ struct In4Addr : detail::In4AddrInner
 };
 
 template <>
+struct ToStr<In4Addr>
+{
+    using type = In4Addr;
+    using ToOct = IntToStr<10, uint8_t>;
+    // 4 octets * 3 dec chars + 3 separators
+    static constexpr uint8_t buf_size = 12 + ToOct::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, In4Addr v) const noexcept
+    {
+        auto n = bswap(ntoh(v.s4_addr32));
+        for (size_t i = 0; i < 3; ++i)
+        {
+            buf = ToOct{}(buf, n & 0xff);
+            (buf++)[0] = '.';
+            n >>= 8;
+        }
+        return ToOct{}(buf, n & 0xff);
+    }
+};
+template <>
 struct FromStr<In4Addr>
 {
     constexpr In4Addr operator()(const auto& str) const
@@ -144,3 +165,8 @@ struct std::hash<stdplus::InAnyAddr>
         return std::hash<stdplus::detail::InAnyAddrV>{}(a);
     }
 };
+
+template <typename CharT>
+struct fmt::formatter<stdplus::In4Addr, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::In4Addr>, CharT>
+{};
