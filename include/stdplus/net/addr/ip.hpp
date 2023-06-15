@@ -2,9 +2,13 @@
 #include <netinet/in.h>
 
 #include <stdplus/hash.hpp>
+#include <stdplus/numeric/endian.hpp>
+#include <stdplus/numeric/str.hpp>
+#include <stdplus/str/conv.hpp>
 #include <stdplus/variant.hpp>
 
 #include <algorithm>
+#include <stdexcept>
 #include <variant>
 
 namespace stdplus
@@ -46,6 +50,30 @@ struct In4Addr : detail::In4AddrInner
     constexpr bool operator==(In4Addr rhs) const noexcept
     {
         return a.s_addr == rhs.a.s_addr;
+    }
+};
+
+template <>
+struct FromStr<In4Addr>
+{
+    constexpr In4Addr operator()(const auto& str) const
+    {
+        std::basic_string_view sv{str};
+        constexpr StrToInt<10, uint8_t> sti;
+        uint32_t addr = {};
+        for (size_t i = 0; i < 3; ++i)
+        {
+            auto loc = sv.find(".");
+            addr |= sti(sv.substr(0, loc));
+            addr <<= 8;
+            sv.remove_prefix(loc == sv.npos ? sv.size() : loc + 1);
+            if (sv.empty())
+            {
+                throw std::invalid_argument("Missing addr data");
+            }
+        }
+        addr |= sti(sv);
+        return in_addr{hton(addr)};
     }
 };
 
