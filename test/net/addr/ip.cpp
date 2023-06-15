@@ -14,6 +14,22 @@ TEST(EqualOperator, In4Addr)
     std::hash<In4Addr>{}(In4Addr{});
 }
 
+TEST(FromStr, In4Addr)
+{
+    EXPECT_THROW(fromStr<In4Addr>(""), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("0"), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("0.0.0."), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>(".0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("0.0.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("x.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("ff.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fromStr<In4Addr>("256.0.0.0"), std::overflow_error);
+
+    EXPECT_EQ((In4Addr{}), fromStr<In4Addr>("0.0.0.0"));
+    EXPECT_EQ((In4Addr{192, 168, 1, 1}), fromStr<In4Addr>("192.168.001.1"));
+}
+
 TEST(EqualOperator, In6Addr)
 {
     EXPECT_EQ((In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
