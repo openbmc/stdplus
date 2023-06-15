@@ -1,3 +1,5 @@
+#include <fmt/format.h>
+
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
 
@@ -28,6 +30,15 @@ TEST(FromStr, In4Addr)
 
     EXPECT_EQ((In4Addr{}), fromStr<In4Addr>("0.0.0.0"));
     EXPECT_EQ((In4Addr{192, 168, 1, 1}), fromStr<In4Addr>("192.168.001.1"));
+}
+
+TEST(ToStr, In4Addr)
+{
+    ToStrHandle<ToStr<In4Addr>> tsh;
+    EXPECT_EQ("255.255.255.255", tsh(in_addr{0xffffffff}));
+    EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
+    EXPECT_EQ("0.0.0.0", tsh(In4Addr{}));
+    EXPECT_EQ("a 1.15.3.4 b", fmt::format("a {} b", In4Addr{1, 15, 3, 4}));
 }
 
 TEST(EqualOperator, In6Addr)
