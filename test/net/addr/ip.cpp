@@ -3,7 +3,11 @@
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
 
+#include <string_view>
+
 #include <gtest/gtest.h>
+
+using std::literals::string_view_literals::operator""sv;
 
 namespace stdplus
 {
@@ -48,6 +52,54 @@ TEST(EqualOperator, In6Addr)
     EXPECT_EQ((in6_addr{}), (In6Addr{}));
     EXPECT_NE((In6Addr{1}), (In6Addr{in6_addr{}}));
     std::hash<In6Addr>{}(In6Addr{});
+}
+
+TEST(FromStr, In6Addr)
+{
+    constexpr FromStr<In6Addr> fs;
+    EXPECT_THROW(fs(""sv), std::invalid_argument);
+    EXPECT_THROW(fs("0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0::0:"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:::"sv), std::invalid_argument);
+    EXPECT_THROW(fs(":::0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:::0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0::0::0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("1::0.0.0."sv), std::invalid_argument);
+    EXPECT_THROW(fs("1::.0.0.0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("x::0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("g::0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4::5:6:7"sv), std::invalid_argument);
+    EXPECT_THROW(fs("::0:1:2:3:4:5:6:7"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5:6:7::"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5:6:7:8"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5:6:0.0.0.0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5::0.0.0.0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("ffff0::0"sv), std::overflow_error);
+
+    EXPECT_EQ((In6Addr{}), fs("::"sv));
+    EXPECT_EQ((In6Addr{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                       255, 255, 255, 255, 255}),
+              fs("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"sv));
+    EXPECT_EQ((In6Addr{}), fs("0:0:0:0:0:0:0:0"sv));
+    EXPECT_EQ((In6Addr{0, 0xff}), fs("ff::"sv));
+    EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+              fs("::ff"sv));
+    EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+              fs("0:0:ff::ff"sv));
+    EXPECT_EQ((In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}),
+              fs("1:2:3:4::6:7:8"sv));
+    EXPECT_EQ((In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 0}),
+              fs("1:2:3:4:5:6:7::"sv));
+    EXPECT_EQ((In6Addr{0, 0, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}),
+              fs("::2:3:4:5:6:7:8"sv));
+    EXPECT_EQ(
+        (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}),
+        fs("::ffff:192.168.0.1"sv));
+    EXPECT_EQ((In6Addr{0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 168, 0, 1}),
+              fs("ff::255.168.0.1"sv));
+    EXPECT_EQ((In6Addr{0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 255, 168, 0, 1}),
+              fs("0:1:2:3:4:5:255.168.0.1"sv));
 }
 
 TEST(EqualOperator, InAnyAddr)
