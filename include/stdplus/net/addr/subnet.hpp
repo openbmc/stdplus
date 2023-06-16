@@ -1,5 +1,9 @@
+#include <fmt/core.h>
+
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
+#include <stdplus/numeric/str.hpp>
+#include <stdplus/str/conv.hpp>
 
 #include <limits>
 #include <type_traits>
@@ -67,9 +71,13 @@ constexpr std::size_t addrBits(auto a) noexcept
 
 void invalidSubnetPfx(std::size_t pfx);
 
-template <typename Addr, typename Pfx>
+template <typename Addr_, typename Pfx_>
 class Subnet46
 {
+  public:
+    using Addr = Addr_;
+    using Pfx = Pfx_;
+
   private:
     static constexpr inline std::size_t maxPfx = sizeof(Addr) * 8;
     static_assert(std::is_unsigned_v<Pfx> && std::is_integral_v<Pfx>);
@@ -115,24 +123,28 @@ class Subnet46
 
 } // namespace detail
 
-using Subnet4 = detail::Subnet46<In4Addr, uint8_t>;
-using Subnet6 = detail::Subnet46<In6Addr, uint8_t>;
+using Subnet4 = detail::Subnet46<In4Addr, std::uint8_t>;
+using Subnet6 = detail::Subnet46<In6Addr, std::uint8_t>;
 
 class SubnetAny
 {
+  public:
+    using Addr = InAnyAddr;
+    using Pfx = std::uint8_t;
+
   private:
-    InAnyAddr addr;
-    uint8_t pfx;
+    Addr addr;
+    Pfx pfx;
 
   public:
-    constexpr SubnetAny(auto addr, uint8_t pfx) : addr(addr), pfx(pfx)
+    constexpr SubnetAny(auto addr, Pfx pfx) : addr(addr), pfx(pfx)
     {
         if (detail::addrBits(addr) < pfx)
         {
             detail::invalidSubnetPfx(pfx);
         }
     }
-    constexpr SubnetAny(InAnyAddr addr, uint8_t pfx) : addr(addr), pfx(pfx)
+    constexpr SubnetAny(InAnyAddr addr, Pfx pfx) : addr(addr), pfx(pfx)
     {
         if (std::visit([](auto v) { return detail::addrBits(v); }, addr) < pfx)
         {
@@ -192,4 +204,41 @@ class SubnetAny
     }
 };
 
+template <typename Subnet>
+struct SubnetToStr
+{
+    using type = Subnet;
+    using ToDec = IntToStr<10, typename Subnet::Pfx>;
+    // Addr + sep + 3 prefix chars
+    static constexpr std::size_t buf_size =
+        ToStr<typename Subnet::Addr>::buf_size + 1 + ToDec::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, Subnet v) const noexcept
+    {
+        buf = ToStr<typename Subnet::Addr>{}(buf, v.getAddr());
+        (buf++)[0] = '/';
+        return ToDec{}(buf, v.getPfx());
+    }
+};
+
+template <typename Addr, typename Pfx>
+struct ToStr<detail::Subnet46<Addr, Pfx>> :
+    SubnetToStr<detail::Subnet46<Addr, Pfx>>
+{};
+
+template <>
+struct ToStr<SubnetAny> : SubnetToStr<SubnetAny>
+{};
+
 } // namespace stdplus
+
+template <typename Addr, typename Pfx, typename CharT>
+struct fmt::formatter<stdplus::detail::Subnet46<Addr, Pfx>, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::detail::Subnet46<Addr, Pfx>>, CharT>
+{};
+
+template <typename CharT>
+struct fmt::formatter<stdplus::SubnetAny, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::SubnetAny>, CharT>
+{};
