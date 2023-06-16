@@ -268,6 +268,20 @@ struct InAnyAddr : detail::InAnyAddrV
     }
 };
 
+template <>
+struct FromStr<InAnyAddr>
+{
+    template <typename CharT>
+    constexpr InAnyAddr operator()(std::basic_string_view<CharT> sv) const
+    {
+        if (sv.find(':') == sv.npos)
+        {
+            return FromStr<In4Addr>{}(sv);
+        }
+        return FromStr<In6Addr>{}(sv);
+    }
+};
+
 } // namespace stdplus
 
 template <>
