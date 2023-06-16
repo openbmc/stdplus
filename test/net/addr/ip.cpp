@@ -50,6 +50,54 @@ TEST(EqualOperator, In6Addr)
     std::hash<In6Addr>{}(In6Addr{});
 }
 
+TEST(FromStr, In6Addr)
+{
+    constexpr FromStr<In6Addr> fs;
+    EXPECT_THROW(fs(""), std::invalid_argument);
+    EXPECT_THROW(fs("0"), std::invalid_argument);
+    EXPECT_THROW(fs("0:0"), std::invalid_argument);
+    EXPECT_THROW(fs("0::0:"), std::invalid_argument);
+    EXPECT_THROW(fs("0:::"), std::invalid_argument);
+    EXPECT_THROW(fs(":::0"), std::invalid_argument);
+    EXPECT_THROW(fs("0:::0"), std::invalid_argument);
+    EXPECT_THROW(fs("0::0::0"), std::invalid_argument);
+    EXPECT_THROW(fs("1::0.0.0."), std::invalid_argument);
+    EXPECT_THROW(fs("1::.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fs("x::0"), std::invalid_argument);
+    EXPECT_THROW(fs("g::0"), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4::5:6:7"), std::invalid_argument);
+    EXPECT_THROW(fs("::0:1:2:3:4:5:6:7"), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5:6:7::"), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5:6:7:8"), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5:6:0.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fs("0:1:2:3:4:5::0.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fs("ffff0::0"), std::overflow_error);
+
+    EXPECT_EQ((In6Addr{}), fs("::"));
+    EXPECT_EQ((In6Addr{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                       255, 255, 255, 255, 255}),
+              fs("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
+    EXPECT_EQ((In6Addr{}), fs("0:0:0:0:0:0:0:0"));
+    EXPECT_EQ((In6Addr{0, 0xff}), fs("ff::"));
+    EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+              fs("::ff"));
+    EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+              fs("0:0:ff::ff"));
+    EXPECT_EQ((In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}),
+              fs("1:2:3:4::6:7:8"));
+    EXPECT_EQ((In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 0}),
+              fs("1:2:3:4:5:6:7::"));
+    EXPECT_EQ((In6Addr{0, 0, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}),
+              fs("::2:3:4:5:6:7:8"));
+    EXPECT_EQ(
+        (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}),
+        fs("::ffff:192.168.0.1"));
+    EXPECT_EQ((In6Addr{0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 168, 0, 1}),
+              fs("ff::255.168.0.1"));
+    EXPECT_EQ((In6Addr{0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 255, 168, 0, 1}),
+              fs("0:1:2:3:4:5:255.168.0.1"));
+}
+
 TEST(EqualOperator, InAnyAddr)
 {
     EXPECT_EQ(InAnyAddr(In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

@@ -120,6 +120,67 @@ struct In6Addr : in6_addr
     }
 };
 
+template <>
+struct FromStr<In6Addr>
+{
+    constexpr In6Addr operator()(const auto& str) const
+    {
+        std::basic_string_view sv{str};
+        constexpr StrToInt<16, uint16_t> sti;
+        constexpr FromStr<In4Addr> fsip4;
+        in6_addr ret = {};
+        size_t i = 0;
+        while (i < 8)
+        {
+            auto loc = sv.find(':');
+            if (i == 6 && loc == sv.npos)
+            {
+                ret.s6_addr32[3] = fsip4(sv).s4_addr32;
+                return ret;
+            }
+            if (loc != 0 && !sv.empty())
+            {
+                ret.s6_addr16[i++] = hton(sti(sv.substr(0, loc)));
+            }
+            if (i < 8 && sv.size() > loc + 1 && sv[loc + 1] == ':')
+            {
+                sv.remove_prefix(loc + 2);
+                break;
+            }
+            else if (sv.empty())
+            {
+                throw std::invalid_argument("IPv6 Data");
+            }
+            sv.remove_prefix(loc == sv.npos ? sv.size() : loc + 1);
+        }
+        if (sv.starts_with(':'))
+        {
+            throw std::invalid_argument("Extra separator");
+        }
+        size_t j = 7;
+        if (!sv.empty() && i < 6 && sv.find('.') != sv.npos)
+        {
+            auto loc = sv.rfind(':');
+            ret.s6_addr32[3] =
+                fsip4(sv.substr(loc == sv.npos ? 0 : loc + 1)).s4_addr32;
+            sv.remove_suffix(loc == sv.npos ? sv.size() : sv.size() - loc);
+            j -= 2;
+        }
+        while (!sv.empty() && j > i)
+        {
+            auto loc = sv.rfind(':');
+            ret.s6_addr16[j--] =
+                hton(sti(sv.substr(loc == sv.npos ? 0 : loc + 1)));
+            sv.remove_suffix(loc == sv.npos ? sv.size() : sv.size() - loc);
+        }
+        if (!sv.empty())
+        {
+            throw std::invalid_argument("Too much data");
+        }
+        return ret;
+    }
+};
+
 namespace detail
 {
 using InAnyAddrV = std::variant<In4Addr, In6Addr>;
