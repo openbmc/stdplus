@@ -149,4 +149,14 @@ TEST(EqualOperator, InAnyAddr)
     std::hash<InAnyAddr>{}(In6Addr{});
 }
 
+TEST(FromStr, InAnyAddr)
+{
+    constexpr FromStr<InAnyAddr> fs;
+    EXPECT_EQ((In4Addr{}), fs("0.0.0.0"));
+    EXPECT_EQ((In6Addr{}), fs("::"));
+    EXPECT_EQ(
+        (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}),
+        fs("::ffff:192.168.0.1"));
+}
+
 } // namespace stdplus
