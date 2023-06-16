@@ -159,4 +159,13 @@ TEST(FromStr, InAnyAddr)
         fs("::ffff:192.168.0.1"));
 }
 
+TEST(ToStr, InAnyAddr)
+{
+    ToStrHandle<ToStr<InAnyAddr>> tsh;
+    EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
+    EXPECT_EQ("ff::", tsh(In6Addr{0, 0xff}));
+
+    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", InAnyAddr{In6Addr{0xff}}));
+}
+
 } // namespace stdplus
