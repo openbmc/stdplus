@@ -102,6 +102,36 @@ TEST(FromStr, In6Addr)
               fs("0:1:2:3:4:5:255.168.0.1"sv));
 }
 
+TEST(ToStr, In6Addr)
+{
+    ToStrHandle<ToStr<In6Addr>> tsh;
+    EXPECT_EQ("::", tsh(In6Addr{}));
+    EXPECT_EQ("ff::", tsh(In6Addr{0, 0xff}));
+    EXPECT_EQ("::ff",
+              tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+    EXPECT_EQ("0:0:ff::ff", tsh(In6Addr{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0,
+                                        0, 0, 0, 0xff}));
+    EXPECT_EQ("::100:0:ff",
+              tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0xff}));
+    EXPECT_EQ("ff00::", tsh(In6Addr{0xff}));
+    EXPECT_EQ("1:2:3:4:5:6:7:8",
+              tsh(In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}));
+    EXPECT_EQ("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+              tsh(In6Addr{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                          255, 255, 255, 255, 255}));
+    // rfc5952 4.2.2
+    EXPECT_EQ("1:2:3:4:0:6:7:8",
+              tsh(In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}));
+    // rfc5952 4.2.3
+    EXPECT_EQ("1::4:0:0:7:8",
+              tsh(In6Addr{0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 7, 0, 8}));
+    // rfc5952 5
+    EXPECT_EQ("::ffff:192.168.0.1", tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                0xff, 0xff, 192, 168, 0, 1}));
+
+    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", In6Addr{0xff}));
+}
+
 TEST(EqualOperator, InAnyAddr)
 {
     EXPECT_EQ(InAnyAddr(In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

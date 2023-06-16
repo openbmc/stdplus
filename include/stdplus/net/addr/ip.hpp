@@ -181,6 +181,75 @@ struct FromStr<In6Addr>
     }
 };
 
+template <>
+struct ToStr<In6Addr>
+{
+    using type = In6Addr;
+    using ToHex = IntToStr<16, uint16_t>;
+    // 8 hextets * 4 hex chars + 7 separators
+    static constexpr std::size_t buf_size = 35 + ToHex::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, In6Addr v) const noexcept
+    {
+        // IPv4 in IPv6 Addr
+        if (v.s6_addr32[0] == 0 && v.s6_addr32[1] == 0 &&
+            v.s6_addr16[4] == 0 && v.s6_addr16[5] == 0xffff)
+        {
+            constexpr auto prefix = std::string_view("::ffff:");
+            return ToStr<In4Addr>{}(
+                std::copy(prefix.begin(), prefix.end(), buf),
+                in_addr{v.s6_addr32[3]});
+        }
+
+        size_t skip_start = 0;
+        size_t skip_size = 0;
+        {
+            size_t new_start = 0;
+            size_t new_size = 0;
+            for (size_t i = 0; i < 9; ++i)
+            {
+                if (i < 8 && v.s6_addr16[i] == 0)
+                {
+                    if (new_start + new_size == i)
+                    {
+                        new_size++;
+                    }
+                    else
+                    {
+                        new_start = i;
+                        new_size = 1;
+                    }
+                }
+                else if (new_start + new_size == i && new_size > skip_size)
+                {
+                    skip_start = new_start;
+                    skip_size = new_size;
+                }
+            }
+        }
+        for (size_t i = 0; i < 8; ++i)
+        {
+            if (i == skip_start && skip_size > 1)
+            {
+                if (i == 0)
+                {
+                    *(buf++) = ':';
+                }
+                *(buf++) = ':';
+                i += skip_size - 1;
+                continue;
+            }
+            buf = ToHex{}(buf, ntoh(v.s6_addr16[i]));
+            if (i < 7)
+            {
+                *(buf++) = ':';
+            }
+        }
+        return buf;
+    }
+};
+
 namespace detail
 {
 using InAnyAddrV = std::variant<In4Addr, In6Addr>;
@@ -231,4 +300,9 @@ struct std::hash<stdplus::InAnyAddr>
 template <typename CharT>
 struct fmt::formatter<stdplus::In4Addr, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::In4Addr>, CharT>
+{};
+
+template <typename CharT>
+struct fmt::formatter<stdplus::In6Addr, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::In6Addr>, CharT>
 {};
