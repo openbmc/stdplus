@@ -93,16 +93,16 @@ struct InAnyAddr : detail::InAnyAddrV
 template <>
 struct std::hash<stdplus::In4Addr>
 {
-    constexpr std::size_t operator()(in_addr addr) const noexcept
+    constexpr std::size_t operator()(stdplus::In4Addr addr) const noexcept
     {
-        return stdplus::hashMulti(addr.s_addr);
+        return stdplus::hashMulti(addr.s4_addr32);
     }
 };
 
 template <>
 struct std::hash<stdplus::In6Addr>
 {
-    constexpr std::size_t operator()(in6_addr addr) const noexcept
+    constexpr std::size_t operator()(stdplus::In6Addr addr) const noexcept
     {
         return stdplus::hashMulti(addr.s6_addr32);
     }
