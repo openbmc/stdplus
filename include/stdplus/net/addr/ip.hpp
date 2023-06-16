@@ -282,6 +282,21 @@ struct FromStr<InAnyAddr>
     }
 };
 
+template <>
+struct ToStr<InAnyAddr>
+{
+    using type = InAnyAddr;
+    static constexpr std::size_t buf_size = std::max(ToStr<In4Addr>::buf_size,
+                                                     ToStr<In6Addr>::buf_size);
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, InAnyAddr v) const noexcept
+    {
+        return std::visit([=](auto v) { return ToStr<decltype(v)>{}(buf, v); },
+                          v);
+    }
+};
+
 } // namespace stdplus
 
 template <>
@@ -319,4 +334,9 @@ struct fmt::formatter<stdplus::In4Addr, CharT> :
 template <typename CharT>
 struct fmt::formatter<stdplus::In6Addr, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::In6Addr>, CharT>
+{};
+
+template <typename CharT>
+struct fmt::formatter<stdplus::InAnyAddr, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::InAnyAddr>, CharT>
 {};
