@@ -2,7 +2,11 @@
 
 #include <stdplus/net/addr/subnet.hpp>
 
+#include <string_view>
+
 #include <gtest/gtest.h>
+
+using std::literals::string_view_literals::operator""sv;
 
 namespace stdplus
 {
@@ -49,6 +53,17 @@ TEST(Subnet4, Contains)
     EXPECT_TRUE(Subnet4(addr4Full, 0).contains(addr4Full));
     EXPECT_TRUE(Subnet4(In4Addr{}, 0).contains(addr4Full));
     EXPECT_TRUE(Subnet4(addr4Full, 0).contains(In4Addr{}));
+}
+
+TEST(Subnet4, FromStr)
+{
+    constexpr FromStr<Subnet4> fs;
+    EXPECT_THROW(fs("10"sv), std::invalid_argument);
+    EXPECT_THROW(fs("/10"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0/"sv), std::invalid_argument);
+    EXPECT_THROW(fs("::/80"sv), std::invalid_argument);
+    EXPECT_EQ((SubnetAny{in_addr{}, 30}), fs("0.0.0.0/30"sv));
 }
 
 TEST(Subnet4, ToStr)
@@ -109,6 +124,17 @@ TEST(Subnet6, Contains)
     EXPECT_TRUE(Subnet6(addr6Full, 0).contains(addr6Full));
     EXPECT_TRUE(Subnet6(In6Addr{}, 0).contains(addr6Full));
     EXPECT_TRUE(Subnet6(addr6Full, 0).contains(In6Addr{}));
+}
+
+TEST(Subnet6, FromStr)
+{
+    constexpr FromStr<Subnet6> fs;
+    EXPECT_THROW(fs("10"sv), std::invalid_argument);
+    EXPECT_THROW(fs("/10"sv), std::invalid_argument);
+    EXPECT_THROW(fs("ff::"sv), std::invalid_argument);
+    EXPECT_THROW(fs("::/"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0/0"sv), std::invalid_argument);
+    EXPECT_EQ((Subnet6{in6_addr{}, 80}), fs("::/80"sv));
 }
 
 TEST(Subnet6, ToStr)
@@ -173,6 +199,18 @@ TEST(SubnetAny, Contains)
     EXPECT_TRUE(SubnetAny(addr4Full, 32).contains(InAnyAddr{addr4Full}));
     EXPECT_FALSE(SubnetAny(addr4Full, 32).contains(in_addr{}));
     EXPECT_FALSE(SubnetAny(addr4Full, 32).contains(InAnyAddr{In4Addr{}}));
+}
+
+TEST(SubnetAny, FromStr)
+{
+    constexpr FromStr<SubnetAny> fs;
+    EXPECT_THROW(fs("10"sv), std::invalid_argument);
+    EXPECT_THROW(fs("/10"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0"sv), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0/"sv), std::invalid_argument);
+    EXPECT_EQ((SubnetAny{in_addr{}, 0}), fs("0.0.0.0/0"sv));
+    EXPECT_EQ((SubnetAny{in_addr{}, 30}), fs("0.0.0.0/30"sv));
+    EXPECT_EQ((SubnetAny{in6_addr{}, 80}), fs("::/80"sv));
 }
 
 TEST(SubnetAny, ToStr)
