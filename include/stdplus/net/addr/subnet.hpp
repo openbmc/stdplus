@@ -205,6 +205,31 @@ class SubnetAny
 };
 
 template <typename Subnet>
+struct SubnetFromStr
+{
+    constexpr Subnet operator()(const auto& str) const
+    {
+        std::basic_string_view sv{str};
+        const auto pos = sv.rfind('/');
+        if (pos == sv.npos)
+        {
+            throw std::invalid_argument("Invalid subnet");
+        }
+        return {FromStr<typename Subnet::Addr>{}(sv.substr(0, pos)),
+                StrToInt<10, typename Subnet::Pfx>{}(sv.substr(pos + 1))};
+    }
+};
+
+template <typename Addr, typename Pfx>
+struct FromStr<detail::Subnet46<Addr, Pfx>> :
+    SubnetFromStr<detail::Subnet46<Addr, Pfx>>
+{};
+
+template <>
+struct FromStr<SubnetAny> : SubnetFromStr<SubnetAny>
+{};
+
+template <typename Subnet>
 struct SubnetToStr
 {
     using type = Subnet;

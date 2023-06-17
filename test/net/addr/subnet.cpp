@@ -51,6 +51,17 @@ TEST(Subnet4, Contains)
     EXPECT_TRUE(Subnet4(addr4Full, 0).contains(In4Addr{}));
 }
 
+TEST(Subnet4, FromStr)
+{
+    constexpr FromStr<Subnet4> fs;
+    EXPECT_THROW(fs("10"), std::invalid_argument);
+    EXPECT_THROW(fs("/10"), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0/"), std::invalid_argument);
+    EXPECT_THROW(fs("::/80"), std::invalid_argument);
+    EXPECT_EQ((SubnetAny{in_addr{}, 30}), fs("0.0.0.0/30"));
+}
+
 TEST(Subnet4, ToStr)
 {
     ToStrHandle<ToStr<Subnet4>> tsh;
@@ -109,6 +120,17 @@ TEST(Subnet6, Contains)
     EXPECT_TRUE(Subnet6(addr6Full, 0).contains(addr6Full));
     EXPECT_TRUE(Subnet6(In6Addr{}, 0).contains(addr6Full));
     EXPECT_TRUE(Subnet6(addr6Full, 0).contains(In6Addr{}));
+}
+
+TEST(Subnet6, FromStr)
+{
+    constexpr FromStr<Subnet6> fs;
+    EXPECT_THROW(fs("10"), std::invalid_argument);
+    EXPECT_THROW(fs("/10"), std::invalid_argument);
+    EXPECT_THROW(fs("ff::"), std::invalid_argument);
+    EXPECT_THROW(fs("::/"), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0/0"), std::invalid_argument);
+    EXPECT_EQ((Subnet6{in6_addr{}, 80}), fs("::/80"));
 }
 
 TEST(Subnet6, ToStr)
@@ -173,6 +195,18 @@ TEST(SubnetAny, Contains)
     EXPECT_TRUE(SubnetAny(addr4Full, 32).contains(InAnyAddr{addr4Full}));
     EXPECT_FALSE(SubnetAny(addr4Full, 32).contains(in_addr{}));
     EXPECT_FALSE(SubnetAny(addr4Full, 32).contains(InAnyAddr{In4Addr{}}));
+}
+
+TEST(SubnetAny, FromStr)
+{
+    constexpr FromStr<SubnetAny> fs;
+    EXPECT_THROW(fs("10"), std::invalid_argument);
+    EXPECT_THROW(fs("/10"), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0"), std::invalid_argument);
+    EXPECT_THROW(fs("0.0.0.0/"), std::invalid_argument);
+    EXPECT_EQ((SubnetAny{in_addr{}, 0}), fs("0.0.0.0/0"));
+    EXPECT_EQ((SubnetAny{in_addr{}, 30}), fs("0.0.0.0/30"));
+    EXPECT_EQ((SubnetAny{in6_addr{}, 80}), fs("::/80"));
 }
 
 TEST(SubnetAny, ToStr)
