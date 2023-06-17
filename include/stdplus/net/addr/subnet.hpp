@@ -241,6 +241,15 @@ struct SubnetToStr
     }
 };
 
+template <typename Subnet>
+struct SubnetHash
+{
+    constexpr std::size_t operator()(Subnet addr) const noexcept
+    {
+        return stdplus::hashMulti(addr.getAddr(), addr.getPfx());
+    }
+};
+
 } // namespace detail
 
 template <typename Addr, typename Pfx>
@@ -271,4 +280,14 @@ struct fmt::formatter<stdplus::detail::Subnet46<Addr, Pfx>, CharT> :
 template <typename CharT>
 struct fmt::formatter<stdplus::SubnetAny, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::SubnetAny>, CharT>
+{};
+
+template <typename Addr, typename Pfx>
+struct std::hash<stdplus::detail::Subnet46<Addr, Pfx>> :
+    stdplus::detail::SubnetHash<stdplus::detail::Subnet46<Addr, Pfx>>
+{};
+
+template <>
+struct std::hash<stdplus::SubnetAny> :
+    stdplus::detail::SubnetHash<stdplus::SubnetAny>
 {};
