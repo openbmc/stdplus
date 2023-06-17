@@ -208,6 +208,22 @@ namespace detail
 {
 
 template <typename Subnet>
+struct SubnetFromStr
+{
+    template <typename CharT>
+    constexpr Subnet operator()(std::basic_string_view<CharT> sv) const
+    {
+        const auto pos = sv.rfind('/');
+        if (pos == sv.npos)
+        {
+            throw std::invalid_argument("Invalid subnet");
+        }
+        return {FromStr<typename Subnet::Addr>{}(sv.substr(0, pos)),
+                StrToInt<10, typename Subnet::Pfx>{}(sv.substr(pos + 1))};
+    }
+};
+
+template <typename Subnet>
 struct SubnetToStr
 {
     using type = Subnet;
@@ -226,6 +242,15 @@ struct SubnetToStr
 };
 
 } // namespace detail
+
+template <typename Addr, typename Pfx>
+struct FromStr<detail::Subnet46<Addr, Pfx>> :
+    detail::SubnetFromStr<detail::Subnet46<Addr, Pfx>>
+{};
+
+template <>
+struct FromStr<SubnetAny> : detail::SubnetFromStr<SubnetAny>
+{};
 
 template <typename Addr, typename Pfx>
 struct ToStr<detail::Subnet46<Addr, Pfx>> :
