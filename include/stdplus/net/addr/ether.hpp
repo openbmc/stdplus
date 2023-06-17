@@ -27,6 +27,11 @@ struct EtherAddr : ether_addr
         return std::equal(ether_addr_octet, ether_addr_octet + 6,
                           rhs.ether_addr_octet);
     }
+
+    constexpr bool operator==(EtherAddr rhs) const noexcept
+    {
+        return *this == static_cast<ether_addr&>(rhs);
+    }
 };
 
 template <>
