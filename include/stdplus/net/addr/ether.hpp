@@ -27,6 +27,21 @@ struct EtherAddr : ether_addr
         return std::equal(ether_addr_octet, ether_addr_octet + 6,
                           rhs.ether_addr_octet);
     }
+
+    constexpr bool isEmpty() const noexcept
+    {
+        return EtherAddr{} == *this;
+    }
+
+    constexpr bool isMulticast() const noexcept
+    {
+        return ether_addr_octet[0] & 1;
+    }
+
+    constexpr bool isUnicast() const noexcept
+    {
+        return !(isEmpty() || isMulticast());
+    }
 };
 
 template <>
