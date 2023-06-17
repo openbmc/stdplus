@@ -32,6 +32,21 @@ struct EtherAddr : ether_addr
     {
         return *this == static_cast<ether_addr&>(rhs);
     }
+
+    constexpr bool isEmpty() const noexcept
+    {
+        return *this == EtherAddr{};
+    }
+
+    constexpr bool isMulticast() const noexcept
+    {
+        return ether_addr_octet[0] & 1;
+    }
+
+    constexpr bool isUnicast() const noexcept
+    {
+        return !(isEmpty() || isMulticast());
+    }
 };
 
 template <>
