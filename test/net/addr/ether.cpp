@@ -15,6 +15,30 @@ TEST(EqualOperator, EtherAddr)
     std::hash<EtherAddr>{}(EtherAddr{});
 }
 
+TEST(Query, IsEmpty)
+{
+    EXPECT_TRUE((EtherAddr{}.isEmpty()));
+    EXPECT_FALSE((EtherAddr{1}.isEmpty()));
+    EXPECT_FALSE((EtherAddr{0, 0, 0, 1}.isEmpty()));
+}
+
+TEST(Query, IsMulticast)
+{
+    EXPECT_TRUE((EtherAddr{255, 255, 255, 255, 255, 255}.isMulticast()));
+    EXPECT_TRUE((EtherAddr{1}.isMulticast()));
+    EXPECT_FALSE((EtherAddr{0, 1, 2, 3, 4, 5}.isMulticast()));
+    EXPECT_FALSE((EtherAddr{0xfe, 255, 255, 255, 255, 255}.isMulticast()));
+}
+
+TEST(Query, IsUnicast)
+{
+    EXPECT_TRUE((EtherAddr{0, 1, 2, 3, 4, 5}.isUnicast()));
+    EXPECT_TRUE((EtherAddr{0xfe, 255, 255, 255, 255, 255}.isUnicast()));
+    EXPECT_FALSE((EtherAddr{}.isUnicast()));
+    EXPECT_FALSE((EtherAddr{1}.isUnicast()));
+    EXPECT_FALSE((EtherAddr{255, 255, 255, 255, 255, 255}.isUnicast()));
+}
+
 TEST(ToStr, EthAddr)
 {
     ToStrHandle<ToStr<EtherAddr>> tsh;
