@@ -224,4 +224,15 @@ TEST(SubnetAny, ToStr)
               fmt::format("a {} b", SubnetAny(In4Addr{1, 2, 3, 4}, 32)));
 }
 
+TEST(Ops, MaskToPfx)
+{
+    EXPECT_EQ(32, maskToPfx(In4Addr{0xff, 0xff, 0xff, 0xff}));
+    EXPECT_EQ(28, maskToPfx(In4Addr{0xff, 0xff, 0xff, 0xf0}));
+    EXPECT_EQ(16, maskToPfx(In4Addr{0xff, 0xff, 0, 0}));
+    EXPECT_EQ(0, maskToPfx(In4Addr{}));
+
+    EXPECT_THROW(maskToPfx(In4Addr{0, 0x8}), std::invalid_argument);
+    EXPECT_THROW(maskToPfx(In4Addr{0x40}), std::invalid_argument);
+}
+
 } // namespace stdplus
