@@ -5,6 +5,7 @@
 #include <stdplus/numeric/str.hpp>
 #include <stdplus/str/conv.hpp>
 
+#include <bit>
 #include <limits>
 #include <type_traits>
 
@@ -122,6 +123,25 @@ class Subnet46
 };
 
 } // namespace detail
+
+template <typename T>
+constexpr T pfxToMask(std::uint8_t pfx);
+
+template <>
+constexpr In4Addr pfxToMask<In4Addr>(std::uint8_t pfx)
+{
+    return in_addr{detail::addr32Mask(pfx)};
+}
+
+constexpr std::uint8_t maskToPfx(In4Addr mask)
+{
+    uint32_t x = ntoh(mask.s4_addr32);
+    if ((~x & (~x + 1)) != 0)
+    {
+        throw std::invalid_argument("Invalid netmask");
+    }
+    return 32 - std::countr_zero(x);
+}
 
 using Subnet4 = detail::Subnet46<In4Addr, std::uint8_t>;
 using Subnet6 = detail::Subnet46<In6Addr, std::uint8_t>;
