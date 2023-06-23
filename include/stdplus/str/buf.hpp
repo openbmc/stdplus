@@ -24,8 +24,8 @@ union StrBufStore<CharT, BufLen, std::endian::little>
     } inl;
     struct Dyn
     {
-        std::uint8_t
-            rsvd[offsetof(Inl, len) - sizeof(CharT*) - sizeof(std::size_t) * 2];
+        std::uint8_t rsvd[offsetof(Inl, len) + 1 - sizeof(CharT*) -
+                          sizeof(std::size_t) * 2];
         CharT* ptr;
         std::size_t cap;
         std::size_t len;
