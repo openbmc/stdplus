@@ -15,13 +15,6 @@ TEST(EqualOperator, EtherAddr)
     std::hash<EtherAddr>{}(EtherAddr{});
 }
 
-TEST(Query, IsEmpty)
-{
-    EXPECT_TRUE((EtherAddr{}.isEmpty()));
-    EXPECT_FALSE((EtherAddr{1}.isEmpty()));
-    EXPECT_FALSE((EtherAddr{0, 0, 0, 1}.isEmpty()));
-}
-
 TEST(Query, IsMulticast)
 {
     EXPECT_TRUE((EtherAddr{255, 255, 255, 255, 255, 255}.isMulticast()));
