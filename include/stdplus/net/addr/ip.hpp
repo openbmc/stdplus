@@ -13,6 +13,7 @@
 
 namespace stdplus
 {
+
 namespace detail
 {
 struct In4AddrInner
@@ -296,6 +297,60 @@ struct ToStr<InAnyAddr>
                           v);
     }
 };
+
+namespace detail
+{
+
+template <typename Addr, typename CharT, std::size_t N>
+struct CompileInAddr
+{
+    CharT str[N - 1];
+    Addr addr = {};
+    bool valid = true;
+
+    constexpr CompileInAddr(const CharT (&str)[N]) noexcept
+    {
+        std::copy(str, str + N - 1, this->str);
+        std::basic_string_view<CharT> sv{this->str, N - 1};
+        try
+        {
+            addr = fromStr<Addr>(sv);
+        }
+        catch (...)
+        {
+            valid = false;
+        }
+    }
+};
+
+template <typename Addr, typename CharT, std::size_t N>
+CompileInAddr(const CharT (&)[N]) -> CompileInAddr<Addr, CharT, N>;
+
+template <typename CharT, std::size_t N>
+using CompileIn4Addr = CompileInAddr<In4Addr, CharT, N>;
+template <typename CharT, std::size_t N>
+using CompileIn6Addr = CompileInAddr<In6Addr, CharT, N>;
+
+} // namespace detail
+
+inline namespace in_addr_literals
+{
+
+template <detail::CompileIn4Addr Str>
+constexpr auto operator"" _ip4() noexcept
+{
+    static_assert(Str.valid, "stdplus::In4Addr");
+    return Str.addr;
+}
+
+template <detail::CompileIn6Addr Str>
+constexpr auto operator"" _ip6() noexcept
+{
+    static_assert(Str.valid, "stdplus::In6Addr");
+    return Str.addr;
+}
+
+} // namespace in_addr_literals
 
 } // namespace stdplus
 
