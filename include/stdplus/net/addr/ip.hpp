@@ -96,6 +96,18 @@ struct In4Addr : detail::In4AddrInner
     {
         return word() == rhs.word();
     }
+
+    constexpr bool isLoopback() const noexcept
+    {
+        return byte(0) == 127; // 127.0.0.0/8
+    }
+
+    constexpr bool isUnicast() const noexcept
+    {
+        return byte(0) != 0 &&                      // 0.0.0.0/8
+               (byte(0) & uint8_t{0xf0u}) != 224 && // 224.0.0.0/4
+               word() != 0xffffffffu;               // 255.255.255.255/32
+    }
 };
 
 template <>
@@ -229,6 +241,9 @@ struct In6Addr : in6_addr
     {
         return *this == static_cast<in6_addr&>(rhs);
     }
+
+    constexpr bool isLoopback() noexcept;
+    constexpr bool isUnicast() noexcept;
 };
 
 template <>
@@ -508,6 +523,17 @@ constexpr auto operator"" _ip() noexcept
 }
 
 } // namespace in_addr_literals
+
+constexpr bool In6Addr::isLoopback() noexcept
+{
+    return *this == "::1"_ip6; // ::1/128
+}
+
+constexpr bool In6Addr::isUnicast() noexcept
+{
+    return *this != "::"_ip6 && // ::/128
+           byte(0) != 0xff;     // ff00::/8
+}
 
 } // namespace stdplus
 
