@@ -182,6 +182,26 @@ TEST(FromStr, InAnyAddr)
     EXPECT_EQ(
         (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}),
         fs("::ffff:192.168.0.1"sv));
+
+    EXPECT_EQ((In4Addr{}), "0.0.0.0"_ip);
+    EXPECT_EQ((In6Addr{}), "::"_ip);
+    EXPECT_EQ("ff02::"_ip, (In6Addr{0xff, 2}));
+    EXPECT_EQ("1::"_ip, (In6Addr{0, 1}));
+    EXPECT_EQ("100::"_ip, (In6Addr{1}));
+    EXPECT_EQ("2::"_ip, (In6Addr{0, 2}));
+    EXPECT_EQ("ff::"_ip, (In6Addr{0, 0xff}));
+    EXPECT_EQ("::100"_ip,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}));
+    EXPECT_EQ("::1"_ip,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+    EXPECT_EQ("::2"_ip,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}));
+    EXPECT_EQ("::ff"_ip,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+    EXPECT_EQ("1::1"_ip,
+              (In6Addr{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+    EXPECT_EQ("5::b"_ip,
+              (In6Addr{0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xb}));
 }
 
 TEST(ToStr, InAnyAddr)
