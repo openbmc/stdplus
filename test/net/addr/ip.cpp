@@ -34,6 +34,11 @@ TEST(FromStr, In4Addr)
 
     EXPECT_EQ((In4Addr{}), fromStr<In4Addr>("0.0.0.0"));
     EXPECT_EQ((In4Addr{192, 168, 1, 1}), fromStr<In4Addr>("192.168.001.1"));
+
+    constexpr bool tv = detail::CompileIn4Addr("192.0.0.0").valid;
+    EXPECT_TRUE(tv);
+    constexpr bool t = "192.0.0.0"_ip4 == (In4Addr{192});
+    EXPECT_TRUE(t);
 }
 
 TEST(ToStr, In4Addr)
@@ -82,6 +87,7 @@ TEST(FromStr, In6Addr)
                        255, 255, 255, 255, 255}),
               fs("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"sv));
     EXPECT_EQ((In6Addr{}), fs("0:0:0:0:0:0:0:0"sv));
+    EXPECT_EQ((In6Addr{0, 1}), fs("1::"sv));
     EXPECT_EQ((In6Addr{0, 0xff}), fs("ff::"sv));
     EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
               fs("::ff"sv));
@@ -100,6 +106,27 @@ TEST(FromStr, In6Addr)
               fs("ff::255.168.0.1"sv));
     EXPECT_EQ((In6Addr{0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 255, 168, 0, 1}),
               fs("0:1:2:3:4:5:255.168.0.1"sv));
+
+    constexpr bool tv = detail::CompileIn6Addr("1::").valid;
+    EXPECT_TRUE(tv);
+    constexpr bool t = "ff02::"_ip6 == In6Addr{0xff, 2};
+    EXPECT_TRUE(t);
+    EXPECT_EQ("1::"_ip6, (In6Addr{0, 1}));
+    EXPECT_EQ("100::"_ip6, (In6Addr{1}));
+    EXPECT_EQ("2::"_ip6, (In6Addr{0, 2}));
+    EXPECT_EQ("ff::"_ip6, (In6Addr{0, 0xff}));
+    EXPECT_EQ("::100"_ip6,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}));
+    EXPECT_EQ("::1"_ip6,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+    EXPECT_EQ("::2"_ip6,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}));
+    EXPECT_EQ("::ff"_ip6,
+              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+    EXPECT_EQ("1::1"_ip6,
+              (In6Addr{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+    EXPECT_EQ("5::b"_ip6,
+              (In6Addr{0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xb}));
 }
 
 TEST(ToStr, In6Addr)
