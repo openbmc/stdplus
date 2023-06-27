@@ -223,4 +223,77 @@ TEST(ToStr, InAnyAddr)
     EXPECT_EQ("a ff00:: b", fmt::format("a {} b", InAnyAddr{In6Addr{0xff}}));
 }
 
+TEST(Loopback, In4Addr)
+{
+    constexpr bool t = "127.0.0.0"_ip4.isLoopback();
+    EXPECT_TRUE(t);
+    EXPECT_TRUE("127.0.0.1"_ip4.isLoopback());
+    EXPECT_TRUE("127.0.0.83"_ip4.isLoopback());
+    EXPECT_TRUE("127.253.0.0"_ip4.isLoopback());
+    EXPECT_TRUE("127.255.255.255"_ip4.isLoopback());
+
+    EXPECT_FALSE("0.0.0.0"_ip4.isLoopback());
+    EXPECT_FALSE("0.255.255.255"_ip4.isLoopback());
+    EXPECT_FALSE("126.255.255.255"_ip4.isLoopback());
+    EXPECT_FALSE("128.0.0.0"_ip4.isLoopback());
+    EXPECT_FALSE("224.0.0.0"_ip4.isLoopback());
+    EXPECT_FALSE("227.30.10.50"_ip4.isLoopback());
+    EXPECT_FALSE("239.255.255.255"_ip4.isLoopback());
+    EXPECT_FALSE("255.255.255.255"_ip4.isLoopback());
+}
+
+TEST(Loopback, In6Addr)
+{
+    constexpr bool t = "::1"_ip6.isLoopback();
+    EXPECT_TRUE(t);
+
+    EXPECT_FALSE("::2"_ip6.isLoopback());
+    EXPECT_FALSE("1::"_ip6.isLoopback());
+    EXPECT_FALSE("2001:5938::fd98"_ip6.isLoopback());
+    EXPECT_FALSE("fe80::1"_ip6.isLoopback());
+    EXPECT_FALSE("feff:ffff:ffff:ffff::"_ip6.isLoopback());
+}
+
+TEST(Unicast, In4Addr)
+{
+    constexpr bool t = "1.1.1.1"_ip4.isUnicast();
+    EXPECT_TRUE(t);
+    EXPECT_TRUE("8.8.4.4"_ip4.isUnicast());
+    EXPECT_TRUE("10.30.0.1"_ip4.isUnicast());
+    EXPECT_TRUE("127.0.0.0"_ip4.isUnicast());
+    EXPECT_TRUE("127.0.0.1"_ip4.isUnicast());
+    EXPECT_TRUE("127.0.0.83"_ip4.isUnicast());
+    EXPECT_TRUE("127.253.0.0"_ip4.isUnicast());
+    EXPECT_TRUE("127.255.255.255"_ip4.isUnicast());
+    EXPECT_TRUE("169.253.255.255"_ip4.isUnicast());
+    EXPECT_TRUE("169.254.0.1"_ip4.isUnicast());
+    EXPECT_TRUE("169.254.255.255"_ip4.isUnicast());
+    EXPECT_TRUE("169.255.0.0"_ip4.isUnicast());
+    EXPECT_TRUE("192.168.1.0"_ip4.isUnicast());
+    EXPECT_TRUE("240.0.0.0"_ip4.isUnicast());
+    EXPECT_TRUE("255.255.255.1"_ip4.isUnicast());
+
+    EXPECT_FALSE("0.0.0.0"_ip4.isUnicast());
+    EXPECT_FALSE("0.255.255.255"_ip4.isUnicast());
+    EXPECT_FALSE("224.0.0.0"_ip4.isUnicast());
+    EXPECT_FALSE("227.30.10.50"_ip4.isUnicast());
+    EXPECT_FALSE("239.255.255.255"_ip4.isUnicast());
+    EXPECT_FALSE("255.255.255.255"_ip4.isUnicast());
+}
+
+TEST(Unicast, In6Addr)
+{
+    constexpr bool t = "::2"_ip6.isUnicast();
+    EXPECT_TRUE(t);
+    EXPECT_TRUE("::1"_ip6.isUnicast());
+    EXPECT_TRUE("1::"_ip6.isUnicast());
+    EXPECT_TRUE("2001:5938::fd98"_ip6.isUnicast());
+    EXPECT_TRUE("fe80::1"_ip6.isUnicast());
+    EXPECT_TRUE("feff:ffff:ffff:ffff::"_ip6.isUnicast());
+
+    EXPECT_FALSE("::"_ip6.isUnicast());
+    EXPECT_FALSE("ff00::"_ip6.isUnicast());
+    EXPECT_FALSE("ffff:ffff:ffff:ffff:ffff::"_ip6.isUnicast());
+}
+
 } // namespace stdplus
