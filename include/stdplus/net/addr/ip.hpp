@@ -431,6 +431,40 @@ struct CompileIn6Addr : CompileInAddr<In6Addr, CharT, N>
     {}
 };
 
+template <typename CharT, std::size_t N>
+struct CompileInAnyAddr
+{
+    CharT str[N - 1];
+    union
+    {
+        stdplus::In4Addr addr4;
+        stdplus::In6Addr addr6;
+    } u;
+    bool v4 = true;
+    bool valid = true;
+
+    constexpr CompileInAnyAddr(const CharT (&str)[N]) noexcept :
+        u({.addr4 = {}})
+    {
+        std::copy(str, str + N - 1, this->str);
+        std::basic_string_view<CharT> sv{this->str, N - 1};
+        try
+        {
+            if (sv.find(':') == sv.npos)
+            {
+                u = {.addr4 = FromStr<In4Addr>{}(sv)};
+                return;
+            }
+            u = {.addr6 = FromStr<In6Addr>{}(sv)};
+            v4 = false;
+        }
+        catch (...)
+        {
+            valid = false;
+        }
+    }
+};
+
 } // namespace detail
 
 inline namespace in_addr_literals
@@ -448,6 +482,13 @@ constexpr auto operator"" _ip6() noexcept
 {
     static_assert(Str.valid, "stdplus::In6Addr");
     return Str.addr;
+}
+
+template <detail::CompileInAnyAddr Str>
+constexpr auto operator"" _ip() noexcept
+{
+    static_assert(Str.valid, "stdplus::InAnyAddr");
+    return Str.v4 ? InAnyAddr(Str.u.addr4) : InAnyAddr(Str.u.addr6);
 }
 
 } // namespace in_addr_literals
