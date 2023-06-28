@@ -421,20 +421,25 @@ struct ToStr<InAnyAddr>
     }
 };
 
+template <typename Addr>
+concept InAddr = std::same_as<Addr, In4Addr> || std::same_as<Addr, In6Addr> ||
+                 std::same_as<Addr, InAnyAddr>;
+
 namespace detail
 {
 
-template <typename Addr, typename CharT, std::size_t N>
-struct CompileInAddr
+template <typename Addr>
+struct CompileInAddrInt;
+
+template <InAddr Addr>
+struct CompileInAddrInt<Addr>
 {
-    CharT str[N - 1];
     Addr addr = {};
     bool valid = true;
 
-    constexpr CompileInAddr(const CharT (&str)[N]) noexcept
+    template <typename CharT>
+    constexpr void compile(std::basic_string_view<CharT> sv) noexcept
     {
-        std::copy(str, str + N - 1, this->str);
-        std::basic_string_view<CharT> sv{this->str, N - 1};
         try
         {
             addr = fromStr<Addr>(sv);
@@ -443,6 +448,49 @@ struct CompileInAddr
         {
             valid = false;
         }
+    }
+};
+
+template <>
+struct CompileInAddrInt<InAnyAddr>
+{
+    union
+    {
+        stdplus::In4Addr addr4;
+        stdplus::In6Addr addr6;
+    } u = {.addr4 = {}};
+    bool v4 = true;
+    bool valid = true;
+
+    template <typename CharT>
+    constexpr void compile(std::basic_string_view<CharT> sv) noexcept
+    {
+        try
+        {
+            if (sv.find(':') == sv.npos)
+            {
+                u = {.addr4 = FromStr<In4Addr>{}(sv)};
+                return;
+            }
+            u = {.addr6 = FromStr<In6Addr>{}(sv)};
+            v4 = false;
+        }
+        catch (...)
+        {
+            valid = false;
+        }
+    }
+};
+
+template <typename Addr, typename CharT, std::size_t N>
+struct CompileInAddr : CompileInAddrInt<Addr>
+{
+    CharT str[N - 1];
+
+    constexpr CompileInAddr(const CharT (&str)[N]) noexcept
+    {
+        std::copy(str, str + N - 1, this->str);
+        this->compile(std::basic_string_view{this->str, N - 1});
     }
 };
 
@@ -463,37 +511,11 @@ struct CompileIn6Addr : CompileInAddr<In6Addr, CharT, N>
 };
 
 template <typename CharT, std::size_t N>
-struct CompileInAnyAddr
+struct CompileInAnyAddr : CompileInAddr<InAnyAddr, CharT, N>
 {
-    CharT str[N - 1];
-    union
-    {
-        stdplus::In4Addr addr4;
-        stdplus::In6Addr addr6;
-    } u;
-    bool v4 = true;
-    bool valid = true;
-
     constexpr CompileInAnyAddr(const CharT (&str)[N]) noexcept :
-        u({.addr4 = {}})
-    {
-        std::copy(str, str + N - 1, this->str);
-        std::basic_string_view<CharT> sv{this->str, N - 1};
-        try
-        {
-            if (sv.find(':') == sv.npos)
-            {
-                u = {.addr4 = FromStr<In4Addr>{}(sv)};
-                return;
-            }
-            u = {.addr6 = FromStr<In6Addr>{}(sv)};
-            v4 = false;
-        }
-        catch (...)
-        {
-            valid = false;
-        }
-    }
+        CompileInAddr<InAnyAddr, CharT, N>(str)
+    {}
 };
 
 } // namespace detail
@@ -568,17 +590,7 @@ struct std::hash<stdplus::InAnyAddr>
     }
 };
 
-template <typename CharT>
-struct fmt::formatter<stdplus::In4Addr, CharT> :
-    stdplus::Format<stdplus::ToStr<stdplus::In4Addr>, CharT>
-{};
-
-template <typename CharT>
-struct fmt::formatter<stdplus::In6Addr, CharT> :
-    stdplus::Format<stdplus::ToStr<stdplus::In6Addr>, CharT>
-{};
-
-template <typename CharT>
-struct fmt::formatter<stdplus::InAnyAddr, CharT> :
-    stdplus::Format<stdplus::ToStr<stdplus::InAnyAddr>, CharT>
+template <stdplus::InAddr Addr, typename CharT>
+struct fmt::formatter<Addr, CharT> :
+    stdplus::Format<stdplus::ToStr<Addr>, CharT>
 {};
