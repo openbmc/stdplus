@@ -8,6 +8,7 @@
 #include <stdplus/variant.hpp>
 
 #include <algorithm>
+#include <array>
 #include <stdexcept>
 #include <variant>
 
@@ -29,27 +30,70 @@ static_assert(sizeof(In4AddrInner) == sizeof(in_addr));
 
 struct In4Addr : detail::In4AddrInner
 {
-    constexpr In4Addr() noexcept : detail::In4AddrInner() {}
-    constexpr In4Addr(in_addr a) noexcept : detail::In4AddrInner({a}) {}
+    constexpr In4Addr() noexcept : In4AddrInner({.s4_addr = {}}) {}
+    constexpr In4Addr(in_addr a) noexcept : In4Addr()
+    {
+        if (!std::is_constant_evaluated())
+        {
+            this->a = a;
+            return;
+        }
+        auto arr = std::bit_cast<std::array<std::uint8_t, 4>>(a);
+        std::copy(arr.begin(), arr.end(), s4_addr);
+    }
     explicit constexpr In4Addr(std::initializer_list<uint8_t> a) noexcept :
-        detail::In4AddrInner()
+        In4Addr()
     {
         std::copy(a.begin(), a.end(), s4_addr);
     }
 
+    constexpr std::uint8_t byte(std::size_t i) const noexcept
+    {
+        return s4_addr[i];
+    }
+
+    constexpr void byte(std::size_t i, std::uint8_t v) const noexcept
+    {
+        s4_addr[i] = v;
+    }
+
+    constexpr std::uint32_t word() const noexcept
+    {
+        if (!std::is_constant_evaluated())
+        {
+            return s4_addr32;
+        }
+        return std::bit_cast<std::uint32_t>(s4_addr);
+    }
+
+    constexpr void word(std::uint32_t v) const noexcept
+    {
+        if (!std::is_constant_evaluated())
+        {
+            s4_addr32 = v;
+            return;
+        }
+        auto arr = std::bit_cast<std::array<std::uint8_t, 4>>(v);
+        std::copy(arr.begin(), arr.end(), s4_addr);
+    }
+
     constexpr operator in_addr() const noexcept
     {
-        return a;
+        if (!std::is_constant_evaluated())
+        {
+            return a;
+        }
+        return std::bit_cast<in_addr>(s4_addr);
     }
 
     constexpr bool operator==(in_addr rhs) const noexcept
     {
-        return a.s_addr == rhs.s_addr;
+        return *this == In4Addr{rhs};
     }
 
     constexpr bool operator==(In4Addr rhs) const noexcept
     {
-        return a.s_addr == rhs.a.s_addr;
+        return word() == rhs.word();
     }
 };
 
@@ -88,7 +132,7 @@ struct ToStr<In4Addr>
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, In4Addr v) const noexcept
     {
-        auto n = bswap(ntoh(v.s4_addr32));
+        auto n = bswap(ntoh(v.word()));
         for (size_t i = 0; i < 3; ++i)
         {
             buf = ToOct{}(buf, n & 0xff);
@@ -135,7 +179,7 @@ struct FromStr<In6Addr>
             auto loc = sv.find(':');
             if (i == 6 && loc == sv.npos)
             {
-                ret.s6_addr32[3] = fsip4(sv).s4_addr32;
+                ret.s6_addr32[3] = fsip4(sv).word();
                 return ret;
             }
             if (loc != 0 && !sv.empty())
@@ -162,7 +206,7 @@ struct FromStr<In6Addr>
         {
             auto loc = sv.rfind(':');
             ret.s6_addr32[3] =
-                fsip4(sv.substr(loc == sv.npos ? 0 : loc + 1)).s4_addr32;
+                fsip4(sv.substr(loc == sv.npos ? 0 : loc + 1)).word();
             sv.remove_suffix(loc == sv.npos ? sv.size() : sv.size() - loc);
             j -= 2;
         }
@@ -304,7 +348,7 @@ struct std::hash<stdplus::In4Addr>
 {
     constexpr std::size_t operator()(stdplus::In4Addr addr) const noexcept
     {
-        return stdplus::hashMulti(addr.s4_addr32);
+        return stdplus::hashMulti(addr.word());
     }
 };
 
