@@ -27,7 +27,7 @@ __attribute__((no_sanitize("undefined"))) constexpr uint32_t
 
 constexpr In4Addr addrToSubnet(In4Addr a, std::size_t pfx) noexcept
 {
-    return In4Addr{in_addr{a.s4_addr32 & addr32Mask(pfx)}};
+    return In4Addr{in_addr{a.word() & addr32Mask(pfx)}};
 }
 
 constexpr In6Addr addrToSubnet(In6Addr a, std::size_t pfx, std::size_t i = 0,
@@ -135,7 +135,7 @@ constexpr In4Addr pfxToMask<In4Addr>(std::uint8_t pfx)
 
 constexpr std::uint8_t maskToPfx(In4Addr mask)
 {
-    uint32_t x = ntoh(mask.s4_addr32);
+    uint32_t x = ntoh(mask.word());
     if ((~x & (~x + 1)) != 0)
     {
         throw std::invalid_argument("Invalid netmask");

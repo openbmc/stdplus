@@ -35,7 +35,8 @@ TEST(FromStr, In4Addr)
     EXPECT_EQ((In4Addr{}), fromStr<In4Addr>("0.0.0.0"));
     EXPECT_EQ((In4Addr{192, 168, 1, 1}), fromStr<In4Addr>("192.168.001.1"));
 
-    EXPECT_EQ("192.0.0.0"_ip4, (In4Addr{192}));
+    constexpr bool t = "192.0.0.0"_ip4 == (In4Addr{192});
+    EXPECT_TRUE(t);
 }
 
 TEST(ToStr, In4Addr)
@@ -215,7 +216,8 @@ TEST(ToStr, InAnyAddr)
 
 TEST(Loopback, In4Addr)
 {
-    EXPECT_TRUE("127.0.0.0"_ip4.isLoopback());
+    constexpr bool t = "127.0.0.0"_ip4.isLoopback();
+    EXPECT_TRUE(t);
     EXPECT_TRUE("127.0.0.1"_ip4.isLoopback());
     EXPECT_TRUE("127.0.0.83"_ip4.isLoopback());
     EXPECT_TRUE("127.253.0.0"_ip4.isLoopback());
@@ -244,7 +246,8 @@ TEST(Loopback, In6Addr)
 
 TEST(Unicast, In4Addr)
 {
-    EXPECT_TRUE("1.1.1.1"_ip4.isUnicast());
+    constexpr bool t = "1.1.1.1"_ip4.isUnicast();
+    EXPECT_TRUE(t);
     EXPECT_TRUE("8.8.4.4"_ip4.isUnicast());
     EXPECT_TRUE("10.30.0.1"_ip4.isUnicast());
     EXPECT_TRUE("127.0.0.0"_ip4.isUnicast());
