@@ -35,10 +35,10 @@ constexpr In6Addr addrToSubnet(In6Addr a, std::size_t pfx, std::size_t i = 0,
 {
     if (s + 32 < pfx)
     {
-        ret.s6_addr32[i] = a.s6_addr32[i];
+        ret.word(i, a.word(i));
         return addrToSubnet(a, pfx, i + 1, s + 32, ret);
     }
-    ret.s6_addr32[i] = a.s6_addr32[i] & addr32Mask(pfx - s);
+    ret.word(i, a.word(i) & addr32Mask(pfx - s));
     return ret;
 }
 

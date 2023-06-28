@@ -105,7 +105,8 @@ TEST(FromStr, In6Addr)
     EXPECT_EQ((In6Addr{0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 255, 168, 0, 1}),
               fs("0:1:2:3:4:5:255.168.0.1"sv));
 
-    EXPECT_EQ("ff02::"_ip6, (In6Addr{0xff, 2}));
+    constexpr bool t = "ff02::"_ip6 == In6Addr{0xff, 2};
+    EXPECT_TRUE(t);
     EXPECT_EQ("1::"_ip6, (In6Addr{0, 1}));
     EXPECT_EQ("100::"_ip6, (In6Addr{1}));
     EXPECT_EQ("2::"_ip6, (In6Addr{0, 2}));
@@ -235,7 +236,8 @@ TEST(Loopback, In4Addr)
 
 TEST(Loopback, In6Addr)
 {
-    EXPECT_TRUE("::1"_ip6.isLoopback());
+    constexpr bool t = "::1"_ip6.isLoopback();
+    EXPECT_TRUE(t);
 
     EXPECT_FALSE("::2"_ip6.isLoopback());
     EXPECT_FALSE("1::"_ip6.isLoopback());
@@ -273,7 +275,8 @@ TEST(Unicast, In4Addr)
 
 TEST(Unicast, In6Addr)
 {
-    EXPECT_TRUE("::2"_ip6.isUnicast());
+    constexpr bool t = "::2"_ip6.isUnicast();
+    EXPECT_TRUE(t);
     EXPECT_TRUE("::1"_ip6.isUnicast());
     EXPECT_TRUE("1::"_ip6.isUnicast());
     EXPECT_TRUE("2001:5938::fd98"_ip6.isUnicast());

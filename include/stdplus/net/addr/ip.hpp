@@ -143,16 +143,82 @@ struct ToStr<In4Addr>
 struct In6Addr : in6_addr
 {
     constexpr In6Addr() noexcept : in6_addr() {}
-    constexpr In6Addr(in6_addr a) noexcept : in6_addr(a) {}
+    constexpr In6Addr(in6_addr a) noexcept : in6_addr(a)
+    {
+        if (std::is_constant_evaluated())
+        {
+            std::copy(a.s6_addr, a.s6_addr + std::size(s6_addr), s6_addr);
+        }
+    }
     explicit constexpr In6Addr(std::initializer_list<uint8_t> a) noexcept :
-        in6_addr()
+        In6Addr()
     {
         std::copy(a.begin(), a.end(), s6_addr);
     }
 
+    constexpr std::uint8_t byte(std::size_t i) const noexcept
+    {
+        return s6_addr[i];
+    }
+
+    constexpr void byte(std::size_t i, std::uint8_t v) noexcept
+    {
+        s6_addr[i] = v;
+    }
+
+    constexpr std::uint16_t hextet(std::size_t i) const noexcept
+    {
+        if (!std::is_constant_evaluated())
+        {
+            return s6_addr16[i];
+        }
+        std::uint8_t bytes[sizeof(std::uint16_t)];
+        const auto start = s6_addr + i * std::size(bytes);
+        std::copy(start, start + std::size(bytes), bytes);
+        return std::bit_cast<std::uint16_t>(bytes);
+    }
+
+    constexpr void hextet(std::size_t i, std::uint16_t v) noexcept
+    {
+        if (!std::is_constant_evaluated())
+        {
+            s6_addr16[i] = v;
+            return;
+        }
+        auto bytes = std::bit_cast<std::array<std::uint8_t, sizeof(v)>>(v);
+        std::copy(bytes.begin(), bytes.end(), s6_addr + i * bytes.size());
+    }
+
+    constexpr std::uint32_t word(std::size_t i) const noexcept
+    {
+        if (!std::is_constant_evaluated())
+        {
+            return s6_addr32[i];
+        }
+        std::uint8_t bytes[sizeof(std::uint32_t)];
+        const auto start = s6_addr + i * std::size(bytes);
+        std::copy(start, start + std::size(bytes), bytes);
+        return std::bit_cast<std::uint32_t>(bytes);
+    }
+
+    constexpr void word(std::size_t i, std::uint32_t v) noexcept
+    {
+        if (!std::is_constant_evaluated())
+        {
+            s6_addr32[i] = v;
+            return;
+        }
+        auto bytes = std::bit_cast<std::array<std::uint8_t, sizeof(v)>>(v);
+        std::copy(bytes.begin(), bytes.end(), s6_addr + i * bytes.size());
+    }
+
     constexpr bool operator==(in6_addr rhs) const noexcept
     {
-        return std::equal(s6_addr32, s6_addr32 + 4, rhs.s6_addr32);
+        if (!std::is_constant_evaluated())
+        {
+            return std::equal(s6_addr32, s6_addr32 + 4, rhs.s6_addr32);
+        }
+        return std::equal(s6_addr, s6_addr + 16, rhs.s6_addr);
     }
 
     constexpr bool operator==(In6Addr rhs) const noexcept
@@ -172,19 +238,19 @@ struct FromStr<In6Addr>
     {
         constexpr StrToInt<16, uint16_t> sti;
         constexpr FromStr<In4Addr> fsip4;
-        in6_addr ret = {};
+        In6Addr ret = {};
         size_t i = 0;
         while (i < 8)
         {
             auto loc = sv.find(':');
             if (i == 6 && loc == sv.npos)
             {
-                ret.s6_addr32[3] = fsip4(sv).word();
+                ret.word(3, fsip4(sv).word());
                 return ret;
             }
             if (loc != 0 && !sv.empty())
             {
-                ret.s6_addr16[i++] = hton(sti(sv.substr(0, loc)));
+                ret.hextet(i++, hton(sti(sv.substr(0, loc))));
             }
             if (i < 8 && sv.size() > loc + 1 && sv[loc + 1] == ':')
             {
@@ -205,16 +271,14 @@ struct FromStr<In6Addr>
         if (!sv.empty() && i < 6 && sv.find('.') != sv.npos)
         {
             auto loc = sv.rfind(':');
-            ret.s6_addr32[3] =
-                fsip4(sv.substr(loc == sv.npos ? 0 : loc + 1)).word();
+            ret.word(3, fsip4(sv.substr(loc == sv.npos ? 0 : loc + 1)).word());
             sv.remove_suffix(loc == sv.npos ? sv.size() : sv.size() - loc);
             j -= 2;
         }
         while (!sv.empty() && j > i)
         {
             auto loc = sv.rfind(':');
-            ret.s6_addr16[j--] =
-                hton(sti(sv.substr(loc == sv.npos ? 0 : loc + 1)));
+            ret.hextet(j--, hton(sti(sv.substr(loc == sv.npos ? 0 : loc + 1))));
             sv.remove_suffix(loc == sv.npos ? sv.size() : sv.size() - loc);
         }
         if (!sv.empty())
@@ -237,13 +301,13 @@ struct ToStr<In6Addr>
     constexpr CharT* operator()(CharT* buf, In6Addr v) const noexcept
     {
         // IPv4 in IPv6 Addr
-        if (v.s6_addr32[0] == 0 && v.s6_addr32[1] == 0 && v.s6_addr16[4] == 0 &&
-            v.s6_addr16[5] == 0xffff)
+        if (v.word(0) == 0 && v.word(1) == 0 && v.hextet(4) == 0 &&
+            v.hextet(5) == 0xffff)
         {
             constexpr auto prefix = std::string_view("::ffff:");
             return ToStr<In4Addr>{}(
                 std::copy(prefix.begin(), prefix.end(), buf),
-                in_addr{v.s6_addr32[3]});
+                in_addr{v.word(3)});
         }
 
         size_t skip_start = 0;
@@ -253,7 +317,7 @@ struct ToStr<In6Addr>
             size_t new_size = 0;
             for (size_t i = 0; i < 9; ++i)
             {
-                if (i < 8 && v.s6_addr16[i] == 0)
+                if (i < 8 && v.hextet(i) == 0)
                 {
                     if (new_start + new_size == i)
                     {
@@ -284,7 +348,7 @@ struct ToStr<In6Addr>
                 i += skip_size - 1;
                 continue;
             }
-            buf = ToHex{}(buf, ntoh(v.s6_addr16[i]));
+            buf = ToHex{}(buf, ntoh(v.hextet(i)));
             if (i < 7)
             {
                 *(buf++) = ':';
@@ -443,7 +507,7 @@ constexpr bool In6Addr::isLoopback() noexcept
 constexpr bool In6Addr::isUnicast() noexcept
 {
     return *this != "::"_ip6 && // ::/128
-           s6_addr[0] != 0xff;  // ff00::/8
+           byte(0) != 0xff;     // ff00::/8
 }
 
 } // namespace stdplus
@@ -462,6 +526,10 @@ struct std::hash<stdplus::In6Addr>
 {
     constexpr std::size_t operator()(stdplus::In6Addr addr) const noexcept
     {
+        if (std::is_constant_evaluated())
+        {
+            return stdplus::hashMulti(addr.s6_addr);
+        }
         return stdplus::hashMulti(addr.s6_addr32);
     }
 };
