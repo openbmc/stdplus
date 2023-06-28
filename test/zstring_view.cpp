@@ -14,7 +14,6 @@ namespace stdplus
 
 using std::literals::string_literals::operator""s;
 using std::literals::string_view_literals::operator""sv;
-using zstring_view_literals::operator""_zsv;
 
 TEST(ZstringView, IsString)
 {

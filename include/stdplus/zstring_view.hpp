@@ -309,7 +309,7 @@ std::basic_ostream<CharT, Traits>&
     return os << static_cast<std::basic_string_view<CharT, Traits>>(v);
 }
 
-namespace zstring_view_literals
+inline namespace zstring_view_literals
 {
 template <detail::compile_zstring_view Str>
 constexpr auto operator"" _zsv() noexcept
