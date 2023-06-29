@@ -221,6 +221,8 @@ TEST(ToStr, InAnyAddr)
     EXPECT_EQ("ff::", tsh(In6Addr{0, 0xff}));
 
     EXPECT_EQ("a ff00:: b", fmt::format("a {} b", InAnyAddr{In6Addr{0xff}}));
+    EXPECT_NE("0.0.0.0"_ip, std::optional<InAnyAddr>());
+    EXPECT_EQ("0.0.0.0"_ip, std::optional<InAnyAddr>(In4Addr{}));
 }
 
 TEST(Loopback, In4Addr)

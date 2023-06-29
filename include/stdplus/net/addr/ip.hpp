@@ -379,6 +379,16 @@ namespace detail
 using InAnyAddrV = std::variant<In4Addr, In6Addr>;
 }
 
+struct InAnyAddr;
+
+template <typename Addr>
+concept InAddr = std::same_as<Addr, In4Addr> || std::same_as<Addr, In6Addr> ||
+                 std::same_as<Addr, InAnyAddr>;
+
+template <typename Addr>
+concept InAddrLike = InAddr<Addr> || std::same_as<Addr, in_addr> ||
+                     std::same_as<Addr, in6_addr>;
+
 struct InAnyAddr : detail::InAnyAddrV
 {
     constexpr InAnyAddr(in_addr a) noexcept : detail::InAnyAddrV(In4Addr{a}) {}
@@ -386,7 +396,8 @@ struct InAnyAddr : detail::InAnyAddrV
     constexpr InAnyAddr(in6_addr a) noexcept : detail::InAnyAddrV(In6Addr{a}) {}
     constexpr InAnyAddr(In6Addr a) noexcept : detail::InAnyAddrV(a) {}
 
-    constexpr bool operator==(auto rhs) const noexcept
+    template <InAddrLike T>
+    constexpr bool operator==(T rhs) const noexcept
     {
         return variantEqFuzzy(*this, rhs);
     }
@@ -420,10 +431,6 @@ struct ToStr<InAnyAddr>
                           v);
     }
 };
-
-template <typename Addr>
-concept InAddr = std::same_as<Addr, In4Addr> || std::same_as<Addr, In6Addr> ||
-                 std::same_as<Addr, InAnyAddr>;
 
 namespace detail
 {
