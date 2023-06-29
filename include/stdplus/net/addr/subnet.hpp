@@ -146,6 +146,23 @@ constexpr std::uint8_t maskToPfx(In4Addr mask)
 using Subnet4 = detail::Subnet46<In4Addr, std::uint8_t>;
 using Subnet6 = detail::Subnet46<In6Addr, std::uint8_t>;
 
+class SubnetAny;
+
+template <typename T>
+struct IsSubnet : std::false_type
+{};
+
+template <typename Addr, typename Pfx>
+struct IsSubnet<detail::Subnet46<Addr, Pfx>> : std::true_type
+{};
+
+template <>
+struct IsSubnet<SubnetAny> : std::true_type
+{};
+
+template <typename T>
+concept Subnet = IsSubnet<T>::value;
+
 class SubnetAny
 {
   public:
@@ -172,9 +189,8 @@ class SubnetAny
         }
     }
 
-    template <typename T, typename S>
-    constexpr SubnetAny(detail::Subnet46<T, S> o) noexcept :
-        addr(o.getAddr()), pfx(o.getPfx())
+    template <Subnet T>
+    constexpr SubnetAny(T o) noexcept : addr(o.getAddr()), pfx(o.getPfx())
     {}
 
     constexpr auto getAddr() const noexcept
@@ -187,14 +203,10 @@ class SubnetAny
         return pfx;
     }
 
-    template <typename T, typename S>
-    constexpr bool operator==(detail::Subnet46<T, S> rhs) const noexcept
+    template <Subnet T>
+    constexpr bool operator==(T rhs) const noexcept
     {
         return addr == rhs.getAddr() && pfx == rhs.getPfx();
-    }
-    constexpr bool operator==(SubnetAny rhs) const noexcept
-    {
-        return addr == rhs.addr && pfx == rhs.pfx;
     }
 
     constexpr InAnyAddr network() const noexcept
@@ -224,90 +236,51 @@ class SubnetAny
     }
 };
 
-namespace detail
-{
-
-template <typename Subnet>
-struct SubnetFromStr
+template <Subnet Sub>
+struct FromStr<Sub>
 {
     template <typename CharT>
-    constexpr Subnet operator()(std::basic_string_view<CharT> sv) const
+    constexpr Sub operator()(std::basic_string_view<CharT> sv) const
     {
         const auto pos = sv.rfind('/');
         if (pos == sv.npos)
         {
             throw std::invalid_argument("Invalid subnet");
         }
-        return {FromStr<typename Subnet::Addr>{}(sv.substr(0, pos)),
-                StrToInt<10, typename Subnet::Pfx>{}(sv.substr(pos + 1))};
+        return {FromStr<typename Sub::Addr>{}(sv.substr(0, pos)),
+                StrToInt<10, typename Sub::Pfx>{}(sv.substr(pos + 1))};
     }
 };
 
-template <typename Subnet>
-struct SubnetToStr
+template <Subnet Sub>
+struct ToStr<Sub>
 {
-    using type = Subnet;
-    using ToDec = IntToStr<10, typename Subnet::Pfx>;
+    using type = Sub;
+    using ToDec = IntToStr<10, typename Sub::Pfx>;
     // Addr + sep + 3 prefix chars
     static constexpr std::size_t buf_size =
-        ToStr<typename Subnet::Addr>::buf_size + 1 + ToDec::buf_size;
+        ToStr<typename Sub::Addr>::buf_size + 1 + ToDec::buf_size;
 
     template <typename CharT>
-    constexpr CharT* operator()(CharT* buf, Subnet v) const noexcept
+    constexpr CharT* operator()(CharT* buf, Sub v) const noexcept
     {
-        buf = ToStr<typename Subnet::Addr>{}(buf, v.getAddr());
+        buf = ToStr<typename Sub::Addr>{}(buf, v.getAddr());
         (buf++)[0] = '/';
         return ToDec{}(buf, v.getPfx());
     }
 };
 
-template <typename Subnet>
-struct SubnetHash
+} // namespace stdplus
+
+template <stdplus::Subnet Sub, typename CharT>
+struct fmt::formatter<Sub, CharT> : stdplus::Format<stdplus::ToStr<Sub>, CharT>
+{};
+
+template <stdplus::Subnet Sub>
+struct std::hash<Sub>
 {
-    constexpr std::size_t operator()(Subnet addr) const noexcept
+    constexpr std::size_t operator()(Sub addr) const noexcept
     {
         return stdplus::hashMulti(addr.getAddr(), addr.getPfx());
     }
 };
-
-} // namespace detail
-
-template <typename Addr, typename Pfx>
-struct FromStr<detail::Subnet46<Addr, Pfx>> :
-    detail::SubnetFromStr<detail::Subnet46<Addr, Pfx>>
-{};
-
-template <>
-struct FromStr<SubnetAny> : detail::SubnetFromStr<SubnetAny>
-{};
-
-template <typename Addr, typename Pfx>
-struct ToStr<detail::Subnet46<Addr, Pfx>> :
-    detail::SubnetToStr<detail::Subnet46<Addr, Pfx>>
-{};
-
-template <>
-struct ToStr<SubnetAny> : detail::SubnetToStr<SubnetAny>
-{};
-
-} // namespace stdplus
-
-template <typename Addr, typename Pfx, typename CharT>
-struct fmt::formatter<stdplus::detail::Subnet46<Addr, Pfx>, CharT> :
-    stdplus::Format<stdplus::ToStr<stdplus::detail::Subnet46<Addr, Pfx>>, CharT>
-{};
-
-template <typename CharT>
-struct fmt::formatter<stdplus::SubnetAny, CharT> :
-    stdplus::Format<stdplus::ToStr<stdplus::SubnetAny>, CharT>
-{};
-
-template <typename Addr, typename Pfx>
-struct std::hash<stdplus::detail::Subnet46<Addr, Pfx>> :
-    stdplus::detail::SubnetHash<stdplus::detail::Subnet46<Addr, Pfx>>
-{};
-
-template <>
-struct std::hash<stdplus::SubnetAny> :
-    stdplus::detail::SubnetHash<stdplus::SubnetAny>
-{};
