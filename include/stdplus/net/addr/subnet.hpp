@@ -270,6 +270,87 @@ struct ToStr<Sub>
     }
 };
 
+namespace detail
+{
+
+template <Subnet Sub>
+struct CompileInAddrInt<Sub> : CompileInAddrInt<typename Sub::Addr>
+{
+    Sub::Pfx pfx = 0;
+
+    template <typename CharT>
+    constexpr void compile(std::basic_string_view<CharT> sv) noexcept
+    {
+        const auto pos = sv.rfind('/');
+        if (pos == sv.npos)
+        {
+            this->valid = false;
+        }
+        static_cast<CompileInAddrInt<typename Sub::Addr>&>(*this).compile(
+            sv.substr(0, pos));
+        try
+        {
+            pfx = StrToInt<10, typename Sub::Pfx>{}(sv.substr(pos + 1));
+        }
+        catch (...)
+        {
+            this->valid = false;
+        }
+    }
+};
+
+template <typename CharT, std::size_t N>
+struct CompileSubnet4 : CompileInAddr<Subnet4, CharT, N>
+{
+    constexpr CompileSubnet4(const CharT (&str)[N]) noexcept :
+        CompileInAddr<Subnet4, CharT, N>(str)
+    {}
+};
+
+template <typename CharT, std::size_t N>
+struct CompileSubnet6 : CompileInAddr<Subnet6, CharT, N>
+{
+    constexpr CompileSubnet6(const CharT (&str)[N]) noexcept :
+        CompileInAddr<Subnet6, CharT, N>(str)
+    {}
+};
+
+template <typename CharT, std::size_t N>
+struct CompileSubnetAny : CompileInAddr<SubnetAny, CharT, N>
+{
+    constexpr CompileSubnetAny(const CharT (&str)[N]) noexcept :
+        CompileInAddr<SubnetAny, CharT, N>(str)
+    {}
+};
+
+} // namespace detail
+
+inline namespace subnet_literals
+{
+
+template <detail::CompileSubnet4 Str>
+constexpr auto operator"" _sub4() noexcept
+{
+    static_assert(Str.valid, "stdplus::Subnet4");
+    return Subnet4(Str.addr, Str.pfx);
+}
+
+template <detail::CompileSubnet6 Str>
+constexpr auto operator"" _sub6() noexcept
+{
+    static_assert(Str.valid, "stdplus::Subnet6");
+    return Subnet6(Str.addr, Str.pfx);
+}
+
+template <detail::CompileSubnetAny Str>
+constexpr auto operator"" _sub() noexcept
+{
+    static_assert(Str.valid, "stdplus::SubnetAny");
+    return Str.v4 ? SubnetAny(Str.u.addr4, Str.pfx)
+                  : SubnetAny(Str.u.addr6, Str.pfx);
+}
+
+} // namespace subnet_literals
 } // namespace stdplus
 
 template <stdplus::Subnet Sub, typename CharT>
