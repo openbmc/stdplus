@@ -1,4 +1,5 @@
 #pragma once
+#include <concepts>
 #include <functional>
 #include <string>
 #include <system_error>
@@ -118,9 +119,8 @@ inline void doError(int error, const std::string& msg)
  *  @param[in] error - The numeric system error code
  *  @param[in] fun   - the function used to throw the error
  */
-template <typename Fun>
-inline std::enable_if_t<std::is_invocable_v<Fun, int>, void> doError(int error,
-                                                                     Fun&& fun)
+template <std::invocable<int> Fun>
+inline void doError(int error, Fun&& fun)
 {
     fun(error);
 }
