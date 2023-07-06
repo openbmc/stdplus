@@ -1,3 +1,6 @@
+#include <stdplus/concepts.hpp>
+
+#include <concepts>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -7,19 +10,17 @@ namespace stdplus
 namespace detail
 {
 
-template <template <typename, typename, typename = void> typename Veq,
-          typename...>
+template <template <typename, typename> typename Veq, typename...>
 struct CanVeq;
 
-template <template <typename, typename, typename = void> typename Veq,
-          typename T>
+template <template <typename, typename> typename Veq, typename T>
 struct CanVeq<Veq, T>
 {
     static constexpr inline bool value = false;
 };
 
-template <template <typename, typename, typename = void> typename Veq,
-          typename T, typename V, typename... Vs>
+template <template <typename, typename> typename Veq, typename T, typename V,
+          typename... Vs>
 struct CanVeq<Veq, T, V, Vs...>
 {
     static constexpr inline bool value = Veq<T, V>::value ||
@@ -37,14 +38,12 @@ struct VeqBase
     }
 };
 
-template <typename T1, typename T2, typename = void>
+template <typename T1, typename T2>
 struct VeqFuzzy : VeqBase<T1, T2>
 {};
 
-template <typename T1, typename T2>
-struct VeqFuzzy<T1, T2,
-                std::enable_if_t<std::is_same_v<
-                    decltype(std::declval<T1>() == std::declval<T2>()), bool>>>
+template <typename T1, WeaklyEqualityComparableWith<T1> T2>
+struct VeqFuzzy<T1, T2>
 {
     static constexpr inline bool value = true;
 
@@ -54,12 +53,12 @@ struct VeqFuzzy<T1, T2,
     }
 };
 
-template <typename T1, typename T2, typename = void>
+template <typename T1, typename T2>
 struct VeqStrict : VeqBase<T1, T2>
 {};
 
-template <typename T1, typename T2>
-struct VeqStrict<T1, T2, std::enable_if_t<std::is_same_v<T1, T2>>>
+template <typename T1, std::same_as<T1> T2>
+struct VeqStrict<T1, T2>
 {
     static constexpr inline bool value = true;
 
@@ -71,8 +70,8 @@ struct VeqStrict<T1, T2, std::enable_if_t<std::is_same_v<T1, T2>>>
 
 } // namespace detail
 
-template <template <typename, typename, typename = void> typename Veq,
-          typename... Vs, typename T,
+template <template <typename, typename> typename Veq, typename... Vs,
+          typename T,
           std::enable_if_t<detail::CanVeq<Veq, T, Vs...>::value, bool> = true>
 constexpr bool variantEq(const std::variant<Vs...>& vs, const T& t) noexcept
 {
@@ -83,8 +82,8 @@ constexpr bool variantEq(const std::variant<Vs...>& vs, const T& t) noexcept
         vs);
 }
 
-template <template <typename, typename, typename = void> typename Veq,
-          typename... Vs, typename... Vs2>
+template <template <typename, typename> typename Veq, typename... Vs,
+          typename... Vs2>
 constexpr bool variantEq(const std::variant<Vs...>& vs,
                          const std::variant<Vs2...>& vs2) noexcept
 {
