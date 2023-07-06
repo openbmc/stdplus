@@ -2,6 +2,7 @@ stdplus_headers = [include_directories('.')]
 
 install_headers(
   'stdplus/cancel.hpp',
+  'stdplus/concepts.hpp',
   'stdplus/exception.hpp',
   'stdplus/flags.hpp',
   'stdplus/handle/copyable.hpp',
