@@ -1,6 +1,8 @@
 #pragma once
 #include <fmt/format.h>
 
+#include <stdplus/concepts.hpp>
+
 #include <algorithm>
 #include <span>
 #include <stdexcept>
@@ -30,7 +32,7 @@ using sizeType =
 /** @brief Determines if the container holds trivially copyable data
  */
 template <typename Container>
-inline constexpr bool trivialContainer =
+inline constexpr bool containsTrivial =
     std::is_trivially_copyable_v<dataType<Container>>;
 
 /** @brief Adds const to A if B is const
@@ -46,6 +48,11 @@ inline constexpr bool hasData = false;
 template <typename T>
 inline constexpr bool hasData<T, std::void_t<dataType<T>, sizeType<T>>> = true;
 
+template <typename T>
+concept ContainsTrivial = hasData<T> && containsTrivial<T>;
+template <typename T>
+concept NotContainerTrivial = !hasData<T> && TriviallyCopyable<T>;
+
 } // namespace detail
 
 /** @brief Compares two containers to see if their raw bytes are equal
@@ -54,11 +61,9 @@ inline constexpr bool hasData<T, std::void_t<dataType<T>, sizeType<T>>> = true;
  *  @param[in] b - The second container
  *  @return True if they are the same, false otherwise
  */
-template <typename A, typename B>
+template <TriviallyCopyable A, TriviallyCopyable B>
 constexpr bool equal(const A& a, const B& b) noexcept
 {
-    static_assert(std::is_trivially_copyable_v<A>);
-    static_assert(std::is_trivially_copyable_v<B>);
     static_assert(sizeof(A) == sizeof(B));
     const auto a_byte = reinterpret_cast<const std::byte*>(&a);
     const auto b_byte = reinterpret_cast<const std::byte*>(&b);
@@ -71,11 +76,9 @@ constexpr bool equal(const A& a, const B& b) noexcept
  *  @return The copyable type with data populated
  */
 #define STDPLUS_COPY_FROM(func, comp)                                          \
-    template <typename T, typename Container>                                  \
+    template <TriviallyCopyable T, detail::ContainsTrivial Container>          \
     constexpr T func(const Container& c)                                       \
     {                                                                          \
-        static_assert(std::is_trivially_copyable_v<T>);                        \
-        static_assert(detail::trivialContainer<Container>);                    \
         T ret;                                                                 \
         const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
         if (bytes comp sizeof(ret))                                            \
@@ -105,13 +108,11 @@ struct UnAligned
  *  @return The reference to the data in the new type
  */
 #define STDPLUS_REF_FROM(func, comp)                                           \
-    template <typename T, typename A = stdplus::raw::UnAligned,                \
-              typename Container,                                              \
+    template <TriviallyCopyable T, typename A = stdplus::raw::UnAligned,       \
+              detail::ContainsTrivial Container,                               \
               typename Tp = detail::copyConst<T, detail::dataType<Container>>> \
     constexpr Tp& func(Container&& c)                                          \
     {                                                                          \
-        static_assert(std::is_trivially_copyable_v<Tp>);                       \
-        static_assert(detail::trivialContainer<Container>);                    \
         static_assert(std::is_same_v<A, Aligned> ||                            \
                       sizeof(*std::data(c)) % alignof(Tp) == 0);               \
         const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
@@ -140,8 +141,7 @@ constexpr T extract(std::basic_string_view<CharT>& data)
     data.remove_prefix(sizeof(T) / sizeof(CharT));
     return ret;
 }
-template <typename T, typename IntT,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>>
+template <typename T, TriviallyCopyable IntT>
 constexpr T extract(std::span<IntT>& data)
 {
     T ret = copyFrom<T>(data);
@@ -164,9 +164,8 @@ constexpr const T& extractRef(std::basic_string_view<CharT>& data)
     data.remove_prefix(sizeof(T) / sizeof(CharT));
     return ret;
 }
-template <typename T, typename A = stdplus::raw::UnAligned, typename IntT,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
-          typename Tp = detail::copyConst<T, IntT>>
+template <typename T, typename A = stdplus::raw::UnAligned,
+          TriviallyCopyable IntT, typename Tp = detail::copyConst<T, IntT>>
 constexpr Tp& extractRef(std::span<IntT>& data)
 {
     Tp& ret = refFrom<Tp, A>(data);
@@ -181,43 +180,32 @@ constexpr Tp& extractRef(std::span<IntT>& data)
  *  @param[in] t - The trivial raw data
  *  @return A view over the input with the given output integral type
  */
-template <typename CharT, typename T>
-constexpr std::enable_if_t<!detail::hasData<T>, std::basic_string_view<CharT>>
-    asView(const T& t) noexcept
+template <typename CharT, detail::NotContainerTrivial T>
+constexpr std::basic_string_view<CharT> asView(const T& t) noexcept
 {
-    static_assert(std::is_trivially_copyable_v<T>);
     static_assert(sizeof(T) % sizeof(CharT) == 0);
     return {reinterpret_cast<const CharT*>(&t), sizeof(T) / sizeof(CharT)};
 }
 
-template <typename CharT, typename Container>
-constexpr std::enable_if_t<detail::hasData<Container>,
-                           std::basic_string_view<CharT>>
-    asView(const Container& c) noexcept
+template <typename CharT, detail::ContainsTrivial Container>
+constexpr std::basic_string_view<CharT> asView(const Container& c) noexcept
 {
-    static_assert(detail::trivialContainer<Container>);
     static_assert(sizeof(*std::data(c)) % sizeof(CharT) == 0);
     return {reinterpret_cast<const CharT*>(std::data(c)),
             std::size(c) * sizeof(*std::data(c)) / sizeof(CharT)};
 }
 
-template <typename IntT, typename T,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
-          typename = std::enable_if_t<!detail::hasData<T>>,
+template <TriviallyCopyable IntT, detail::NotContainerTrivial T,
           typename IntTp = detail::copyConst<IntT, T>>
 constexpr std::span<IntTp> asSpan(T& t) noexcept
 {
-    static_assert(std::is_trivially_copyable_v<T>);
     static_assert(sizeof(T) % sizeof(IntTp) == 0);
     return {reinterpret_cast<IntTp*>(&t), sizeof(T) / sizeof(IntTp)};
 }
-template <typename IntT, typename Container,
-          typename = std::enable_if_t<std::is_trivially_copyable_v<IntT>>,
-          typename = std::enable_if_t<detail::hasData<Container>>,
+template <TriviallyCopyable IntT, detail::ContainsTrivial Container,
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
 constexpr std::span<IntTp> asSpan(Container&& c) noexcept
 {
-    static_assert(detail::trivialContainer<Container>);
     static_assert(sizeof(*std::data(c)) % sizeof(IntTp) == 0);
     return {reinterpret_cast<IntTp*>(std::data(c)),
             std::size(c) * sizeof(*std::data(c)) / sizeof(IntTp)};
