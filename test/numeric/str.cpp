@@ -36,6 +36,8 @@ TEST(IntToStr, Uint16_10)
     static_assert(enc.buf_size == 6);
     char buf[enc.buf_size];
     EXPECT_EQ("55255", std::string_view(buf, enc(buf, 55255, 3)));
+    ToStrHandle<IntToStr<10, uint16_t>> tsh;
+    EXPECT_EQ("55255", tsh(55255));
 }
 
 TEST(IntToStr, Uint32_10)
@@ -59,6 +61,8 @@ TEST(IntToStr, Uint8_16)
     EXPECT_EQ("00", std::string_view(buf, enc(buf, 0, 2)));
     EXPECT_EQ("02", std::string_view(buf, enc(buf, 2, 2)));
     EXPECT_EQ("ff", std::string_view(buf, enc(buf, 255, 2)));
+    ToStrHandle<IntToStr<16, uint8_t>> tsh;
+    EXPECT_EQ("2a", tsh(0x2a));
 }
 
 TEST(IntToStr, Uint8_8)

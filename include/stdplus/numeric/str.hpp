@@ -234,6 +234,7 @@ constexpr T strToInt(std::basic_string_view<CharT> str)
 template <uint8_t base, std::integral T>
 struct IntToStr
 {
+    using type = T;
     static_assert(base > 1 && base <= detail::maxBase);
 
     static inline constexpr size_t buf_size = []() {
@@ -263,7 +264,6 @@ struct IntToStr
 template <std::integral T>
 struct ToStr<T> : IntToStr<10, T>
 {
-    using type = T;
 };
 
 template <uint8_t base, std::integral T>
