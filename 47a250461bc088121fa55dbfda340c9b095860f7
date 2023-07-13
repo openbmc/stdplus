@@ -34,6 +34,24 @@
       "parentUuid": "624bbd0f_4de22311",
       "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cdeb711_68050f0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2023-07-13T23:45:25Z",
+      "side": 1,
+      "message": "function_view is far better than actually copying lambdas when you never needed to allocate in the first place. I\u0027ll see if I can put together a similar class to replace it.\n\nI shaved 1MB off phosphor-dbus-interfaces simply by doing `std::function` -\u003e `fu2::function_view`",
+      "parentUuid": "7650e71e_27b52018",
+      "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
