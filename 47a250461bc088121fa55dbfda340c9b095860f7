@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "624bbd0f_4de22311",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2023-07-13T23:33:16Z",
+      "side": 1,
+      "message": "This is not true, at least one other project transitively uses this dependency to avoid having their own meson overhead since it was inteded to be used broadly.\n\nc++23 doesn\u0027t have a fu2::function_view analog.",
+      "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
