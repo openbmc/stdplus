@@ -52,6 +52,24 @@
       "parentUuid": "7650e71e_27b52018",
       "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "824192e4_c416023b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2023-07-14T00:34:11Z",
+      "side": 1,
+      "message": "\u003e function_view is far better than actually copying lambdas when you never needed to allocate in the first place. \n\n\u003e I shaved 1MB off phosphor-dbus-interfaces simply by doing std::function -\u003e fu2::function_view\n\nWas this recent?  Ed has told me he\u0027s seen a lot of optimization in newer compilers such that the difference between lambdas and std::function is pretty much non-existent.\n\nMaybe this isn\u0027t what you\u0027re referring to.  The std::function I see in the generated bindings is this one.  I tried to change it to a reference and it results in no change in the compiled size.\n\nhttps://gist.github.com/williamspatrick/c469f7ddfbb1a296c4e2998a70e096d1\n\n\u003e I\u0027ll see if I can put together a similar class to replace it.\n\nSince nobody is currently using it, is that really necessary?  There\u0027s probably easier ways to save 1 or 2 MB...",
+      "parentUuid": "8cdeb711_68050f0c",
+      "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
