@@ -70,6 +70,24 @@
       "parentUuid": "8cdeb711_68050f0c",
       "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7216a913_5068065a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2023-07-14T00:40:24Z",
+      "side": 1,
+      "message": "Yes, I just tested it today. Changing it to a reference doesn\u0027t do anything because it still has to generate all of the std::function code for each signature. The function_view code is significantly more minimal.",
+      "parentUuid": "824192e4_c416023b",
+      "revId": "47a250461bc088121fa55dbfda340c9b095860f7",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
