@@ -5,6 +5,7 @@ install_headers(
   'stdplus/concepts.hpp',
   'stdplus/exception.hpp',
   'stdplus/flags.hpp',
+  'stdplus/function_view.hpp',
   'stdplus/handle/copyable.hpp',
   'stdplus/handle/managed.hpp',
   'stdplus/hash.hpp',
