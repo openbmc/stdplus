@@ -1,6 +1,7 @@
 gtests = {
   'cancel': [stdplus_dep, gtest_main_dep],
   'exception': [stdplus_dep, gtest_main_dep],
+  'function_view': [stdplus_dep, gtest_main_dep],
   'handle/copyable': [stdplus_dep, gtest_main_dep],
   'handle/managed': [stdplus_dep, gtest_main_dep],
   'hash': [stdplus_dep, gtest_main_dep],

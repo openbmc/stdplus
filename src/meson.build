@@ -45,6 +45,7 @@ stdplus_srcs = [
   'cancel.cpp',
   'exception.cpp',
   'flags.cpp',
+  'function_view.cpp',
   'handle/copyable.cpp',
   'handle/managed.cpp',
   'hash.cpp',
