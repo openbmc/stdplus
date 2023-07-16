@@ -88,6 +88,9 @@ struct function_view_base
   protected:
     void *fun, *obj;
 
+    inline function_view_base() : fun(nullptr), obj(nullptr){};
+    inline function_view_base(std::nullptr_t) : function_view_base(){};
+
     template <bool Nx2>
     inline function_view_base(R (*f)(Args...) noexcept(Nx2)) noexcept :
         fun(reinterpret_cast<void*>(f)), obj(nullptr)
@@ -125,6 +128,11 @@ struct function_view_base
         p = fun;
         return (reinterpret_cast<erasure*>(obj)->*m)(
             std::forward<Args>(args)...);
+    }
+
+    inline explicit operator bool() const noexcept
+    {
+        return fun != nullptr;
     }
 };
 
