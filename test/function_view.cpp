@@ -41,6 +41,7 @@ struct FuncyPriv : private Funcy
 TEST(FunctionView, Ptr)
 {
     function_view<int(int, int)> fv = add;
+    EXPECT_TRUE(fv);
     EXPECT_EQ(3, fv(1, 2));
     EXPECT_EQ(14, fv(5, 9));
     fv = mul;
@@ -48,6 +49,8 @@ TEST(FunctionView, Ptr)
     EXPECT_EQ(0, fv(0, 10));
     function_view fv2 = add;
     EXPECT_EQ(1, fv2(1, 0));
+    fv = nullptr;
+    EXPECT_FALSE(fv);
 }
 
 TEST(FunctionView, Obj)
