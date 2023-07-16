@@ -66,6 +66,9 @@ struct function_view_base
     static_assert(sizeof(fun) == sizeof(memfun));
     void* obj;
 
+    inline function_view_base() : fun(nullptr), obj(nullptr){};
+    inline function_view_base(std::nullptr_t) : function_view_base(){};
+
     template <bool Nx2>
     constexpr function_view_base(R (*f)(Args...) noexcept(Nx2)) noexcept :
         fun(f), obj(nullptr)
@@ -97,6 +100,11 @@ struct function_view_base
             return fun(std::forward<Args>(args)...);
         }
         return memfun(obj, std::forward<Args>(args)...);
+    }
+
+    inline explicit operator bool() const noexcept
+    {
+        return fun != nullptr;
     }
 };
 
