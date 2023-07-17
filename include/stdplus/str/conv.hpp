@@ -1,6 +1,4 @@
 #pragma once
-#include <fmt/core.h>
-
 #include <stdplus/str/buf.hpp>
 
 #include <array>
@@ -125,9 +123,6 @@ struct ToStrHandle<T, CharT>
 template <typename T, typename CharT>
 struct Format
 {
-  private:
-    fmt::formatter<std::basic_string_view<CharT>> formatter;
-
   public:
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
@@ -136,9 +131,11 @@ struct Format
     }
 
     template <typename FormatContext>
-    auto format(auto v, FormatContext& ctx) const
+    constexpr auto format(auto v, FormatContext& ctx) const
     {
-        return formatter.format(ToStrHandle<T, CharT>{}(v), ctx);
+        auto h = ToStrHandle<T, CharT>{};
+        auto sv = h(v);
+        return std::copy(sv.begin(), sv.end(), ctx.out());
     }
 };
 

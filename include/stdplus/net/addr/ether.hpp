@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/core.h>
 #include <net/ethernet.h>
 
 #include <stdplus/hash.hpp>
