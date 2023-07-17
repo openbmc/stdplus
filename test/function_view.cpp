@@ -1,4 +1,3 @@
-#include <function2/function2.hpp>
 #include <stdplus/function_view.hpp>
 
 #include <functional>
@@ -112,11 +111,11 @@ TEST(FunctionView, StdFunction)
     }
     EXPECT_EQ(6, fv(3, 3));
 
-    fu2::unique_function<int(int, int) const noexcept> mulf = mul;
+    std::move_only_function<int(int, int) const noexcept> mulf = mul;
     function_view<int(int, int) const> fv2 = mulf;
     EXPECT_EQ(2, fv2(1, 2));
 
-    fu2::unique_function<int(int)> mulfa = [old = 1](auto a) mutable {
+    std::move_only_function<int(int)> mulfa = [old = 1](auto a) mutable {
         return old *= a;
     };
     function_view<int(int)> fva = mulfa;
