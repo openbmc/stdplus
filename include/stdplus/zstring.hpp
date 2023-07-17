@@ -249,6 +249,25 @@ zstring_all(wchar_t, w);
 
 namespace fmt
 {
+template <typename CharT, typename Traits>
+struct formatter<stdplus::basic_zstring<CharT, Traits>,
+                 std::remove_const_t<CharT>> :
+    formatter<const CharT*, std::remove_const_t<CharT>>
+{
+    template <typename FormatContext>
+    inline auto format(stdplus::basic_zstring<CharT, Traits> str,
+                       FormatContext& ctx) const
+    {
+        return formatter<const CharT*, std::remove_const_t<CharT>>::format(
+            str.c_str(), ctx);
+    }
+};
+} // namespace fmt
+
+namespace std
+{
+template <typename T, typename CharT>
+struct formatter;
 
 template <typename CharT, typename Traits>
 struct formatter<stdplus::basic_zstring<CharT, Traits>,
@@ -263,5 +282,4 @@ struct formatter<stdplus::basic_zstring<CharT, Traits>,
             str.c_str(), ctx);
     }
 };
-
-} // namespace fmt
+} // namespace std
