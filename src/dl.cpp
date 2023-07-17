@@ -1,7 +1,8 @@
 #include <dlfcn.h>
-#include <fmt/format.h>
 
 #include <stdplus/dl.hpp>
+
+#include <format>
 
 namespace stdplus
 {
@@ -30,7 +31,7 @@ void* Dl::open(const char* file, int flags)
     void* ret = ::dlopen(file, flags);
     if (ret == nullptr)
     {
-        throw std::runtime_error(fmt::format(
+        throw std::runtime_error(std::format(
             "dlopen `{}`: {}", file ? file : "<nullptr>", dlerror()));
     }
     return ret;

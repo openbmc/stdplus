@@ -1,5 +1,5 @@
-#include <fmt/format.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <stdplus/fd/atomic.hpp>
 #include <stdplus/fd/managed.hpp>
@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <format>
 #include <system_error>
 #include <utility>
 
@@ -19,7 +20,7 @@ static std::string makeTmpName(const std::filesystem::path& filename)
 {
     auto name = filename.filename();
     auto path = filename.parent_path() /
-                fmt::format(".{}.XXXXXX", name.native());
+                std::format(".{}.XXXXXX", name.native());
     return path.native();
 }
 
@@ -30,7 +31,7 @@ static int mktemp(std::string& tmpl)
     umask(old);
     return CHECK_ERRNO(fd, [&](int error) {
         throw std::system_error(error, std::generic_category(),
-                                fmt::format("mkstemp({})", tmpl));
+                                std::format("mkstemp({})", tmpl));
     });
 }
 

@@ -1,7 +1,6 @@
-#include <fmt/format.h>
-
 #include <stdplus/net/addr/subnet.hpp>
 
+#include <format>
 #include <stdexcept>
 
 namespace stdplus
@@ -12,7 +11,7 @@ namespace detail
 
 void invalidSubnetPfx(std::size_t pfx)
 {
-    throw std::invalid_argument(fmt::format("Invalid subnet prefix {}", pfx));
+    throw std::invalid_argument(std::format("Invalid subnet prefix {}", pfx));
 }
 
 template class Subnet46<In4Addr, uint8_t>;

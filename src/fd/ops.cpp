@@ -1,8 +1,7 @@
-#include <fmt/format.h>
-
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/ops.hpp>
 
+#include <format>
 #include <utility>
 
 namespace stdplus
@@ -22,7 +21,7 @@ static void opExact(const char* name, Fun&& fun, Fd& fd, std::span<Byte> data,
         if (ret.size() == 0)
         {
             throw exception::WouldBlock(
-                fmt::format("{} missing {}B", name, data.size()));
+                std::format("{} missing {}B", name, data.size()));
         }
         data = data.subspan(ret.size());
     }
@@ -61,7 +60,7 @@ static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
         if (ret.size() != 0 && r.size() == 0)
         {
             throw exception::WouldBlock(
-                fmt::format("{} is {}B/{}B", name, ret.size() % align, align));
+                std::format("{} is {}B/{}B", name, ret.size() % align, align));
         }
         ret = data.subspan(0, ret.size() + r.size());
     } while (ret.size() % align != 0);

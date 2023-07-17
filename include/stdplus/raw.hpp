@@ -1,9 +1,8 @@
 #pragma once
-#include <fmt/format.h>
-
 #include <stdplus/concepts.hpp>
 
 #include <algorithm>
+#include <format>
 #include <span>
 #include <stdexcept>
 #include <string_view>
@@ -84,7 +83,7 @@ constexpr bool equal(const A& a, const B& b) noexcept
         if (bytes comp sizeof(ret))                                            \
         {                                                                      \
             throw std::runtime_error(                                          \
-                fmt::format(#func ": {} < {}", bytes, sizeof(ret)));           \
+                std::format(#func ": {} < {}", bytes, sizeof(ret)));           \
         }                                                                      \
         const auto c_bytes = reinterpret_cast<const std::byte*>(std::data(c)); \
         const auto ret_bytes = reinterpret_cast<std::byte*>(&ret);             \
@@ -119,7 +118,7 @@ struct UnAligned
         if (bytes comp sizeof(Tp))                                             \
         {                                                                      \
             throw std::runtime_error(                                          \
-                fmt::format(#func ": {} < {}", bytes, sizeof(Tp)));            \
+                std::format(#func ": {} < {}", bytes, sizeof(Tp)));            \
         }                                                                      \
         return *reinterpret_cast<Tp*>(std::data(c));                           \
     }

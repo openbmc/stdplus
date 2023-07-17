@@ -3,6 +3,7 @@
 #include <stdplus/gtest/tmp.hpp>
 
 #include <filesystem>
+#include <format>
 #include <memory>
 #include <string_view>
 
@@ -19,7 +20,7 @@ class AtomicWriterTest : public gtest::TestWithTmp
     std::string filename;
     std::unique_ptr<AtomicWriter> file;
 
-    AtomicWriterTest() : filename(fmt::format("{}/out", CaseTmpDir())) {}
+    AtomicWriterTest() : filename(std::format("{}/out", CaseTmpDir())) {}
 
     ~AtomicWriterTest() noexcept
     {
@@ -45,7 +46,7 @@ TEST_F(AtomicWriterTest, NoCommit)
 
 TEST_F(AtomicWriterTest, BadCommit)
 {
-    auto tmp = fmt::format("{}/tmp.XXXXXX", CaseTmpDir());
+    auto tmp = std::format("{}/tmp.XXXXXX", CaseTmpDir());
     ASSERT_NO_THROW(
         file = std::make_unique<AtomicWriter>("/dev/null", 0644, tmp));
     writeExact(*file, "hi\n"sv);
