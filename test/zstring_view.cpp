@@ -2,6 +2,7 @@
 
 #include <stdplus/zstring_view.hpp>
 
+#include <format>
 #include <iostream>
 #include <set>
 #include <string>
@@ -57,6 +58,7 @@ TEST(ZstringView, Basic)
 
     std::cerr << s1;
     EXPECT_EQ("bac", fmt::format("b{}", s1));
+    EXPECT_EQ("bac", std::format("b{}", s1));
 
     std::unordered_set<zstring_view> uset{s1, s2};
     EXPECT_EQ(1, uset.count("ac"));

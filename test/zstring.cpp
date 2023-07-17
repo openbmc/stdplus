@@ -2,6 +2,7 @@
 
 #include <stdplus/zstring.hpp>
 
+#include <format>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -39,6 +40,8 @@ TEST(Zstring, Construct)
     std::cerr << const_zstring(as);
     EXPECT_EQ("dd", fmt::format("d{}", zs));
     EXPECT_EQ("dc", fmt::format("d{}", const_zstring(as)));
+    EXPECT_EQ("dd", std::format("d{}", zs));
+    EXPECT_EQ("dc", std::format("d{}", const_zstring(as)));
 
     auto from_str = [&](const_zstring cs) { EXPECT_EQ(cs, "ac"); };
     from_str("ac"s);
