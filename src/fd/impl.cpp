@@ -1,5 +1,4 @@
 #include <fcntl.h>
-#include <fmt/format.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -8,6 +7,7 @@
 #include <stdplus/fd/impl.hpp>
 #include <stdplus/util/cexec.hpp>
 
+#include <format>
 #include <string_view>
 
 namespace stdplus
@@ -102,12 +102,12 @@ static std::string_view whenceStr(Whence whence)
 size_t FdImpl::lseek(off_t offset, Whence whence)
 {
     return CHECK_ERRNO(::lseek(get(), offset, static_cast<int>(whence)),
-                       fmt::format("lseek {}B {}", offset, whenceStr(whence)));
+                       std::format("lseek {}B {}", offset, whenceStr(whence)));
 }
 
 void FdImpl::truncate(off_t size)
 {
-    CHECK_ERRNO(::ftruncate(get(), size), fmt::format("ftruncate {}B", size));
+    CHECK_ERRNO(::ftruncate(get(), size), std::format("ftruncate {}B", size));
 }
 
 void FdImpl::bind(std::span<const std::byte> sockaddr)
@@ -156,7 +156,7 @@ int FdImpl::ioctl(unsigned long id, void* data)
 int FdImpl::constIoctl(unsigned long id, void* data) const
 {
     return CHECK_ERRNO(::ioctl(get(), id, data),
-                       fmt::format("ioctl {:#x}", id));
+                       std::format("ioctl {:#x}", id));
 }
 
 void FdImpl::fcntlSetfd(FdFlags flags)

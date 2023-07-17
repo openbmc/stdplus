@@ -1,9 +1,10 @@
 #include <fcntl.h>
-#include <fmt/format.h>
 #include <sys/socket.h>
 
 #include <stdplus/fd/create.hpp>
 #include <stdplus/util/cexec.hpp>
+
+#include <format>
 
 namespace stdplus
 {
@@ -14,7 +15,7 @@ DupableFd open(const char* pathname, OpenFlags flags, mode_t mode)
 {
     return DupableFd(
         CHECK_ERRNO(::open(pathname, static_cast<int>(flags), mode),
-                    fmt::format("open `{}`", pathname)));
+                    std::format("open `{}`", pathname)));
 }
 
 DupableFd socket(SocketDomain domain, SocketType type, SocketProto protocol)

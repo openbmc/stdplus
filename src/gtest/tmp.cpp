@@ -1,8 +1,7 @@
-#include <fmt/format.h>
-
 #include <stdplus/gtest/tmp.hpp>
 
 #include <filesystem>
+#include <format>
 
 namespace stdplus
 {
@@ -10,7 +9,7 @@ namespace gtest
 {
 
 TestWithTmp::TestWithTmp() :
-    casedir(fmt::format(
+    casedir(std::format(
         "{}/{}", SuiteTmpDir(),
         ::testing::UnitTest::GetInstance()->current_test_info()->name()))
 {
@@ -39,7 +38,7 @@ std::string TestWithTmp::SuiteTmpDir()
     {
         dir = "/tmp";
     }
-    return fmt::format(
+    return std::format(
         "{}/{}-{}", dir,
         ::testing::UnitTest::GetInstance()->current_test_suite()->name(),
         getpid());
