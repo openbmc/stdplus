@@ -117,3 +117,14 @@ template <typename CharT>
 struct fmt::formatter<stdplus::EtherAddr, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::EtherAddr>, CharT>
 {};
+
+namespace std
+{
+template <typename T, typename CharT>
+struct formatter;
+
+template <typename CharT>
+struct formatter<stdplus::EtherAddr, CharT> :
+    stdplus::Format<stdplus::ToStr<stdplus::EtherAddr>, CharT>
+{};
+} // namespace std
