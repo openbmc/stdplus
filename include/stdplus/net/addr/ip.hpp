@@ -602,3 +602,13 @@ template <stdplus::InAddr Addr, typename CharT>
 struct fmt::formatter<Addr, CharT> :
     stdplus::Format<stdplus::ToStr<Addr>, CharT>
 {};
+
+namespace std
+{
+template <typename T, typename CharT>
+struct formatter;
+
+template <stdplus::InAddr Addr, typename CharT>
+struct formatter<Addr, CharT> : stdplus::Format<stdplus::ToStr<Addr>, CharT>
+{};
+} // namespace std

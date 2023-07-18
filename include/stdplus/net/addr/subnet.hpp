@@ -365,3 +365,13 @@ struct std::hash<Sub>
         return stdplus::hashMulti(addr.getAddr(), addr.getPfx());
     }
 };
+
+namespace std
+{
+template <typename T, typename CharT>
+struct formatter;
+
+template <stdplus::Subnet Sub, typename CharT>
+struct formatter<Sub, CharT> : stdplus::Format<stdplus::ToStr<Sub>, CharT>
+{};
+} // namespace std
