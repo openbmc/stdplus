@@ -33,7 +33,7 @@ TEST(FormatBuffer, Basic)
         buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
 
-        buf.append(FMT_STRING("hi\n"));
+        buf.append("hi\n");
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
     }
     EXPECT_EQ(4109, fd.lseek(0, Whence::Cur));

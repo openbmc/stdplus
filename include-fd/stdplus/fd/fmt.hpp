@@ -1,20 +1,19 @@
 #pragma once
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <stdplus/fd/intf.hpp>
+#include <stdplus/str/buf.hpp>
 
+#include <format>
 #include <functional>
 #include <type_traits>
 #include <utility>
 
-namespace fmt
-{
-namespace detail
+namespace fmt::detail
 {
 template <typename T>
 struct is_compiled_string;
-}
-} // namespace fmt
+} // namespace fmt::detail
 
 namespace stdplus
 {
@@ -32,9 +31,9 @@ class FormatBuffer
     FormatBuffer& operator=(FormatBuffer&&) = default;
 
     template <typename... Args>
-    inline void append(fmt::format_string<Args...> fmt, Args&&... args)
+    inline void append(std::format_string<Args...> fmt, Args&&... args)
     {
-        fmt::format_to(std::back_inserter(buf), fmt,
+        std::format_to(std::back_inserter(buf), fmt,
                        std::forward<Args>(args)...);
         writeIfNeeded();
     }
@@ -52,7 +51,7 @@ class FormatBuffer
 
   private:
     std::reference_wrapper<Fd> fd;
-    fmt::memory_buffer buf;
+    stdplus::StrBuf buf;
     size_t max;
 
     void writeIfNeeded();
