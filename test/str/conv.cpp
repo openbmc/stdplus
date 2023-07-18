@@ -103,7 +103,7 @@ TEST(ToStrAdapter, Static)
     StrBuf buf;
     ToStrAdap<ToStr<TestValS>>{}(buf, TestValS{});
     EXPECT_EQ("test", buf);
-    buf.reset();
+    buf.clear();
     auto ptr = buf.append(4);
     EXPECT_EQ(4, ToStrAdap<ToStr<TestValS>>{}(ptr, TestValS{}) - ptr);
     EXPECT_EQ("test", std::string_view(ptr, 4));
