@@ -328,6 +328,11 @@ class BasicStrBuf
         return as.store.dyn.ptr + oldlen;
     }
 
+    constexpr void push_back(CharT c) noexcept
+    {
+        *append(1) = c;
+    }
+
     constexpr void shrink(std::size_t amt) noexcept
     {
         if (as.isDyn())
@@ -340,7 +345,7 @@ class BasicStrBuf
         }
     }
 
-    constexpr void reset() noexcept
+    constexpr void clear() noexcept
     {
         if (as.isDyn())
         {
@@ -352,14 +357,24 @@ class BasicStrBuf
         }
     }
 
-    constexpr CharT* begin() noexcept
+    constexpr CharT* data() noexcept
     {
         return as.isDyn() ? as.store.dyn.ptr : as.store.inl.ptr;
     }
 
-    constexpr const CharT* begin() const noexcept
+    constexpr const CharT* data() const noexcept
     {
         return as.isDyn() ? as.store.dyn.ptr : as.store.inl.ptr;
+    }
+
+    constexpr CharT* begin() noexcept
+    {
+        return data();
+    }
+
+    constexpr const CharT* begin() const noexcept
+    {
+        return data();
     }
 
     constexpr CharT* end() noexcept

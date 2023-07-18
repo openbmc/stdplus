@@ -26,7 +26,7 @@ TEST(StrBuf, BasicInline)
     auto old_ptr = buf.begin();
 
     // Ensure that we inline small amounts of data only
-    std::copy(data.begin(), data.begin() + 4, buf.append(4));
+    std::copy(data.begin(), data.begin() + 4, std::back_inserter(buf));
     EXPECT_EQ(buf.begin(), old_ptr);
     EXPECT_EQ(buf.size(), 4);
     EXPECT_EQ(std::string_view(data).substr(0, 4), buf);
@@ -152,7 +152,7 @@ TEST(StrBuf, CopyDynToInl)
 {
     StrBuf buf1;
     buf1.append(data.size());
-    buf1.reset();
+    buf1.clear();
     buf1.append(1)[0] = 'a';
     StrBuf buf2 = buf1;
     StrBuf buf3;

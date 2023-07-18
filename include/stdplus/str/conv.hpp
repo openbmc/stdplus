@@ -85,7 +85,7 @@ struct ToStrHandle
   public:
     constexpr std::basic_string_view<CharT> operator()(const T::type& v)
     {
-        buf.reset();
+        buf.clear();
         T{}(buf, v);
         return buf;
     }
