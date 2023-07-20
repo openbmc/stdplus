@@ -1,5 +1,3 @@
-#include <fmt/format.h>
-
 #include <stdplus/net/addr/subnet.hpp>
 
 #include <format>
@@ -74,8 +72,6 @@ TEST(Subnet4, ToStr)
     EXPECT_EQ("0.0.0.0/16", tsh(Subnet4({}, 16)));
     EXPECT_EQ("255.0.255.255/28", tsh(Subnet4(In4Addr{255, 0, 255, 255}, 28)));
     EXPECT_EQ("a 1.2.3.4/32 b",
-              fmt::format("a {} b", Subnet4(In4Addr{1, 2, 3, 4}, 32)));
-    EXPECT_EQ("a 1.2.3.4/32 b",
               std::format("a {} b", Subnet4(In4Addr{1, 2, 3, 4}, 32)));
 }
 
@@ -147,8 +143,6 @@ TEST(Subnet6, ToStr)
     ToStrHandle<ToStr<Subnet6>> tsh;
     EXPECT_EQ("::/0", tsh(Subnet6({}, 0)));
     EXPECT_EQ("ff00::/128", tsh(Subnet6(In6Addr{0xff}, 128)));
-    EXPECT_EQ("a 102:304::/32 b",
-              fmt::format("a {} b", Subnet6(In6Addr{1, 2, 3, 4}, 32)));
     EXPECT_EQ("a 102:304::/32 b",
               std::format("a {} b", Subnet6(In6Addr{1, 2, 3, 4}, 32)));
 }
@@ -228,11 +222,7 @@ TEST(SubnetAny, ToStr)
     EXPECT_EQ("0.0.0.0/16", tsh(SubnetAny(In4Addr{}, 16)));
     EXPECT_EQ("ff00::/128", tsh(SubnetAny(In6Addr{0xff}, 128)));
     EXPECT_EQ("a 102:304::/32 b",
-              fmt::format("a {} b", SubnetAny(In6Addr{1, 2, 3, 4}, 32)));
-    EXPECT_EQ("a 102:304::/32 b",
               std::format("a {} b", SubnetAny(In6Addr{1, 2, 3, 4}, 32)));
-    EXPECT_EQ("a 1.2.3.4/32 b",
-              fmt::format("a {} b", SubnetAny(In4Addr{1, 2, 3, 4}, 32)));
     EXPECT_EQ("a 1.2.3.4/32 b",
               std::format("a {} b", SubnetAny(In4Addr{1, 2, 3, 4}, 32)));
 }

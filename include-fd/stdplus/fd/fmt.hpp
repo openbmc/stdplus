@@ -1,6 +1,4 @@
 #pragma once
-#include <fmt/core.h>
-
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/str/buf.hpp>
 
@@ -8,12 +6,6 @@
 #include <functional>
 #include <type_traits>
 #include <utility>
-
-namespace fmt::detail
-{
-template <typename T>
-struct is_compiled_string;
-} // namespace fmt::detail
 
 namespace stdplus
 {
@@ -35,15 +27,6 @@ class FormatBuffer
     {
         std::format_to(std::back_inserter(buf), fmt,
                        std::forward<Args>(args)...);
-        writeIfNeeded();
-    }
-
-    template <typename T, typename... Args,
-              std::enable_if_t<fmt::detail::is_compiled_string<T>::value,
-                               bool> = true>
-    inline void append(const T& t, Args&&... args)
-    {
-        fmt::format_to(std::back_inserter(buf), t, std::forward<Args>(args)...);
         writeIfNeeded();
     }
 

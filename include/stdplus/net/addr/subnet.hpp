@@ -1,5 +1,3 @@
-#include <fmt/core.h>
-
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
 #include <stdplus/numeric/str.hpp>
@@ -352,10 +350,6 @@ constexpr auto operator"" _sub() noexcept
 
 } // namespace subnet_literals
 } // namespace stdplus
-
-template <stdplus::Subnet Sub, typename CharT>
-struct fmt::formatter<Sub, CharT> : stdplus::Format<stdplus::ToStr<Sub>, CharT>
-{};
 
 template <stdplus::Subnet Sub>
 struct std::hash<Sub>

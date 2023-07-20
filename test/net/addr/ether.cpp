@@ -1,5 +1,3 @@
-#include <fmt/format.h>
-
 #include <stdplus/net/addr/ether.hpp>
 
 #include <format>
@@ -43,9 +41,6 @@ TEST(ToStr, EthAddr)
               tsh(EtherAddr{0x01, 0x02, 0x03, 0x04, 0x05, 0x67}));
     EXPECT_EQ("00:00:00:00:00:00",
               tsh(ether_addr{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}));
-    EXPECT_EQ(
-        "a 01:02:03:04:05:67 b",
-        fmt::format("a {} b", EtherAddr{0x01, 0x02, 0x03, 0x04, 0x05, 0x67}));
     EXPECT_EQ(
         "a 01:02:03:04:05:67 b",
         std::format("a {} b", EtherAddr{0x01, 0x02, 0x03, 0x04, 0x05, 0x67}));

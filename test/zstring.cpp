@@ -1,5 +1,3 @@
-#include <fmt/format.h>
-
 #include <stdplus/zstring.hpp>
 
 #include <format>
@@ -38,8 +36,6 @@ TEST(Zstring, Construct)
     EXPECT_EQ(str2, zs);
 
     std::cerr << const_zstring(as);
-    EXPECT_EQ("dd", fmt::format("d{}", zs));
-    EXPECT_EQ("dc", fmt::format("d{}", const_zstring(as)));
     EXPECT_EQ("dd", std::format("d{}", zs));
     EXPECT_EQ("dc", std::format("d{}", const_zstring(as)));
 

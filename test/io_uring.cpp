@@ -1,4 +1,3 @@
-#include <fmt/format.h>
 #include <poll.h>
 #include <sys/utsname.h>
 
@@ -8,6 +7,7 @@
 #include <array>
 #include <charconv>
 #include <chrono>
+#include <format>
 #include <optional>
 #include <string_view>
 
@@ -69,7 +69,7 @@ TEST(KernelInfo, Print)
 {
     utsname uts;
     ASSERT_NO_THROW(CHECK_ERRNO(uname(&uts), "uname"));
-    fmt::print("{} {} {} {} {}", uts.sysname, uts.nodename, uts.release,
+    std::print("{} {} {} {} {}", uts.sysname, uts.nodename, uts.release,
                uts.version, uts.machine);
 }
 

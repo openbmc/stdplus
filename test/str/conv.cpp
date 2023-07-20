@@ -1,8 +1,7 @@
-#include <fmt/format.h>
-
 #include <stdplus/str/conv.hpp>
 
 #include <algorithm>
+#include <format>
 #include <string_view>
 
 #include <gtest/gtest.h>
@@ -81,17 +80,17 @@ static_assert(!detail::ToStrStatic<ToStr<TestValD>>);
 } // namespace stdplus
 
 template <typename CharT>
-struct fmt::formatter<stdplus::TestValS, CharT> :
+struct std::formatter<stdplus::TestValS, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::TestValS>, CharT>
 {};
 
 template <typename CharT>
-struct fmt::formatter<stdplus::TestValF, CharT> :
+struct std::formatter<stdplus::TestValF, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::TestValF>, CharT>
 {};
 
 template <typename CharT>
-struct fmt::formatter<stdplus::TestValD, CharT> :
+struct std::formatter<stdplus::TestValD, CharT> :
     stdplus::Format<stdplus::ToStr<stdplus::TestValD>, CharT>
 {};
 
@@ -135,9 +134,9 @@ TEST(ToStrHandle, Basic)
 
 TEST(Format, Basic)
 {
-    EXPECT_EQ("t test", fmt::format("t {}", TestValS{}));
-    EXPECT_EQ("t test", fmt::format("t {}", TestValF{}));
-    EXPECT_EQ("t test", fmt::format("t {}", TestValD{}));
+    EXPECT_EQ("t test", std::format("t {}", TestValS{}));
+    EXPECT_EQ("t test", std::format("t {}", TestValF{}));
+    EXPECT_EQ("t test", std::format("t {}", TestValD{}));
 }
 
 template <>
