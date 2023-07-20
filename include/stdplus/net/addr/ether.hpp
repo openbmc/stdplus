@@ -1,5 +1,4 @@
 #pragma once
-#include <fmt/core.h>
 #include <net/ethernet.h>
 
 #include <stdplus/hash.hpp>
@@ -112,11 +111,6 @@ struct std::hash<stdplus::EtherAddr>
         return stdplus::hashMulti(addr.ether_addr_octet);
     }
 };
-
-template <typename CharT>
-struct fmt::formatter<stdplus::EtherAddr, CharT> :
-    stdplus::Format<stdplus::ToStr<stdplus::EtherAddr>, CharT>
-{};
 
 namespace std
 {

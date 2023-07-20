@@ -1,5 +1,4 @@
 #pragma once
-#include <fmt/core.h>
 #include <netinet/in.h>
 
 #include <stdplus/hash.hpp>
@@ -597,11 +596,6 @@ struct std::hash<stdplus::InAnyAddr>
         return std::hash<stdplus::detail::InAnyAddrV>{}(a);
     }
 };
-
-template <stdplus::InAddr Addr, typename CharT>
-struct fmt::formatter<Addr, CharT> :
-    stdplus::Format<stdplus::ToStr<Addr>, CharT>
-{};
 
 namespace std
 {

@@ -1,6 +1,4 @@
 #pragma once
-#include <fmt/core.h>
-
 #include <cstddef>
 #include <limits>
 #include <string>
@@ -246,23 +244,6 @@ zstring_all(wchar_t, w);
 #undef zstring_all
 
 } // namespace stdplus
-
-namespace fmt
-{
-template <typename CharT, typename Traits>
-struct formatter<stdplus::basic_zstring<CharT, Traits>,
-                 std::remove_const_t<CharT>> :
-    formatter<const CharT*, std::remove_const_t<CharT>>
-{
-    template <typename FormatContext>
-    inline auto format(stdplus::basic_zstring<CharT, Traits> str,
-                       FormatContext& ctx) const
-    {
-        return formatter<const CharT*, std::remove_const_t<CharT>>::format(
-            str.c_str(), ctx);
-    }
-};
-} // namespace fmt
 
 namespace std
 {

@@ -1,5 +1,3 @@
-#include <fmt/format.h>
-
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
 
@@ -48,7 +46,6 @@ TEST(ToStr, In4Addr)
     EXPECT_EQ("255.255.255.255", tsh(in_addr{0xffffffff}));
     EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
     EXPECT_EQ("0.0.0.0", tsh(In4Addr{}));
-    EXPECT_EQ("a 1.15.3.4 b", fmt::format("a {} b", In4Addr{1, 15, 3, 4}));
     EXPECT_EQ("a 1.15.3.4 b", std::format("a {} b", In4Addr{1, 15, 3, 4}));
 }
 
@@ -158,7 +155,6 @@ TEST(ToStr, In6Addr)
     EXPECT_EQ("::ffff:192.168.0.1", tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                 0xff, 0xff, 192, 168, 0, 1}));
 
-    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", In6Addr{0xff}));
     EXPECT_EQ("a ff00:: b", std::format("a {} b", In6Addr{0xff}));
 }
 
@@ -223,7 +219,6 @@ TEST(ToStr, InAnyAddr)
     EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
     EXPECT_EQ("ff::", tsh(In6Addr{0, 0xff}));
 
-    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", InAnyAddr{In6Addr{0xff}}));
     EXPECT_EQ("a ff00:: b", std::format("a {} b", InAnyAddr{In6Addr{0xff}}));
     EXPECT_NE("0.0.0.0"_ip, std::optional<InAnyAddr>());
     EXPECT_EQ("0.0.0.0"_ip, std::optional<InAnyAddr>(In4Addr{}));

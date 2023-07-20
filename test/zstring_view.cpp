@@ -1,5 +1,3 @@
-#include <fmt/format.h>
-
 #include <stdplus/zstring_view.hpp>
 
 #include <format>
@@ -57,7 +55,6 @@ TEST(ZstringView, Basic)
     EXPECT_LE(sv, s1);
 
     std::cerr << s1;
-    EXPECT_EQ("bac", fmt::format("b{}", s1));
     EXPECT_EQ("bac", std::format("b{}", s1));
 
     std::unordered_set<zstring_view> uset{s1, s2};

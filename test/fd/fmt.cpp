@@ -1,4 +1,3 @@
-#include <fmt/compile.h>
 #include <sys/mman.h>
 
 #include <stdplus/fd/fmt.hpp>
@@ -28,9 +27,9 @@ TEST(FormatBuffer, Basic)
         buf.flush();
 
         EXPECT_EQ(6, fd.lseek(0, Whence::Cur));
-        buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
+        buf.append("{}", std::string(2050, 'a'));
         EXPECT_EQ(6, fd.lseek(0, Whence::Cur));
-        buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
+        buf.append("{}", std::string(2050, 'a'));
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
 
         buf.append("hi\n");

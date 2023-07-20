@@ -1,4 +1,3 @@
-#include <fmt/format.h>
 #include <unistd.h>
 
 #include <stdplus/fd/dupable.hpp>

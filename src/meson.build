@@ -1,20 +1,4 @@
-fmt_dep = dependency('fmt', required: false)
-if not fmt_dep.found()
-  fmt_opts = import('cmake').subproject_options()
-  fmt_opts.add_cmake_defines({
-    'CMAKE_POSITION_INDEPENDENT_CODE': 'ON',
-    'MASTER_PROJECT': 'OFF',
-  })
-  fmt_proj = import('cmake').subproject(
-    'fmt',
-    options: fmt_opts,
-    required: false)
-  assert(fmt_proj.found(), 'fmtlib is required')
-  fmt_dep = fmt_proj.dependency('fmt')
-endif
-
 stdplus_deps = [
-  fmt_dep,
 ]
 
 stdplus_srcs = [
@@ -173,7 +157,6 @@ endif
 
 if has_gtest
   stdplus_gtest_deps = [
-    fmt_dep,
     gtest_dep,
   ]
 
