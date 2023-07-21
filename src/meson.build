@@ -57,6 +57,7 @@ stdplus_srcs = [
   'numeric/endian.cpp',
   'numeric/str.cpp',
   'pinned.cpp',
+  'print.cpp',
   'raw.cpp',
   'signal.cpp',
   'str/buf.cpp',

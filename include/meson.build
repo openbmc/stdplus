@@ -17,6 +17,7 @@ install_headers(
   'stdplus/numeric/endian.hpp',
   'stdplus/numeric/str.hpp',
   'stdplus/pinned.hpp',
+  'stdplus/print.hpp',
   'stdplus/raw.hpp',
   'stdplus/signal.hpp',
   'stdplus/str/buf.hpp',

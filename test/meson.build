@@ -13,6 +13,7 @@ gtests = {
   'numeric/endian': [stdplus_dep, gtest_main_dep],
   'numeric/str': [stdplus_dep, gtest_main_dep],
   'pinned': [stdplus_dep, gtest_main_dep],
+  'print': [stdplus_dep, gtest_main_dep],
   'raw': [stdplus_dep, gmock_dep, gtest_main_dep],
   'signal': [stdplus_dep, gtest_main_dep],
   'str/buf': [stdplus_dep, gtest_main_dep],
