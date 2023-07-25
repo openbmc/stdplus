@@ -1,4 +1,5 @@
 #include <stdplus/str/cat.hpp>
+#include <stdplus/zstring_view.hpp>
 
 #include <string>
 #include <string_view>
@@ -23,7 +24,8 @@ TEST(StrCat, SingleStr)
 
 TEST(StrCat, Multi)
 {
-    EXPECT_EQ("func world test", strCat("func", " world"sv, " test"s));
+    EXPECT_EQ("func world test ff",
+              strCat("func", " world"sv, " test"s, " ff"_zsv));
 }
 
 TEST(StrCat, MoveStr)
