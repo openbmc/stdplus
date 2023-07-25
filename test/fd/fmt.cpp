@@ -22,18 +22,17 @@ TEST(FormatBuffer, Basic)
     auto fd = ManagedFd(CHECK_ERRNO(memfd_create("test", 0), "memfd_create"));
     {
         FormatBuffer buf(fd, 4096);
-        buf.append("hi\n");
-        buf.append("hi\n"sv);
+        buf.appends("hi\n", "hi\n"sv);
         EXPECT_EQ(0, fd.lseek(0, Whence::Cur));
         buf.flush();
 
         EXPECT_EQ(6, fd.lseek(0, Whence::Cur));
         buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
         EXPECT_EQ(6, fd.lseek(0, Whence::Cur));
-        buf.append(FMT_COMPILE("{}"), std::string(2050, 'a'));
+        buf.append("{}", std::string(2050, 'a'));
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
 
-        buf.append("hi\n");
+        buf.appendsv("hi\n");
         EXPECT_EQ(4106, fd.lseek(0, Whence::Cur));
     }
     EXPECT_EQ(4109, fd.lseek(0, Whence::Cur));

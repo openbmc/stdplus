@@ -47,6 +47,18 @@ class FormatBuffer
         writeIfNeeded();
     }
 
+    inline FormatBuffer& appendsv(std::string_view sv)
+    {
+        std::copy(sv.begin(), sv.end(), buf.append(sv.size()));
+        writeIfNeeded();
+        return *this;
+    }
+
+    inline void appends(const auto&... s)
+    {
+        (appendsv(s), ...);
+    }
+
     void flush();
 
   private:
