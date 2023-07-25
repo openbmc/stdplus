@@ -5,6 +5,10 @@
 
 namespace stdplus
 {
+
+template <typename CharT, std::size_t ObjSize, typename Alloc>
+class BasicStrBuf;
+
 namespace detail
 {
 
@@ -14,6 +18,14 @@ constexpr void strAppend(std::basic_string<CharT, Traits, Alloc>& dst,
 {
     dst.reserve((dst.size() + ... + strs.size()));
     (dst.append(strs), ...);
+}
+template <typename CharT, std::size_t ObjSize, typename Alloc,
+          typename... CharTs>
+constexpr void strAppend(stdplus::BasicStrBuf<CharT, ObjSize, Alloc>& dst,
+                         std::basic_string_view<CharTs>... strs)
+{
+    [[maybe_unused]] auto out = dst.append((strs.size() + ... + 0));
+    ((out = std::copy(strs.begin(), strs.end(), out)), ...);
 }
 
 } // namespace detail
