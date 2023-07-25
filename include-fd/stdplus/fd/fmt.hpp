@@ -3,6 +3,7 @@
 
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/str/buf.hpp>
+#include <stdplus/str/cat.hpp>
 
 #include <format>
 #include <functional>
@@ -44,6 +45,12 @@ class FormatBuffer
     inline void append(const T& t, Args&&... args)
     {
         fmt::format_to(std::back_inserter(buf), t, std::forward<Args>(args)...);
+        writeIfNeeded();
+    }
+
+    inline void appends(const auto&... s)
+    {
+        strAppend(buf, s...);
         writeIfNeeded();
     }
 
