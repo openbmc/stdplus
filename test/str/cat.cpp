@@ -1,3 +1,4 @@
+#include <stdplus/str/buf.hpp>
 #include <stdplus/str/cat.hpp>
 
 #include <string>
@@ -30,6 +31,15 @@ TEST(StrCat, MoveStr)
 {
     EXPECT_EQ("func", strCat("func"s));
     EXPECT_EQ("func world", strCat("func"s, " world"));
+}
+
+TEST(StrAppend, Buf)
+{
+    StrBuf buf;
+    strAppend(buf, "a ");
+    strAppend(buf);
+    strAppend(buf, "b"s, " c"sv);
+    EXPECT_EQ("a b c", buf);
 }
 
 } // namespace stdplus
