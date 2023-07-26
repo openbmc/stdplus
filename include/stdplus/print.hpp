@@ -1,11 +1,11 @@
 #include <stdplus/str/buf.hpp>
 
-#include <cstdio>
 #include <format>
-#include <system_error>
 
 namespace stdplus
 {
+
+void prints(std::FILE* stream, std::string_view data);
 
 template <bool ln>
 struct Printer
@@ -21,11 +21,7 @@ struct Printer
         {
             buf.push_back('\n');
         }
-        int r = std::fwrite(buf.data(), sizeof(char), buf.size(), stream);
-        if (r < 0)
-        {
-            throw std::system_error(errno, std::generic_category());
-        }
+        prints(stream, buf);
     }
 };
 
