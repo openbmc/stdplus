@@ -4,6 +4,7 @@
 
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/flags.hpp>
+#include <stdplus/zstring.hpp>
 
 #include <string>
 
@@ -52,12 +53,7 @@ class OpenFlags : public BitFlags<int, OpenFlag>
     {}
 };
 
-DupableFd open(const char* pathname, OpenFlags flags, mode_t mode = 0);
-inline DupableFd open(const std::string& pathname, OpenFlags flags,
-                      mode_t mode = 0)
-{
-    return open(pathname.c_str(), flags, mode);
-}
+DupableFd open(const_zstring pathname, OpenFlags flags, mode_t mode = 0);
 
 enum class SocketDomain : int
 {
