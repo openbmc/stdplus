@@ -1,4 +1,6 @@
 #pragma once
+
+#include <bit>
 #include <cstdint>
 #include <limits>
 #include <memory>
