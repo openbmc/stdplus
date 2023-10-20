@@ -78,7 +78,7 @@ constexpr bool variantEq(const std::variant<Vs...>& vs, const T& t) noexcept
     return std::visit(
         [&t](const auto& v) {
         return Veq<std::remove_cvref_t<decltype(v)>, T>{}(v, t);
-        },
+    },
         vs);
 }
 

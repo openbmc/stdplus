@@ -46,7 +46,7 @@ auto ignore(F&& f, const char* file, int line, const char* func) noexcept
         {
             return Ret();
         }
-        };
+    };
 }
 
 template <typename F>

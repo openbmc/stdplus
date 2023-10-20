@@ -62,8 +62,8 @@ struct Managed
         HandleF& operator=(const HandleF& other) = delete;
 
         constexpr HandleF(HandleF&& other) noexcept(
-            std::is_nothrow_move_constructible_v<std::tuple<As...>>&&
-                std::is_nothrow_move_constructible_v<std::optional<T>>) :
+            std::is_nothrow_move_constructible_v<std::tuple<As...>> &&
+            std::is_nothrow_move_constructible_v<std::optional<T>>) :
             as(std::move(other.as)),
             maybeT(std::move(other.maybeT))
         {
@@ -85,9 +85,9 @@ struct Managed
         }
 
         virtual ~HandleF() noexcept(
-            std::is_nothrow_destructible_v<std::tuple<As...>>&&
-                std::is_nothrow_destructible_v<std::optional<T>>&& noexcept(
-                    std::declval<HandleF>().reset()))
+            std::is_nothrow_destructible_v<std::tuple<As...>> &&
+            std::is_nothrow_destructible_v<std::optional<T>>&& noexcept(
+                std::declval<HandleF>().reset()))
         {
             reset();
         }
@@ -154,13 +154,15 @@ struct Managed
          *  @param[in] maybeV - Maybe the new value
          */
         constexpr void reset(std::optional<T>&& maybeV) noexcept(
-            drop_noexcept&& std::is_nothrow_move_assignable_v<std::optional<T>>)
+            drop_noexcept &&
+            std::is_nothrow_move_assignable_v<std::optional<T>>)
         {
             maybeDrop(std::index_sequence_for<As...>());
             maybeT = std::move(maybeV);
         }
         constexpr void reset(T&& maybeV) noexcept(
-            drop_noexcept&& std::is_nothrow_move_assignable_v<std::optional<T>>)
+            drop_noexcept &&
+            std::is_nothrow_move_assignable_v<std::optional<T>>)
         {
             maybeDrop(std::index_sequence_for<As...>());
             maybeT = std::move(maybeV);

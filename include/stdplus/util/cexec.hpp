@@ -54,7 +54,7 @@
                           "Unimplemented check routine");                      \
         }                                                                      \
         return check_errno_ret;                                                \
-        }((expr))
+    }((expr))
 
 /** @brief   Wraps common c style error handling for exception throwing
  *           This requires the callee to provide error information in -r.
@@ -78,7 +78,7 @@
                           "Unimplemented check routine");                      \
         }                                                                      \
         return check_ret_ret;                                                  \
-        }((expr))
+    }((expr))
 
 namespace stdplus
 {
