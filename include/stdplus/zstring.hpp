@@ -2,6 +2,7 @@
 #include <fmt/core.h>
 
 #include <cstddef>
+#include <format>
 #include <limits>
 #include <string>
 #include <type_traits>
@@ -266,9 +267,6 @@ struct formatter<stdplus::basic_zstring<CharT, Traits>,
 
 namespace std
 {
-template <typename T, typename CharT>
-struct formatter;
-
 template <typename CharT, typename Traits>
 struct formatter<stdplus::basic_zstring<CharT, Traits>,
                  std::remove_const_t<CharT>> :

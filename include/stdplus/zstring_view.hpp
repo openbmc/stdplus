@@ -371,9 +371,6 @@ struct formatter<stdplus::basic_zstring_view<CharT, Traits>, CharT> :
 
 namespace std
 {
-template <typename T, typename CharT>
-struct formatter;
-
 template <typename CharT, typename Traits>
 struct formatter<stdplus::basic_zstring_view<CharT, Traits>, CharT> :
     formatter<basic_string_view<CharT>, CharT>
