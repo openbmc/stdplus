@@ -1,3 +1,4 @@
+#pragma once
 #include <stdplus/str/buf.hpp>
 
 #include <format>
