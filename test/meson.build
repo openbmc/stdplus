@@ -31,7 +31,7 @@ if has_dl
   gtests += {
     'dl': [stdplus_dl_dep, gtest_main_dep],
   }
-elif build_tests.enabled()
+elif build_tests.allowed()
   error('Not testing libdl feature')
 else
   warning('Not testing libdl feature')
@@ -53,12 +53,12 @@ if has_fd
     gtests += {
       'fd/atomic': [stdplus_fd_dep, stdplus_gtest_dep, gtest_main_dep],
     }
-  elif build_tests.enabled()
+  elif build_tests.allowed()
     error('Not testing fd/atomic feature')
   else
     warning('Not testing fd/atomic feature')
   endif
-elif build_tests.enabled()
+elif build_tests.allowed()
   error('Not testing file descriptor feature')
 else
   warning('Not testing file descriptor feature')
@@ -68,7 +68,7 @@ if has_io_uring
   gtests += {
     'io_uring': [stdplus_io_uring_dep, stdplus_dep, gmock_dep, gtest_main_dep],
   }
-elif build_tests.enabled()
+elif build_tests.allowed()
   error('Not testing io_uring feature')
 else
   warning('Not testing io_uring feature')
@@ -78,7 +78,7 @@ if has_gtest
   gtests += {
     'gtest/tmp': [stdplus_gtest_dep, gtest_main_dep],
   }
-elif build_tests.enabled()
+elif build_tests.allowed()
   error('Not testing gtest lib feature')
 else
   warning('Not testing gtest lib feature')

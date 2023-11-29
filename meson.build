@@ -18,7 +18,7 @@ if not get_option('dl').disabled()
     int main() { dlopen("", 0); }
   ''', dependencies: dl_dep)
 endif
-if get_option('dl').enabled() and not has_dl
+if get_option('dl').allowed() and not has_dl
   error('libdl support required')
 endif
 
@@ -34,7 +34,7 @@ if not get_option('io_uring').disabled() and has_fd
     has_io_uring = true
   endif
 endif
-if get_option('io_uring').enabled() and not has_io_uring
+if get_option('io_uring').allowed() and not has_io_uring
   error('io_uring support is required')
 endif
 
@@ -67,7 +67,7 @@ if not build_tests.disabled() or not get_option('gtest').disabled()
         ])
       gmock_dep = gtest_proj.dependency('gmock')
     else
-      assert(not build_tests.enabled() and not get_option('gtest').enabled(), 'Googletest is required')
+      assert(not build_tests.allowed() and not get_option('gtest').allowed(), 'Googletest is required')
     endif
   endif
   if not get_option('gtest').disabled() and gtest_dep.found()
