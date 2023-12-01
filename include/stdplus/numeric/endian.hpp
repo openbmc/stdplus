@@ -167,4 +167,67 @@ constexpr T ntoh(T t) noexcept
     return etoh<std::endian::big>(t);
 }
 
+template <typename T, std::endian E>
+struct EndianPacked
+{
+    using value_type = T;
+
+    constexpr EndianPacked() noexcept = default;
+    constexpr EndianPacked(T t) noexcept
+    {
+        *this = t;
+    }
+    constexpr EndianPacked& operator=(T t) noexcept
+    {
+        data.n = htoe<E>(t);
+        return *this;
+    }
+
+    constexpr T value() const noexcept
+    {
+        return etoh<E>(data.n);
+    }
+
+    constexpr operator T() const noexcept
+    {
+        return value();
+    }
+
+    struct
+    {
+        T n;
+    } __attribute__((packed)) data;
+};
+
+using int8_ubt = EndianPacked<std::int8_t, std::endian::big>;
+using int16_ubt = EndianPacked<std::int16_t, std::endian::big>;
+using int32_ubt = EndianPacked<std::int32_t, std::endian::big>;
+using int64_ubt = EndianPacked<std::int64_t, std::endian::big>;
+
+using int8_ult = EndianPacked<std::int8_t, std::endian::little>;
+using int16_ult = EndianPacked<std::int16_t, std::endian::little>;
+using int32_ult = EndianPacked<std::int32_t, std::endian::little>;
+using int64_ult = EndianPacked<std::int64_t, std::endian::little>;
+
+using int8_unt = EndianPacked<std::int8_t, std::endian::big>;
+using int16_unt = EndianPacked<std::int16_t, std::endian::big>;
+using int32_unt = EndianPacked<std::int32_t, std::endian::big>;
+using int64_unt = EndianPacked<std::int64_t, std::endian::big>;
+
+using uint8_ubt = EndianPacked<std::uint8_t, std::endian::big>;
+using uint16_ubt = EndianPacked<std::uint16_t, std::endian::big>;
+using uint32_ubt = EndianPacked<std::uint32_t, std::endian::big>;
+using uint64_ubt = EndianPacked<std::uint64_t, std::endian::big>;
+
+using uint8_ult = EndianPacked<std::uint8_t, std::endian::little>;
+using uint16_ult = EndianPacked<std::uint16_t, std::endian::little>;
+using uint32_ult = EndianPacked<std::uint32_t, std::endian::little>;
+using uint64_ult = EndianPacked<std::uint64_t, std::endian::little>;
+
+using uint8_unt = EndianPacked<std::uint8_t, std::endian::big>;
+using uint16_unt = EndianPacked<std::uint16_t, std::endian::big>;
+using uint32_unt = EndianPacked<std::uint32_t, std::endian::big>;
+static_assert(alignof(uint32_unt) == 1);
+using uint64_unt = EndianPacked<std::uint64_t, std::endian::big>;
+
 } // namespace stdplus
