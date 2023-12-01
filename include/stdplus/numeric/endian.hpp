@@ -86,16 +86,38 @@ constexpr T bswap(T n) noexcept
     return n;
 }
 
-template <typename T>
-constexpr T hton(T n) noexcept
+template <std::endian E, typename T>
+constexpr T htoe(T t) noexcept
 {
     if constexpr (std::endian::native == std::endian::big)
     {
-        return n;
+        if constexpr (E == std::endian::big)
+        {
+            return t;
+        }
+        else if constexpr (E == std::endian::little)
+        {
+            return bswap(t);
+        }
+        else
+        {
+            static_assert(std::is_same_v<T, void>);
+        }
     }
     else if constexpr (std::endian::native == std::endian::little)
     {
-        return bswap(n);
+        if constexpr (E == std::endian::big)
+        {
+            return bswap(t);
+        }
+        else if constexpr (E == std::endian::little)
+        {
+            return t;
+        }
+        else
+        {
+            static_assert(std::is_same_v<T, void>);
+        }
     }
     else
     {
@@ -103,10 +125,22 @@ constexpr T hton(T n) noexcept
     }
 }
 
-template <typename T>
-constexpr T ntoh(T n) noexcept
+template <std::endian E, typename T>
+constexpr T etoh(T t) noexcept
 {
-    return hton(n);
+    return htoe<E>(t);
+}
+
+template <typename T>
+constexpr T hton(T t) noexcept
+{
+    return htoe<std::endian::big>(t);
+}
+
+template <typename T>
+constexpr T ntoh(T t) noexcept
+{
+    return etoh<std::endian::big>(t);
 }
 
 } // namespace stdplus
