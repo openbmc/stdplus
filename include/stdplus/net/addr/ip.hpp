@@ -121,7 +121,7 @@ struct FromStr<In4Addr>
         uint32_t addr = {};
         for (size_t i = 0; i < 3; ++i)
         {
-            auto loc = sv.find(".");
+            auto loc = sv.find('.');
             addr |= sti(sv.substr(0, loc));
             addr <<= 8;
             sv.remove_prefix(loc == sv.npos ? sv.size() : loc + 1);
