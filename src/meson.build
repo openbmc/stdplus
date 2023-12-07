@@ -93,6 +93,7 @@ stdplus_lib = library(
   implicit_include_directories: false,
   dependencies: stdplus_deps,
   version: meson.project_version(),
+  build_by_default: not meson.is_subproject(),
   install: true)
 
 stdplus_dep = declare_dependency(
@@ -129,6 +130,7 @@ if has_dl
     dependencies: stdplus_dl_pre,
     implicit_include_directories: false,
     version: meson.project_version(),
+    build_by_default: not meson.is_subproject(),
     install: true)
 
   stdplus_dl_dep = declare_dependency(
@@ -177,6 +179,7 @@ if has_io_uring
     dependencies: stdplus_io_uring_pre,
     implicit_include_directories: false,
     version: meson.project_version(),
+    build_by_default: not meson.is_subproject(),
     install: true)
 
   stdplus_io_uring_dep = declare_dependency(
@@ -213,6 +216,7 @@ if has_gtest
     dependencies: stdplus_gtest_pre,
     implicit_include_directories: false,
     version: meson.project_version(),
+    build_by_default: not meson.is_subproject(),
     install: true)
 
   stdplus_gtest_dep = declare_dependency(
