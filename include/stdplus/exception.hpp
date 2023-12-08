@@ -1,5 +1,5 @@
 #pragma once
-#include <fmt/format.h>
+#include <stdplus/print.hpp>
 
 #include <source_location>
 #include <system_error>
@@ -33,13 +33,13 @@ auto ignore(F&& f, const char* file, int line, const char* func) noexcept
         }
         catch (const std::exception& e)
         {
-            fmt::print(stderr, "Ignoring({}:{} {}): {}\n", file, line, func,
-                       e.what());
+            stdplus::print(stderr, "Ignoring({}:{} {}): {}\n", file, line, func,
+                           e.what());
         }
         catch (...)
         {
-            fmt::print(stderr, "Ignoring({}:{} {}): Invalid Error\n", file,
-                       line, func);
+            stdplus::print(stderr, "Ignoring({}:{} {}): Invalid Error\n", file,
+                           line, func);
         }
         using Ret = std::invoke_result_t<decltype(f), decltype(args)...>;
         if constexpr (!std::is_same_v<void, Ret>)
