@@ -493,15 +493,13 @@ struct CompileInAddrInt<InAnyAddr>
 template <typename Addr, typename CharT, std::size_t N>
 struct CompileInAddr : CompileInAddrInt<Addr>
 {
-    CharT str[N - 1];
     static inline void notNullTerminated() {}
 
     constexpr CompileInAddr(const CharT (&str)[N]) noexcept
     {
         if (str[N - 1] != '\0')
             notNullTerminated();
-        std::copy(str, str + N - 1, this->str);
-        this->compile(std::basic_string_view{this->str, N - 1});
+        this->compile(std::basic_string_view{str, N - 1});
     }
 };
 
