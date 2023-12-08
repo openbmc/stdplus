@@ -243,8 +243,8 @@ struct In6Addr : in6_addr
         return *this == static_cast<in6_addr&>(rhs);
     }
 
-    constexpr bool isLoopback() noexcept;
-    constexpr bool isUnicast() noexcept;
+    constexpr bool isLoopback() const noexcept;
+    constexpr bool isUnicast() const noexcept;
 };
 
 template <>
@@ -554,12 +554,12 @@ constexpr auto operator"" _ip() noexcept
 
 } // namespace in_addr_literals
 
-constexpr bool In6Addr::isLoopback() noexcept
+constexpr bool In6Addr::isLoopback() const noexcept
 {
     return *this == "::1"_ip6; // ::1/128
 }
 
-constexpr bool In6Addr::isUnicast() noexcept
+constexpr bool In6Addr::isUnicast() const noexcept
 {
     return *this != "::"_ip6 && // ::/128
            byte(0) != 0xff;     // ff00::/8
