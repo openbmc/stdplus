@@ -24,6 +24,9 @@ TEST(ZstringView, IsString)
                                       std::char_traits<char>>::value));
 }
 
+constexpr auto ezsv = ""_zsv;
+constexpr auto aczsv = "ac"_zsv;
+
 TEST(ZstringView, Basic)
 {
     auto s1 = zstring_view("ac");
@@ -41,7 +44,7 @@ TEST(ZstringView, Basic)
     EXPECT_NE(s1, s2);
     EXPECT_EQ(s3, "aa");
 
-    EXPECT_EQ("ac"_zsv, s1);
+    EXPECT_EQ(aczsv, s1);
     EXPECT_EQ("ac", s1);
     EXPECT_EQ(s1, "ac");
     EXPECT_EQ(s, s2);
@@ -100,7 +103,7 @@ TEST(ZstringView, Suffix)
 
 TEST(ZstringView, NoTypeCoercion)
 {
-    EXPECT_EQ(""_zsv, "\0");
+    EXPECT_EQ(ezsv, "\0");
     EXPECT_EQ("\0", ""_zsv);
     EXPECT_NE(""_zsv, "\0"sv);
     EXPECT_NE("\0"sv, ""_zsv);

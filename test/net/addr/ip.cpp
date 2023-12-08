@@ -183,6 +183,9 @@ TEST(EqualOperator, InAnyAddr)
     std::hash<InAnyAddr>{}(In6Addr{});
 }
 
+constexpr auto empty4 = "0.0.0.0"_ip;
+constexpr auto empty6 = "::"_ip;
+
 TEST(FromStr, InAnyAddr)
 {
     constexpr FromStr<InAnyAddr> fs;
@@ -196,8 +199,8 @@ TEST(FromStr, InAnyAddr)
     EXPECT_TRUE(tv);
     constexpr bool tv2 = detail::CompileInAnyAddr("::").valid;
     EXPECT_TRUE(tv2);
-    EXPECT_EQ((In4Addr{}), "0.0.0.0"_ip);
-    EXPECT_EQ((In6Addr{}), "::"_ip);
+    EXPECT_EQ((In4Addr{}), empty4);
+    EXPECT_EQ((In6Addr{}), empty6);
     EXPECT_EQ("ff02::"_ip, (In6Addr{0xff, 2}));
     EXPECT_EQ("1::"_ip, (In6Addr{0, 1}));
     EXPECT_EQ("100::"_ip, (In6Addr{1}));
@@ -229,10 +232,12 @@ TEST(ToStr, InAnyAddr)
     EXPECT_EQ("0.0.0.0"_ip, std::optional<InAnyAddr>(In4Addr{}));
 }
 
+constexpr auto loop4 = "127.0.0.0"_ip4;
+constexpr bool loop4IsLoop = loop4.isLoopback();
+
 TEST(Loopback, In4Addr)
 {
-    constexpr bool t = "127.0.0.0"_ip4.isLoopback();
-    EXPECT_TRUE(t);
+    EXPECT_TRUE(loop4IsLoop);
     EXPECT_TRUE("127.0.0.1"_ip4.isLoopback());
     EXPECT_TRUE("127.0.0.83"_ip4.isLoopback());
     EXPECT_TRUE("127.253.0.0"_ip4.isLoopback());
@@ -248,10 +253,12 @@ TEST(Loopback, In4Addr)
     EXPECT_FALSE("255.255.255.255"_ip4.isLoopback());
 }
 
+constexpr auto loop6 = "::1"_ip6;
+constexpr bool loop6IsLoop = loop6.isLoopback();
+
 TEST(Loopback, In6Addr)
 {
-    constexpr bool t = "::1"_ip6.isLoopback();
-    EXPECT_TRUE(t);
+    EXPECT_TRUE(loop6IsLoop);
 
     EXPECT_FALSE("::2"_ip6.isLoopback());
     EXPECT_FALSE("1::"_ip6.isLoopback());
