@@ -300,28 +300,13 @@ struct CompileInAddrInt<Sub> : CompileInAddrInt<typename Sub::Addr>
 };
 
 template <typename CharT, std::size_t N>
-struct CompileSubnet4 : CompileInAddr<Subnet4, CharT, N>
-{
-    consteval CompileSubnet4(const CharT (&str)[N]) noexcept :
-        CompileInAddr<Subnet4, CharT, N>(str)
-    {}
-};
+using CompileSubnet4 = CompileInAddr<Subnet4, CharT, N>;
 
 template <typename CharT, std::size_t N>
-struct CompileSubnet6 : CompileInAddr<Subnet6, CharT, N>
-{
-    consteval CompileSubnet6(const CharT (&str)[N]) noexcept :
-        CompileInAddr<Subnet6, CharT, N>(str)
-    {}
-};
+using CompileSubnet6 = CompileInAddr<Subnet6, CharT, N>;
 
 template <typename CharT, std::size_t N>
-struct CompileSubnetAny : CompileInAddr<SubnetAny, CharT, N>
-{
-    consteval CompileSubnetAny(const CharT (&str)[N]) noexcept :
-        CompileInAddr<SubnetAny, CharT, N>(str)
-    {}
-};
+using CompileSubnetAny = CompileInAddr<SubnetAny, CharT, N>;
 
 } // namespace detail
 

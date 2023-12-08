@@ -504,28 +504,13 @@ struct CompileInAddr : CompileInAddrInt<Addr>
 };
 
 template <typename CharT, std::size_t N>
-struct CompileIn4Addr : CompileInAddr<In4Addr, CharT, N>
-{
-    consteval CompileIn4Addr(const CharT (&str)[N]) noexcept :
-        CompileInAddr<In4Addr, CharT, N>(str)
-    {}
-};
+using CompileIn4Addr = CompileInAddr<In4Addr, CharT, N>;
 
 template <typename CharT, std::size_t N>
-struct CompileIn6Addr : CompileInAddr<In6Addr, CharT, N>
-{
-    consteval CompileIn6Addr(const CharT (&str)[N]) noexcept :
-        CompileInAddr<In6Addr, CharT, N>(str)
-    {}
-};
+using CompileIn6Addr = CompileInAddr<In6Addr, CharT, N>;
 
 template <typename CharT, std::size_t N>
-struct CompileInAnyAddr : CompileInAddr<InAnyAddr, CharT, N>
-{
-    consteval CompileInAnyAddr(const CharT (&str)[N]) noexcept :
-        CompileInAddr<InAnyAddr, CharT, N>(str)
-    {}
-};
+using CompileInAnyAddr = CompileInAddr<InAnyAddr, CharT, N>;
 
 } // namespace detail
 
