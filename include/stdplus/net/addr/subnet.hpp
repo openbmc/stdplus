@@ -279,7 +279,7 @@ struct CompileInAddrInt<Sub> : CompileInAddrInt<typename Sub::Addr>
     Sub::Pfx pfx = 0;
 
     template <typename CharT>
-    constexpr void compile(std::basic_string_view<CharT> sv) noexcept
+    consteval void compile(std::basic_string_view<CharT> sv) noexcept
     {
         const auto pos = sv.rfind('/');
         if (pos == sv.npos)
@@ -302,7 +302,7 @@ struct CompileInAddrInt<Sub> : CompileInAddrInt<typename Sub::Addr>
 template <typename CharT, std::size_t N>
 struct CompileSubnet4 : CompileInAddr<Subnet4, CharT, N>
 {
-    constexpr CompileSubnet4(const CharT (&str)[N]) noexcept :
+    consteval CompileSubnet4(const CharT (&str)[N]) noexcept :
         CompileInAddr<Subnet4, CharT, N>(str)
     {}
 };
@@ -310,7 +310,7 @@ struct CompileSubnet4 : CompileInAddr<Subnet4, CharT, N>
 template <typename CharT, std::size_t N>
 struct CompileSubnet6 : CompileInAddr<Subnet6, CharT, N>
 {
-    constexpr CompileSubnet6(const CharT (&str)[N]) noexcept :
+    consteval CompileSubnet6(const CharT (&str)[N]) noexcept :
         CompileInAddr<Subnet6, CharT, N>(str)
     {}
 };
@@ -318,7 +318,7 @@ struct CompileSubnet6 : CompileInAddr<Subnet6, CharT, N>
 template <typename CharT, std::size_t N>
 struct CompileSubnetAny : CompileInAddr<SubnetAny, CharT, N>
 {
-    constexpr CompileSubnetAny(const CharT (&str)[N]) noexcept :
+    consteval CompileSubnetAny(const CharT (&str)[N]) noexcept :
         CompileInAddr<SubnetAny, CharT, N>(str)
     {}
 };

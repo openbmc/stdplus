@@ -471,7 +471,7 @@ struct CompileInAddrInt<InAnyAddr>
     bool valid = true;
 
     template <typename CharT>
-    constexpr void compile(std::basic_string_view<CharT> sv) noexcept
+    consteval void compile(std::basic_string_view<CharT> sv) noexcept
     {
         try
         {
@@ -495,7 +495,7 @@ struct CompileInAddr : CompileInAddrInt<Addr>
 {
     static inline void notNullTerminated() {}
 
-    constexpr CompileInAddr(const CharT (&str)[N]) noexcept
+    consteval CompileInAddr(const CharT (&str)[N]) noexcept
     {
         if (str[N - 1] != '\0')
             notNullTerminated();
@@ -506,7 +506,7 @@ struct CompileInAddr : CompileInAddrInt<Addr>
 template <typename CharT, std::size_t N>
 struct CompileIn4Addr : CompileInAddr<In4Addr, CharT, N>
 {
-    constexpr CompileIn4Addr(const CharT (&str)[N]) noexcept :
+    consteval CompileIn4Addr(const CharT (&str)[N]) noexcept :
         CompileInAddr<In4Addr, CharT, N>(str)
     {}
 };
@@ -514,7 +514,7 @@ struct CompileIn4Addr : CompileInAddr<In4Addr, CharT, N>
 template <typename CharT, std::size_t N>
 struct CompileIn6Addr : CompileInAddr<In6Addr, CharT, N>
 {
-    constexpr CompileIn6Addr(const CharT (&str)[N]) noexcept :
+    consteval CompileIn6Addr(const CharT (&str)[N]) noexcept :
         CompileInAddr<In6Addr, CharT, N>(str)
     {}
 };
@@ -522,7 +522,7 @@ struct CompileIn6Addr : CompileInAddr<In6Addr, CharT, N>
 template <typename CharT, std::size_t N>
 struct CompileInAnyAddr : CompileInAddr<InAnyAddr, CharT, N>
 {
-    constexpr CompileInAnyAddr(const CharT (&str)[N]) noexcept :
+    consteval CompileInAnyAddr(const CharT (&str)[N]) noexcept :
         CompileInAddr<InAnyAddr, CharT, N>(str)
     {}
 };
