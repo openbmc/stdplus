@@ -1,0 +1,7 @@
+Code-Review+2: William A. Kennington III <wak@google.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: William A. Kennington III <wak@google.com>
+Submitted-at: Sat, 09 Dec 2023 00:02:25 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/stdplus/+/68210
+Project: openbmc/stdplus
+Branch: refs/heads/master
