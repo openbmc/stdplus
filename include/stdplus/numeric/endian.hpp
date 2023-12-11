@@ -3,6 +3,7 @@
 #include <bit>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <type_traits>
 
 namespace stdplus
@@ -231,3 +232,8 @@ static_assert(alignof(uint32_unt) == 1);
 using uint64_unt = EndianPacked<std::uint64_t, std::endian::big>;
 
 } // namespace stdplus
+
+template <typename IntT, std::endian Endian, typename CharT>
+struct std::formatter<stdplus::EndianPacked<IntT, Endian>, CharT> :
+    std::formatter<IntT, CharT>
+{};

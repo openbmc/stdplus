@@ -54,4 +54,12 @@ TEST(EndianPacked, ValidateUnderlying)
     EXPECT_EQ(0x0f000000, l);
 }
 
+TEST(EndianPacked, Format)
+{
+    EXPECT_EQ(std::format("a {}\n", int32_t{-8456}),
+              std::format("a {}\n", int32_unt{-8456}));
+    EXPECT_EQ(std::format("a {:x}\n", uint32_t{13}),
+              std::format("a {:x}\n", uint32_ult{13}));
+}
+
 } // namespace stdplus
