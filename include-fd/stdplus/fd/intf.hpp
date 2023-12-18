@@ -131,7 +131,7 @@ class Fd
     virtual void truncate(off_t size) = 0;
     virtual void bind(std::span<const std::byte> sockaddr) = 0;
     virtual void listen(int backlog) = 0;
-    virtual std::tuple<std::optional<int>, std::span<std::byte>>
+    virtual std::optional<std::tuple<int, std::span<std::byte>>>
         accept(std::span<std::byte> sockaddr) = 0;
     virtual void setsockopt(SockLevel level, SockOpt optname,
                             std::span<const std::byte> opt) = 0;
