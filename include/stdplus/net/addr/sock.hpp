@@ -1,4 +1,5 @@
 #include <netinet/in.h>
+#include <sys/un.h>
 
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
@@ -6,6 +7,7 @@
 
 #include <array>
 #include <cstdint>
+#include <string_view>
 
 namespace stdplus
 {
@@ -13,7 +15,8 @@ namespace stdplus
 struct SockAnyBuf : sockaddr
 {
     static inline constexpr std::size_t maxLen =
-        std::max({sizeof(sockaddr_in), sizeof(sockaddr_in6)}) -
+        std::max(
+            {sizeof(sockaddr_in), sizeof(sockaddr_in6), sizeof(sockaddr_un)}) -
         sizeof(sockaddr);
     std::array<std::uint8_t, maxLen> buf;
     std::uint8_t len;
@@ -117,10 +120,91 @@ template <>
 struct IsSockAddr<Sock6Addr> : std::true_type
 {};
 
+struct SockUAddr
+{
+    static inline constexpr std::size_t maxLen =
+        std::size(sockaddr_un{}.sun_path);
+
+    constexpr explicit SockUAddr(std::string_view path) : len(path.size())
+    {
+        if (path.empty())
+        {
+            return;
+        }
+        bool abstract = path[0] == '@' || path[0] == '\0';
+        // Abstract sockets are not null terminated but path sockets are
+        if (path.size() >= buf.size() + (abstract ? 1 : 0))
+        {
+            throw std::invalid_argument("Socket path too long");
+        }
+        if (!abstract && path.find('\0') != path.npos)
+        {
+            throw std::invalid_argument("Null bytes in non-abtract path");
+        }
+        buf[0] = abstract ? '@' : path[0];
+        std::copy(path.begin() + 1, path.end(), buf.begin() + 1);
+    }
+
+    constexpr bool operator==(const SockUAddr& rhs) const noexcept
+    {
+        return path() == rhs.path();
+    }
+
+    constexpr std::string_view path() const noexcept
+    {
+        return {buf.data(), len};
+    }
+
+    constexpr sockaddr_un sockaddr() const noexcept
+    {
+        sockaddr_un ret;
+        fill(ret);
+        return ret;
+    }
+    constexpr operator sockaddr_un() const noexcept
+    {
+        return sockaddr();
+    }
+
+    constexpr std::size_t sockaddrLen() const noexcept
+    {
+        return sizeof(sockaddr_un{}.sun_family) + len +
+               (len > 0 && buf[0] != '@' ? 1 : 0);
+    }
+
+    constexpr SockAnyBuf sockbuf() const noexcept
+    {
+        SockAnyBuf ret;
+        fill(reinterpret_cast<sockaddr_un&>(ret));
+        ret.len = sockaddrLen();
+        return ret;
+    }
+    constexpr operator SockAnyBuf() const noexcept
+    {
+        return sockbuf();
+    }
+
+  private:
+    std::array<char, maxLen> buf = {};
+    std::uint8_t len;
+    static_assert(maxLen <= std::numeric_limits<decltype(len)>::max());
+
+    void fill(sockaddr_un& v) const noexcept
+    {
+        v.sun_family = AF_UNIX;
+        v.sun_path[0] = buf[0] == '@' ? '\0' : buf[0];
+        std::copy(buf.begin() + 1, buf.begin() + len, v.sun_path + 1);
+    };
+};
+
+template <>
+struct IsSockAddr<SockUAddr> : std::true_type
+{};
+
 namespace detail
 {
 
-using SockAnyAddrV = std::variant<Sock4Addr, Sock6Addr>;
+using SockAnyAddrV = std::variant<Sock4Addr, Sock6Addr, SockUAddr>;
 
 } // namespace detail
 
