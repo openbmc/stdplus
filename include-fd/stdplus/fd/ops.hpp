@@ -1,6 +1,7 @@
 #pragma once
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/intf.hpp>
+#include <stdplus/net/addr/sock.hpp>
 #include <stdplus/raw.hpp>
 
 #include <span>
@@ -101,14 +102,32 @@ inline void truncate(Fd& fd, off_t size)
     return fd.truncate(size);
 }
 
-template <typename SockAddr>
-inline void bind(Fd& fd, SockAddr&& sockaddr)
+inline void bind(Fd& fd, const SockAddrBuf& addr)
+{
+    return fd.bind({reinterpret_cast<const std::byte*>(&addr), addr.len});
+}
+
+inline void bind(Fd& fd, const SockAddr auto& addr)
+{
+    return bind(fd, addr.buf());
+}
+
+inline void bind(Fd& fd, const auto& sockaddr)
 {
     return fd.bind(raw::asSpan<std::byte>(sockaddr));
 }
 
-template <typename SockAddr>
-inline void connect(Fd& fd, SockAddr&& sockaddr)
+inline void connect(Fd& fd, const SockAddrBuf& addr)
+{
+    return fd.connect({reinterpret_cast<const std::byte*>(&addr), addr.len});
+}
+
+inline void connect(Fd& fd, const SockAddr auto& addr)
+{
+    return connect(fd, addr.buf());
+}
+
+inline void connect(Fd& fd, const auto& sockaddr)
 {
     return fd.connect(raw::asSpan<std::byte>(sockaddr));
 }

@@ -22,6 +22,19 @@ TEST(Flags, Flags)
     EXPECT_EQ(0, static_cast<int>(f));
 }
 
+TEST(Connect, Success)
+{
+    testing::StrictMock<FdMock> fd;
+    SockAddrBuf buf;
+    EXPECT_CALL(fd, connect(_)).WillOnce([&](std::span<const std::byte> addr) {
+        std::copy(addr.begin(), addr.end(), reinterpret_cast<std::byte*>(&buf));
+        buf.len = addr.size();
+    });
+    Sock6Addr addr(In6Addr{0xff}, 365, 0);
+    connect(fd, addr);
+    EXPECT_EQ(Sock6Addr::fromBuf(buf), addr);
+}
+
 TEST(ReadExact, Success)
 {
     testing::StrictMock<FdMock> fd;
