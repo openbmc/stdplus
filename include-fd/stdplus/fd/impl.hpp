@@ -26,6 +26,7 @@ class FdImpl : public Fd
     size_t lseek(off_t offset, Whence whence) override;
     void truncate(off_t size) override;
     void bind(std::span<const std::byte> sockaddr) override;
+    void connect(std::span<const std::byte> sockaddr) override;
     void listen(int backlog) override;
     std::optional<std::tuple<int, std::span<std::byte>>>
         accept(std::span<std::byte> sockaddr) override;

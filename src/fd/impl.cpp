@@ -117,6 +117,15 @@ void FdImpl::bind(std::span<const std::byte> sockaddr)
         "bind");
 }
 
+void FdImpl::connect(std::span<const std::byte> sockaddr)
+{
+    CHECK_ERRNO(
+        ::connect(get(),
+                  reinterpret_cast<const struct sockaddr*>(sockaddr.data()),
+                  sockaddr.size()),
+        "connect");
+}
+
 void FdImpl::listen(int backlog)
 {
     CHECK_ERRNO(::listen(get(), backlog), "listen");

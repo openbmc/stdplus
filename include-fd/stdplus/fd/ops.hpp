@@ -107,6 +107,12 @@ inline void bind(Fd& fd, SockAddr&& sockaddr)
     return fd.bind(raw::asSpan<std::byte>(sockaddr));
 }
 
+template <typename SockAddr>
+inline void connect(Fd& fd, SockAddr&& sockaddr)
+{
+    return fd.connect(raw::asSpan<std::byte>(sockaddr));
+}
+
 inline void listen(Fd& fd, int backlog)
 {
     return fd.listen(backlog);

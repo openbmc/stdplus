@@ -134,6 +134,7 @@ class Fd
     virtual size_t lseek(off_t offset, Whence whence) = 0;
     virtual void truncate(off_t size) = 0;
     virtual void bind(std::span<const std::byte> sockaddr) = 0;
+    virtual void connect(std::span<const std::byte> sockaddr) = 0;
     virtual void listen(int backlog) = 0;
     virtual std::optional<std::tuple<int, std::span<std::byte>>>
         accept(std::span<std::byte> sockaddr) = 0;
