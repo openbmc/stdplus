@@ -21,7 +21,7 @@ class FdImpl : public Fd
     void truncate(off_t size) override;
     void bind(std::span<const std::byte> sockaddr) override;
     void listen(int backlog) override;
-    std::tuple<std::optional<int>, std::span<std::byte>>
+    std::optional<std::tuple<int, std::span<std::byte>>>
         accept(std::span<std::byte> sockaddr) override;
     void setsockopt(SockLevel level, SockOpt optname,
                     std::span<const std::byte> opt) override;
