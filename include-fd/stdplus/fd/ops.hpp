@@ -114,12 +114,12 @@ inline void listen(Fd& fd, int backlog)
 
 inline std::optional<DupableFd> accept(Fd& fd)
 {
-    auto ret = std::get<0>(fd.accept(std::span<std::byte>{}));
+    auto ret = fd.accept(std::span<std::byte>{});
     if (!ret)
     {
         return std::nullopt;
     }
-    return DupableFd(std::move(*ret));
+    return DupableFd(std::move(std::get<0>(*ret)));
 }
 
 template <typename Opt>
