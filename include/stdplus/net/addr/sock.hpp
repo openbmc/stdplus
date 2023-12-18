@@ -1,13 +1,17 @@
 #pragma once
+#include <fmt/core.h>
 #include <netinet/in.h>
 #include <sys/un.h>
 
 #include <stdplus/net/addr/ip.hpp>
 #include <stdplus/numeric/endian.hpp>
+#include <stdplus/numeric/str.hpp>
+#include <stdplus/str/conv.hpp>
 #include <stdplus/variant.hpp>
 
 #include <array>
 #include <cstdint>
+#include <format>
 #include <string_view>
 
 namespace stdplus
@@ -245,4 +249,158 @@ template <>
 struct IsSockAddr<SockAnyAddr> : std::true_type
 {};
 
+template <>
+struct FromStr<Sock4Addr>
+{
+    template <typename CharT>
+    constexpr Sock4Addr operator()(std::basic_string_view<CharT> sv) const
+    {
+        const auto pos = sv.rfind(':');
+        if (pos == sv.npos)
+        {
+            throw std::invalid_argument("Invalid string for Sock4Addr");
+        }
+        return {FromStr<In4Addr>{}(sv.substr(0, pos)),
+                StrToInt<10, std::uint16_t>{}(sv.substr(pos + 1))};
+    }
+};
+
+template <>
+struct ToStr<Sock4Addr>
+{
+    using type = Sock4Addr;
+    using FromAddr = ToStr<In4Addr>;
+    using FromDec = IntToStr<10, std::uint16_t>;
+    // Addr + sep + port chars
+    static inline constexpr std::size_t buf_size = FromAddr::buf_size + 1 +
+                                                   FromDec::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, Sock4Addr v) const noexcept
+    {
+        buf = FromAddr{}(buf, v.addr);
+        (buf++)[0] = ':';
+        return FromDec{}(buf, v.port);
+    }
+};
+
+template <>
+struct FromStr<Sock6Addr>
+{
+    template <typename CharT>
+    constexpr Sock6Addr operator()(std::basic_string_view<CharT> sv) const
+    {
+        const auto pos = sv.rfind(':');
+        if (pos == sv.npos)
+        {
+            throw std::invalid_argument("Invalid string for Sock6Addr");
+        }
+        const auto v6seg = sv.substr(0, pos);
+        if (!v6seg.starts_with('[') || !v6seg.ends_with(']'))
+        {
+            throw std::invalid_argument("Invalid string for Sock6Addr");
+        }
+        return {FromStr<In6Addr>{}(v6seg.substr(1, v6seg.size() - 2)),
+                StrToInt<10, std::uint16_t>{}(sv.substr(pos + 1)), 0};
+    }
+};
+
+template <>
+struct ToStr<Sock6Addr>
+{
+    using type = Sock6Addr;
+    using FromAddr = ToStr<In6Addr>;
+    using FromDec = IntToStr<10, std::uint16_t>;
+    // Addr + sep + port chars
+    static inline constexpr std::size_t buf_size = FromAddr::buf_size + 1 +
+                                                   FromDec::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, Sock6Addr v) const noexcept
+    {
+        (buf++)[0] = '[';
+        buf = FromAddr{}(buf, v.addr);
+        (buf++)[0] = ']';
+        (buf++)[0] = ':';
+        return FromDec{}(buf, v.port);
+    }
+};
+
+namespace detail
+{
+static inline constexpr std::string_view upfx = "unix:";
+}
+
+template <>
+struct FromStr<SockUAddr>
+{
+    template <typename CharT>
+    constexpr SockUAddr operator()(std::basic_string_view<CharT> sv) const
+    {
+        if (sv.starts_with(detail::upfx))
+        {
+            sv = sv.substr(detail::upfx.size());
+        }
+        return SockUAddr{sv};
+    }
+};
+
+template <>
+struct ToStr<SockUAddr>
+{
+    using type = SockUAddr;
+    static inline constexpr std::size_t buf_size = detail::upfx.size() +
+                                                   SockUAddr::maxLen;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, const SockUAddr& v) const noexcept
+    {
+        buf = std::copy(detail::upfx.begin(), detail::upfx.end(), buf);
+        auto p = v.path();
+        return std::copy(p.begin(), p.end(), buf);
+    }
+};
+
+template <>
+struct FromStr<SockAnyAddr>
+{
+    template <typename CharT>
+    constexpr SockAnyAddr operator()(std::basic_string_view<CharT> sv) const
+    {
+        if (sv.starts_with('['))
+        {
+            return FromStr<Sock6Addr>{}(sv);
+        }
+        else if (sv.starts_with(detail::upfx))
+        {
+            return FromStr<SockUAddr>{}(sv);
+        }
+        return FromStr<Sock4Addr>{}(sv);
+    }
+};
+
+template <>
+struct ToStr<SockAnyAddr>
+{
+    using type = SockAnyAddr;
+    static inline constexpr std::size_t buf_size =
+        std::max({ToStr<Sock4Addr>::buf_size, ToStr<Sock6Addr>::buf_size,
+                  ToStr<SockUAddr>::buf_size});
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, const SockAnyAddr& v) const noexcept
+    {
+        return std::visit(
+            [buf]<typename T>(const T& t) { return ToStr<T>{}(buf, t); }, v);
+    }
+};
+
 } // namespace stdplus
+
+template <stdplus::SockAddr T, typename CharT>
+struct fmt::formatter<T, CharT> : stdplus::Format<stdplus::ToStr<T>, CharT>
+{};
+
+template <stdplus::SockAddr T, typename CharT>
+struct std::formatter<T, CharT> : stdplus::Format<stdplus::ToStr<T>, CharT>
+{};
