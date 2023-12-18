@@ -73,6 +73,7 @@ enum class SocketType : int
 
 enum class SocketProto : int
 {
+    None = 0,
     ICMP = IPPROTO_ICMP,
     IP = IPPROTO_IP,
     Raw = IPPROTO_RAW,
