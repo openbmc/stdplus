@@ -4,7 +4,6 @@
 #include <stdplus/raw.hpp>
 
 #include <span>
-#include <stdexcept>
 #include <utility>
 
 namespace stdplus
@@ -111,21 +110,6 @@ inline void bind(Fd& fd, SockAddr&& sockaddr)
 inline void listen(Fd& fd, int backlog)
 {
     return fd.listen(backlog);
-}
-
-template <typename SockAddr>
-inline std::optional<DupableFd> accept(Fd& fd, SockAddr&& sockaddr)
-{
-    auto ret = fd.accept(raw::asSpan<std::byte>(sockaddr));
-    if (!std::get<0>(ret))
-    {
-        return std::nullopt;
-    }
-    if (std::get<1>(ret).size() != sizeof(sockaddr))
-    {
-        throw std::runtime_error("Invalid sockaddr type for accept");
-    }
-    return DupableFd(std::move(*std::get<0>(ret)));
 }
 
 inline std::optional<DupableFd> accept(Fd& fd)
