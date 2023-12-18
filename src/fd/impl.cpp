@@ -123,7 +123,7 @@ void FdImpl::listen(int backlog)
     CHECK_ERRNO(::listen(get(), backlog), "listen");
 }
 
-std::tuple<std::optional<int>, std::span<std::byte>>
+std::optional<std::tuple<int, std::span<std::byte>>>
     FdImpl::accept(std::span<std::byte> sockaddr)
 {
     socklen_t len = sockaddr.size();
@@ -133,7 +133,7 @@ std::tuple<std::optional<int>, std::span<std::byte>>
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
-            return {};
+            return std::nullopt;
         }
         throw util::makeSystemError(errno, "accept");
     }
