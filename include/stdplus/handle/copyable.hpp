@@ -18,7 +18,7 @@ struct Copyable
     class HandleF : public Managed<T, As...>::template HandleF<Drop>
     {
       protected:
-        static constexpr bool ref_noexcept =
+        static inline constexpr bool ref_noexcept =
             noexcept(Ref()(std::declval<T>(), std::declval<As&>()...));
 
       public:

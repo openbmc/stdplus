@@ -35,7 +35,7 @@ struct Managed
     class HandleF
     {
       protected:
-        static constexpr bool drop_noexcept =
+        static inline constexpr bool drop_noexcept =
             noexcept(Drop()(std::declval<T>(), std::declval<As&>()...));
 
       public:

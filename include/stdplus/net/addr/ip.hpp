@@ -141,7 +141,7 @@ struct ToStr<In4Addr>
     using type = In4Addr;
     using ToOct = IntToStr<10, uint8_t>;
     // 4 octets * 3 dec chars + 3 separators
-    static constexpr std::size_t buf_size = 12 + ToOct::buf_size;
+    static inline constexpr std::size_t buf_size = 12 + ToOct::buf_size;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, In4Addr v) const noexcept
@@ -312,7 +312,7 @@ struct ToStr<In6Addr>
     using type = In6Addr;
     using ToHex = IntToStr<16, uint16_t>;
     // 8 hextets * 4 hex chars + 7 separators
-    static constexpr std::size_t buf_size = 35 + ToHex::buf_size;
+    static inline constexpr std::size_t buf_size = 35 + ToHex::buf_size;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, In6Addr v) const noexcept
@@ -422,8 +422,8 @@ template <>
 struct ToStr<InAnyAddr>
 {
     using type = InAnyAddr;
-    static constexpr std::size_t buf_size = std::max(ToStr<In4Addr>::buf_size,
-                                                     ToStr<In6Addr>::buf_size);
+    static inline constexpr std::size_t buf_size =
+        std::max(ToStr<In4Addr>::buf_size, ToStr<In6Addr>::buf_size);
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, InAnyAddr v) const noexcept

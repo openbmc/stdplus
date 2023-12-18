@@ -17,21 +17,21 @@ struct CanVeq;
 template <template <typename, typename> typename Veq, typename T>
 struct CanVeq<Veq, T>
 {
-    static constexpr inline bool value = false;
+    static inline constexpr bool value = false;
 };
 
 template <template <typename, typename> typename Veq, typename T, typename V,
           typename... Vs>
 struct CanVeq<Veq, T, V, Vs...>
 {
-    static constexpr inline bool value = Veq<T, V>::value ||
+    static inline constexpr bool value = Veq<T, V>::value ||
                                          CanVeq<Veq, T, Vs...>::value;
 };
 
 template <typename T1, typename T2>
 struct VeqBase
 {
-    static constexpr inline bool value = false;
+    static inline constexpr bool value = false;
 
     constexpr bool operator()(const T1&, const T2&) const noexcept
     {
@@ -46,7 +46,7 @@ struct VeqFuzzy : VeqBase<T1, T2>
 template <typename T1, WeaklyEqualityComparableWith<T1> T2>
 struct VeqFuzzy<T1, T2>
 {
-    static constexpr inline bool value = true;
+    static inline constexpr bool value = true;
 
     constexpr bool operator()(const T1& lhs, const T2& rhs) const noexcept
     {
@@ -61,7 +61,7 @@ struct VeqStrict : VeqBase<T1, T2>
 template <typename T1, std::same_as<T1> T2>
 struct VeqStrict<T1, T2>
 {
-    static constexpr inline bool value = true;
+    static inline constexpr bool value = true;
 
     constexpr bool operator()(const T1& lhs, const T2& rhs) const noexcept
     {

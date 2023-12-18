@@ -80,7 +80,7 @@ class Subnet46
     using Pfx = Pfx_;
 
   private:
-    static constexpr inline std::size_t maxPfx = sizeof(Addr) * 8;
+    static inline constexpr std::size_t maxPfx = sizeof(Addr) * 8;
     static_assert(std::is_unsigned_v<Pfx> && std::is_integral_v<Pfx>);
     static_assert(std::numeric_limits<Pfx>::max() >= maxPfx);
 
@@ -258,7 +258,7 @@ struct ToStr<Sub>
     using type = Sub;
     using ToDec = IntToStr<10, typename Sub::Pfx>;
     // Addr + sep + 3 prefix chars
-    static constexpr std::size_t buf_size =
+    static inline constexpr std::size_t buf_size =
         ToStr<typename Sub::Addr>::buf_size + 1 + ToDec::buf_size;
 
     template <typename CharT>

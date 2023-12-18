@@ -75,7 +75,7 @@ class basic_zstring_view
     using size_type = string_view_base::size_type;
     using difference_type = string_view_base::difference_type;
 
-    static constexpr size_type npos = string_view_base::npos;
+    static inline constexpr size_type npos = string_view_base::npos;
 
     template <typename T, size_type N>
     constexpr basic_zstring_view(T (&str)[N])
