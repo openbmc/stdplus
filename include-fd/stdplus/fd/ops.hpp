@@ -2,6 +2,7 @@
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/intf.hpp>
 #include <stdplus/raw.hpp>
+#include <stdplus/net/addr/sock.hpp>
 
 #include <span>
 #include <utility>
@@ -101,10 +102,20 @@ inline void truncate(Fd& fd, off_t size)
     return fd.truncate(size);
 }
 
+inline void bind(Fd& fd, const SockAddrBuf& addr)
+{
+	return fd.bind({reinterpret_cast<const std::byte*>(&addr), addr.len});
+}
+
 template <typename SockAddr>
 inline void bind(Fd& fd, SockAddr&& sockaddr)
 {
     return fd.bind(raw::asSpan<std::byte>(sockaddr));
+}
+
+inline void connect(Fd& fd, const SockAddrBuf& addr)
+{
+	return fd.connect({reinterpret_cast<const std::byte*>(&addr), addr.len});
 }
 
 template <typename SockAddr>
