@@ -17,71 +17,46 @@ namespace fd
 
 using namespace std::literals::string_view_literals;
 
-std::span<std::byte> FdImpl::read(std::span<std::byte> buf)
+template <typename Byte>
+static std::span<Byte> fret(std::span<Byte> buf, const char* name, ssize_t r)
 {
-    ssize_t amt = ::read(get(), buf.data(), buf.size());
-    if (amt == -1)
+    if (r == -1)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
             return {};
         }
-        throw util::makeSystemError(errno, "read");
+        throw util::makeSystemError(errno, name);
     }
-    else if (amt == 0)
+    else if (r == 0 && buf.size() > 0)
     {
-        throw exception::Eof("read");
+        throw exception::Eof(name);
     }
-    return buf.subspan(0, amt);
+    return buf.subspan(0, r);
+}
+
+std::span<std::byte> FdImpl::read(std::span<std::byte> buf)
+{
+    return fret(buf, "read", ::read(get(), buf.data(), buf.size()));
 }
 
 std::span<std::byte> FdImpl::recv(std::span<std::byte> buf, RecvFlags flags)
 {
-    ssize_t amt = ::recv(get(), buf.data(), buf.size(),
-                         static_cast<int>(flags));
-    if (amt == -1)
-    {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-        {
-            return {};
-        }
-        throw util::makeSystemError(errno, "recv");
-    }
-    else if (amt == 0)
-    {
-        throw exception::Eof("recv");
-    }
-    return buf.subspan(0, amt);
+    return fret(buf, "recv",
+                ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags)));
 }
 
 std::span<const std::byte> FdImpl::write(std::span<const std::byte> data)
 {
-    ssize_t amt = ::write(get(), data.data(), data.size());
-    if (amt == -1)
-    {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-        {
-            return {};
-        }
-        throw util::makeSystemError(errno, "write");
-    }
-    return data.subspan(0, amt);
+    return fret(data, "write", ::write(get(), data.data(), data.size()));
 }
 
 std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
                                         SendFlags flags)
 {
-    ssize_t amt = ::send(get(), data.data(), data.size(),
-                         static_cast<int>(flags));
-    if (amt == -1)
-    {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-        {
-            return {};
-        }
-        throw util::makeSystemError(errno, "send");
-    }
-    return data.subspan(0, amt);
+    return fret(
+        data, "send",
+        ::send(get(), data.data(), data.size(), static_cast<int>(flags)));
 }
 
 static std::string_view whenceStr(Whence whence)
