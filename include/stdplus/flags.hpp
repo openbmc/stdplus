@@ -16,6 +16,7 @@ class BitFlags
     using underlying = I;
 
     constexpr BitFlags() noexcept : val(0) {}
+    constexpr BitFlags(type t) noexcept : val(std::to_underlying(t)) {}
     explicit constexpr BitFlags(underlying val) noexcept : val(val) {}
 
     constexpr BitFlags& set(type flag) & noexcept
