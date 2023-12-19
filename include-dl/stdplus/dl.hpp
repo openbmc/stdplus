@@ -23,15 +23,15 @@ enum class DlOpenFlag : int
     DeepBind = RTLD_DEEPBIND,
 };
 
-class DlOpenFlags : public stdplus::BitFlags<int, DlOpenFlag>
+class DlOpenFlags : public stdplus::BitFlags<DlOpenFlag>
 {
   public:
     inline DlOpenFlags(DlOpenType type) :
-        BitFlags<int, DlOpenFlag>(static_cast<int>(type))
+        BitFlags<DlOpenFlag>(std::to_underlying(type))
     {}
 
-    inline DlOpenFlags(BitFlags<int, DlOpenFlag> flags) :
-        BitFlags<int, DlOpenFlag>(flags)
+    inline DlOpenFlags(BitFlags<DlOpenFlag> flags) :
+        BitFlags<DlOpenFlag>(flags)
     {}
 };
 
