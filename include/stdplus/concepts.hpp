@@ -25,4 +25,7 @@ concept WeaklyEqualityComparableWith = requires(
 template <typename T>
 concept TriviallyCopyable = std::is_trivially_copyable_v<T>;
 
+template <typename T>
+concept Enum = std::is_enum_v<T>;
+
 } // namespace stdplus
