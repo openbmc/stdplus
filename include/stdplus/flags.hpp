@@ -1,44 +1,52 @@
 #pragma once
+#include <stdplus/concepts.hpp>
+
+#include <concepts>
+#include <type_traits>
 #include <utility>
 
 namespace stdplus
 {
 
-template <typename Int, typename Flag = Int>
+template <Enum T, std::integral I = std::underlying_type_t<T>>
 class BitFlags
 {
   public:
-    inline explicit BitFlags(Int val = 0) noexcept : val(val) {}
+    using type = T;
+    using underlying = I;
 
-    inline BitFlags& set(Flag flag) & noexcept
+    inline BitFlags() noexcept : val(0) {}
+    explicit inline BitFlags(underlying val) noexcept : val(val) {}
+
+    inline BitFlags& set(type flag) & noexcept
     {
-        val |= static_cast<Int>(flag);
+        val |= std::to_underlying(flag);
         return *this;
     }
-    inline BitFlags&& set(Flag flag) && noexcept
+    inline BitFlags&& set(type flag) && noexcept
     {
-        val |= static_cast<Int>(flag);
+        val |= std::to_underlying(flag);
         return std::move(*this);
     }
 
-    inline BitFlags& unset(Flag flag) & noexcept
+    inline BitFlags& unset(type flag) & noexcept
     {
-        val &= ~static_cast<Int>(flag);
+        val &= ~std::to_underlying(flag);
         return *this;
     }
-    inline BitFlags&& unset(Flag flag) && noexcept
+    inline BitFlags&& unset(type flag) && noexcept
     {
-        val &= ~static_cast<Int>(flag);
+        val &= ~std::to_underlying(flag);
         return std::move(*this);
     }
 
-    explicit inline operator Int() const noexcept
+    explicit inline operator underlying() const noexcept
     {
         return val;
     }
 
   private:
-    Int val;
+    underlying val;
 };
 
 } // namespace stdplus

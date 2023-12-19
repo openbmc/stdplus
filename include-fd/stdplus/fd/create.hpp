@@ -41,16 +41,14 @@ enum class OpenFlag : int
     Trunc = O_TRUNC,
 };
 
-class OpenFlags : public BitFlags<int, OpenFlag>
+class OpenFlags : public BitFlags<OpenFlag>
 {
   public:
     inline OpenFlags(OpenAccess access) :
-        BitFlags<int, OpenFlag>(static_cast<int>(access))
+        BitFlags<OpenFlag>(std::to_underlying(access))
     {}
 
-    inline OpenFlags(BitFlags<int, OpenFlag> flags) :
-        BitFlags<int, OpenFlag>(flags)
-    {}
+    inline OpenFlags(BitFlags<OpenFlag> flags) : BitFlags<OpenFlag>(flags) {}
 };
 
 DupableFd open(const_zstring pathname, OpenFlags flags, mode_t mode = 0);
