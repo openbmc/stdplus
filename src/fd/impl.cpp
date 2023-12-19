@@ -46,6 +46,19 @@ std::span<std::byte> FdImpl::recv(std::span<std::byte> buf, RecvFlags flags)
                 ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags)));
 }
 
+std::tuple<std::span<std::byte>, std::span<std::byte>>
+    FdImpl::recvfrom(std::span<std::byte> buf, RecvFlags flags,
+                     std::span<std::byte> sockaddr)
+{
+    socklen_t sockaddrsize = sockaddr.size();
+    auto ret =
+        fret(buf, "recvfrom",
+             ::recvfrom(get(), buf.data(), buf.size(), static_cast<int>(flags),
+                        reinterpret_cast<struct sockaddr*>(sockaddr.data()),
+                        &sockaddrsize));
+    return std::make_tuple(ret, sockaddr.subspan(0, sockaddrsize));
+}
+
 std::span<const std::byte> FdImpl::write(std::span<const std::byte> data)
 {
     return fret(data, "write", ::write(get(), data.data(), data.size()));
@@ -57,6 +70,17 @@ std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
     return fret(
         data, "send",
         ::send(get(), data.data(), data.size(), static_cast<int>(flags)));
+}
+
+std::span<const std::byte> FdImpl::sendto(std::span<const std::byte> data,
+                                          SendFlags flags,
+                                          std::span<const std::byte> sockaddr)
+{
+    return fret(
+        data, "sendto",
+        ::sendto(get(), data.data(), data.size(), static_cast<int>(flags),
+                 reinterpret_cast<const struct sockaddr*>(sockaddr.data()),
+                 sockaddr.size()));
 }
 
 static std::string_view whenceStr(Whence whence)
