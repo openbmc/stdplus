@@ -24,7 +24,7 @@ enum class RecvFlag : int
     Trunc = MSG_TRUNC,
     WaitAll = MSG_WAITALL,
 };
-using RecvFlags = BitFlags<int, RecvFlag>;
+using RecvFlags = BitFlags<RecvFlag>;
 
 enum class SendFlag : int
 {
@@ -36,7 +36,7 @@ enum class SendFlag : int
     NoSignal = MSG_NOSIGNAL,
     OutOfBounds = MSG_OOB,
 };
-using SendFlags = BitFlags<int, SendFlag>;
+using SendFlags = BitFlags<SendFlag>;
 
 enum class Whence : int
 {
@@ -71,7 +71,7 @@ enum class FdFlag : int
 {
     CloseOnExec = FD_CLOEXEC,
 };
-using FdFlags = BitFlags<int, FdFlag>;
+using FdFlags = BitFlags<FdFlag>;
 
 enum class FileFlag : int
 {
@@ -81,7 +81,7 @@ enum class FileFlag : int
     NoAtime = O_NOATIME,
     NonBlock = O_NONBLOCK,
 };
-using FileFlags = BitFlags<int, FileFlag>;
+using FileFlags = BitFlags<FileFlag>;
 
 enum class ProtFlag : int
 {
@@ -89,7 +89,7 @@ enum class ProtFlag : int
     Read = PROT_READ,
     Write = PROT_WRITE,
 };
-using ProtFlags = BitFlags<int, ProtFlag>;
+using ProtFlags = BitFlags<ProtFlag>;
 
 enum class MMapAccess : int
 {
@@ -101,16 +101,14 @@ enum class MMapFlag : int
 {
 };
 
-class MMapFlags : public BitFlags<int, MMapFlag>
+class MMapFlags : public BitFlags<MMapFlag>
 {
   public:
     inline MMapFlags(MMapAccess access) :
-        BitFlags<int, MMapFlag>(static_cast<int>(access))
+        BitFlags<MMapFlag>(std::to_underlying(access))
     {}
 
-    inline MMapFlags(BitFlags<int, MMapFlag> flags) :
-        BitFlags<int, MMapFlag>(flags)
-    {}
+    inline MMapFlags(BitFlags<MMapFlag> flags) : BitFlags<MMapFlag>(flags) {}
 };
 
 class MMap;
