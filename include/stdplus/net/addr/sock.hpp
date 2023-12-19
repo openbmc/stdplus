@@ -209,14 +209,14 @@ struct IsSockAddr<SockUAddr> : std::true_type
 namespace detail
 {
 
+using SockInAddrV = std::variant<Sock4Addr, Sock6Addr>;
 using SockAnyAddrV = std::variant<Sock4Addr, Sock6Addr, SockUAddr>;
 
-} // namespace detail
-
-struct SockAnyAddr : detail::SockAnyAddrV
+template <typename V>
+struct SockAnyAddr : V
 {
-    constexpr SockAnyAddr(auto&&... a) noexcept :
-        detail::SockAnyAddrV(std::forward<decltype(a)>(a)...)
+    constexpr SockAnyAddr(auto&&... args) :
+        V(std::forward<decltype(args)>(args)...)
     {}
 
     template <SockAddr T>
@@ -243,6 +243,59 @@ struct SockAnyAddr : detail::SockAnyAddrV
     {
         return sockaddr();
     }
+};
+
+} // namespace detail
+
+struct SockInAddr : detail::SockAnyAddr<detail::SockInAddrV>
+{
+    constexpr SockInAddr(In4Addr a, std::uint16_t p) noexcept :
+        detail::SockAnyAddr<detail::SockInAddrV>(std::in_place_type<Sock4Addr>,
+                                                 a, p)
+    {}
+    constexpr SockInAddr(Sock4Addr a) noexcept :
+        detail::SockAnyAddr<detail::SockInAddrV>(a)
+    {}
+    constexpr SockInAddr(In6Addr a, std::uint16_t p) noexcept :
+        detail::SockAnyAddr<detail::SockInAddrV>(std::in_place_type<Sock6Addr>,
+                                                 a, p)
+    {}
+    constexpr SockInAddr(Sock6Addr a) noexcept :
+        detail::SockAnyAddr<detail::SockInAddrV>(a)
+    {}
+};
+
+template <>
+struct IsSockAddr<SockInAddr> : std::true_type
+{};
+
+struct SockAnyAddr : detail::SockAnyAddr<detail::SockAnyAddrV>
+{
+    constexpr SockAnyAddr(In4Addr a, std::uint16_t p) noexcept :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(std::in_place_type<Sock4Addr>,
+                                                  a, p)
+    {}
+    constexpr SockAnyAddr(Sock4Addr a) noexcept :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(a)
+    {}
+    constexpr SockAnyAddr(In6Addr a, std::uint16_t p) noexcept :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(std::in_place_type<Sock6Addr>,
+                                                  a, p)
+    {}
+    constexpr SockAnyAddr(Sock6Addr a) noexcept :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(a)
+    {}
+    constexpr SockAnyAddr(std::string_view p) :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(std::in_place_type<SockUAddr>,
+                                                  p)
+    {}
+    constexpr SockAnyAddr(SockUAddr a) noexcept :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(a)
+    {}
+    constexpr SockAnyAddr(SockInAddr a) noexcept :
+        detail::SockAnyAddr<detail::SockAnyAddrV>(
+            std::visit([](auto v) { return detail::SockAnyAddrV(v); }, a))
+    {}
 };
 
 template <>
@@ -358,6 +411,35 @@ struct ToStr<SockUAddr>
         buf = std::copy(detail::upfx.begin(), detail::upfx.end(), buf);
         auto p = v.path();
         return std::copy(p.begin(), p.end(), buf);
+    }
+};
+
+template <>
+struct FromStr<SockInAddr>
+{
+    template <typename CharT>
+    constexpr SockInAddr operator()(std::basic_string_view<CharT> sv) const
+    {
+        if (sv.starts_with('['))
+        {
+            return FromStr<Sock6Addr>{}(sv);
+        }
+        return FromStr<Sock4Addr>{}(sv);
+    }
+};
+
+template <>
+struct ToStr<SockInAddr>
+{
+    using type = SockInAddr;
+    static inline constexpr std::size_t buf_size =
+        std::max({ToStr<Sock4Addr>::buf_size, ToStr<Sock6Addr>::buf_size});
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, const SockInAddr& v) const noexcept
+    {
+        return std::visit(
+            [buf]<typename T>(const T& t) { return ToStr<T>{}(buf, t); }, v);
     }
 };
 
