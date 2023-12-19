@@ -44,11 +44,11 @@ enum class OpenFlag : int
 class OpenFlags : public BitFlags<OpenFlag>
 {
   public:
-    inline OpenFlags(OpenAccess access) :
+    constexpr OpenFlags(OpenAccess access) :
         BitFlags<OpenFlag>(std::to_underlying(access))
     {}
 
-    inline OpenFlags(BitFlags<OpenFlag> flags) : BitFlags<OpenFlag>(flags) {}
+    constexpr OpenFlags(BitFlags<OpenFlag> flags) : BitFlags<OpenFlag>(flags) {}
 };
 
 DupableFd open(const_zstring pathname, OpenFlags flags, mode_t mode = 0);
