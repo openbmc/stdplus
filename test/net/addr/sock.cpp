@@ -152,11 +152,40 @@ TEST(SockUAddr, ToStr)
     EXPECT_EQ("a unix:a b", std::format("a {} b", SockUAddr("a"sv)));
 }
 
+TEST(SockInAddr, Basic)
+{
+    constexpr SockInAddr addr1(In4Addr{255}, 3959);
+    constexpr SockInAddr addr2(In6Addr{255}, 3959);
+    EXPECT_NE(addr1, addr2);
+    EXPECT_EQ(addr1, addr1);
+    auto buf = addr1.buf();
+    EXPECT_EQ(buf.len, sizeof(sockaddr_in));
+    EXPECT_EQ(addr1.sockaddrLen(), sizeof(sockaddr_in));
+    EXPECT_EQ(addr2.sockaddrLen(), sizeof(sockaddr_in6));
+}
+
+TEST(SockInAddr, FromStr)
+{
+    constexpr FromStr<SockInAddr> fs;
+    EXPECT_THROW(fs("abcd"sv), std::invalid_argument);
+    EXPECT_THROW(fs("/nope"sv), std::invalid_argument);
+    EXPECT_EQ((Sock4Addr{In4Addr{}, 30}), fs("0.0.0.0:30"sv));
+    EXPECT_EQ((Sock6Addr{In6Addr{}, 80, 0}), fs("[::]:80"sv));
+    EXPECT_THROW(fs("unix:/nope"sv), std::invalid_argument);
+}
+
+TEST(SockInAddr, ToStr)
+{
+    ToStrHandle<ToStr<SockInAddr>> tsh;
+    EXPECT_EQ("0.0.0.0:3949", tsh(Sock4Addr(In4Addr{}, 3949)));
+    EXPECT_EQ("a [::]:356 b",
+              std::format("a {} b", Sock6Addr(In6Addr{}, 356, 0)));
+}
+
 TEST(SockAnyAddr, Basic)
 {
-    constexpr SockAnyAddr addr1(std::in_place_type<Sock4Addr>, In4Addr{255},
-                                3959);
-    constexpr SockAnyAddr addr2(std::in_place_type<SockUAddr>, "/hi"sv);
+    constexpr SockAnyAddr addr1(In4Addr{255}, 3959);
+    constexpr SockAnyAddr addr2("/hi"sv);
     EXPECT_NE(addr1, addr2);
     EXPECT_EQ(addr1, addr1);
     auto buf = addr1.buf();
