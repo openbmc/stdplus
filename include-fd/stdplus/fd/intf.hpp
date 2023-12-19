@@ -121,10 +121,16 @@ class Fd
     virtual std::span<std::byte> read(std::span<std::byte> buf) = 0;
     virtual std::span<std::byte> recv(std::span<std::byte> buf,
                                       RecvFlags flags) = 0;
+    virtual std::tuple<std::span<std::byte>, std::span<std::byte>>
+        recvfrom(std::span<std::byte> buf, RecvFlags flags,
+                 std::span<std::byte> sockaddr) = 0;
     virtual std::span<const std::byte>
         write(std::span<const std::byte> data) = 0;
     virtual std::span<const std::byte> send(std::span<const std::byte> data,
                                             SendFlags flags) = 0;
+    virtual std::span<const std::byte>
+        sendto(std::span<const std::byte> data, SendFlags flags,
+               std::span<const std::byte> sockaddr) = 0;
     virtual size_t lseek(off_t offset, Whence whence) = 0;
     virtual void truncate(off_t size) = 0;
     virtual void bind(std::span<const std::byte> sockaddr) = 0;

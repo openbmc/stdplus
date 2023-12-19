@@ -15,10 +15,19 @@ class FdMock : public Fd
                 (override));
     MOCK_METHOD(std::span<std::byte>, recv,
                 (std::span<std::byte> buf, RecvFlags flags), (override));
+    MOCK_METHOD((std::tuple<std::span<std::byte>, std::span<std::byte>>),
+                recvfrom,
+                (std::span<std::byte> buf, RecvFlags flags,
+                 std::span<std::byte> sockaddr),
+                (override));
     MOCK_METHOD(std::span<const std::byte>, write,
                 (std::span<const std::byte> data), (override));
     MOCK_METHOD(std::span<const std::byte>, send,
                 (std::span<const std::byte> data, SendFlags flags), (override));
+    MOCK_METHOD(std::span<const std::byte>, sendto,
+                (std::span<const std::byte> data, SendFlags flags,
+                 std::span<const std::byte> sockaddr),
+                (override));
     MOCK_METHOD(size_t, lseek, (off_t offset, Whence whence), (override));
     MOCK_METHOD(void, truncate, (off_t size), (override));
     MOCK_METHOD(void, bind, (std::span<const std::byte> sockaddr), (override));
