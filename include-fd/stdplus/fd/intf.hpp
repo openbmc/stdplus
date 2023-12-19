@@ -104,11 +104,11 @@ enum class MMapFlag : int
 class MMapFlags : public BitFlags<MMapFlag>
 {
   public:
-    inline MMapFlags(MMapAccess access) :
+    constexpr MMapFlags(MMapAccess access) :
         BitFlags<MMapFlag>(std::to_underlying(access))
     {}
 
-    inline MMapFlags(BitFlags<MMapFlag> flags) : BitFlags<MMapFlag>(flags) {}
+    constexpr MMapFlags(BitFlags<MMapFlag> flags) : BitFlags<MMapFlag>(flags) {}
 };
 
 class MMap;
