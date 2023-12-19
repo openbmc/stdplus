@@ -26,11 +26,11 @@ enum class DlOpenFlag : int
 class DlOpenFlags : public stdplus::BitFlags<DlOpenFlag>
 {
   public:
-    inline DlOpenFlags(DlOpenType type) :
+    constexpr DlOpenFlags(DlOpenType type) :
         BitFlags<DlOpenFlag>(std::to_underlying(type))
     {}
 
-    inline DlOpenFlags(BitFlags<DlOpenFlag> flags) :
+    constexpr DlOpenFlags(BitFlags<DlOpenFlag> flags) :
         BitFlags<DlOpenFlag>(flags)
     {}
 };
