@@ -48,7 +48,7 @@ inline auto read(Fd& fd, Container&& c)
 }
 
 template <typename Container>
-inline auto recv(Fd& fd, Container&& c, RecvFlags flags)
+inline auto recv(Fd& fd, Container&& c, RecvFlags flags = {})
 {
     return detail::alignedOp(detail::recvAligned, fd,
                              std::forward<Container>(c), flags);
@@ -62,7 +62,7 @@ inline auto write(Fd& fd, Container&& c)
 }
 
 template <typename Container>
-inline auto send(Fd& fd, Container&& c, SendFlags flags)
+inline auto send(Fd& fd, Container&& c, SendFlags flags = {})
 {
     return detail::alignedOp(detail::sendAligned, fd,
                              std::forward<Container>(c), flags);
@@ -75,7 +75,7 @@ inline void readExact(Fd& fd, T&& t)
 }
 
 template <typename T>
-inline void recvExact(Fd& fd, T&& t, RecvFlags flags)
+inline void recvExact(Fd& fd, T&& t, RecvFlags flags = {})
 {
     detail::recvExact(fd, raw::asSpan<std::byte>(t), flags);
 }
@@ -87,7 +87,7 @@ inline void writeExact(Fd& fd, T&& t)
 }
 
 template <typename T>
-inline void sendExact(Fd& fd, T&& t, SendFlags flags)
+inline void sendExact(Fd& fd, T&& t, SendFlags flags = {})
 {
     detail::sendExact(fd, raw::asSpan<std::byte>(t), flags);
 }
