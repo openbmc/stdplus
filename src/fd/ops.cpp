@@ -61,6 +61,20 @@ void sendExact(Fd& fd, std::span<const std::byte> data, SendFlags flags)
     opExact("sendExact", &Fd::send, fd, data, flags);
 }
 
+void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
+                 std::span<const std::byte> addr)
+{
+    auto r = fd.sendto(data, flags, addr);
+    if (r.size() == 0)
+    {
+        throw exception::WouldBlock("sendto");
+    }
+    if (r.size() < data.size())
+    {
+        throw exception::Incomplete("sendto");
+    }
+}
+
 template <typename Fun, typename Byte, typename... Args>
 static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
                                  size_t align, std::span<Byte> data,
