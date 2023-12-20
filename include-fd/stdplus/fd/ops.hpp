@@ -173,6 +173,18 @@ inline std::optional<DupableFd> accept(Fd& fd)
     return DupableFd(std::move(std::get<0>(*ret)));
 }
 
+inline std::optional<DupableFd> accept(Fd& fd, SockAddrBuf& addr)
+{
+    auto ret =
+        fd.accept(std::span(reinterpret_cast<std::byte*>(&addr), addr.maxLen));
+    if (!ret)
+    {
+        return std::nullopt;
+    }
+    addr.len = std::get<1>(*ret).size();
+    return DupableFd(std::move(std::get<0>(*ret)));
+}
+
 template <typename Opt>
 inline void setsockopt(Fd& fd, SockLevel level, SockOpt optname, Opt&& opt)
 {
