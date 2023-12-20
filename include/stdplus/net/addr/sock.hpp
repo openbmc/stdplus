@@ -17,16 +17,36 @@
 namespace stdplus
 {
 
-struct SockAddrBuf : sockaddr
+struct SockAddrBuf
 {
-    static inline constexpr std::size_t maxLen =
-        std::max(
-            {sizeof(sockaddr_in), sizeof(sockaddr_in6), sizeof(sockaddr_un)}) -
-        sizeof(sockaddr);
-    std::array<std::uint8_t, maxLen> buf;
+    union
+    {
+        sa_family_t fam;
+        sockaddr_storage ss_;
+    };
     std::uint8_t len;
+
+    static inline constexpr std::size_t maxLen = sizeof(ss_);
     static_assert(maxLen <= std::numeric_limits<decltype(len)>::max());
+
+    inline operator const sockaddr*() const
+    {
+        return reinterpret_cast<const sockaddr*>(&ss_);
+    }
+    inline operator sockaddr*()
+    {
+        return reinterpret_cast<sockaddr*>(&ss_);
+    }
 };
+static_assert(std::is_standard_layout_v<SockAddrBuf>);
+static_assert(offsetof(SockAddrBuf, ss_) == 0);
+static_assert(offsetof(SockAddrBuf, fam) ==
+              offsetof(sockaddr_storage, ss_family));
+static_assert(SockAddrBuf::maxLen <= offsetof(SockAddrBuf, len));
+static_assert(alignof(SockAddrBuf) % alignof(sockaddr) == 0);
+static_assert(alignof(SockAddrBuf) % alignof(sockaddr_in) == 0);
+static_assert(alignof(SockAddrBuf) % alignof(sockaddr_in6) == 0);
+static_assert(alignof(SockAddrBuf) % alignof(sockaddr_un) == 0);
 
 template <typename T>
 struct IsSockAddr : std::false_type
