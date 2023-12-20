@@ -18,6 +18,8 @@ void readExact(Fd& fd, std::span<std::byte> data);
 void recvExact(Fd& fd, std::span<std::byte> data, RecvFlags flags);
 void writeExact(Fd& fd, std::span<const std::byte> data);
 void sendExact(Fd& fd, std::span<const std::byte> data, SendFlags flags);
+void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
+                 std::span<const std::byte> addr);
 
 std::span<std::byte> readAligned(Fd& fd, size_t align,
                                  std::span<std::byte> buf);
@@ -55,6 +57,18 @@ inline auto recv(Fd& fd, Container&& c, RecvFlags flags = {})
 }
 
 template <typename Container>
+auto recvfrom(Fd& fd, Container&& c, SockAddrBuf& addr, RecvFlags flags = {})
+{
+    using Data = raw::detail::dataType<Container>;
+    auto ret = fd.recvfrom(
+        raw::asSpan<std::byte>(c), flags,
+        std::span(reinterpret_cast<std::byte*>(&addr), addr.maxLen));
+    addr.len = std::get<1>(ret).size();
+    return std::span<Data>(std::begin(c),
+                           std::get<0>(ret).size() / sizeof(Data));
+}
+
+template <typename Container>
 inline auto write(Fd& fd, Container&& c)
 {
     return detail::alignedOp(detail::writeAligned, fd,
@@ -66,6 +80,17 @@ inline auto send(Fd& fd, Container&& c, SendFlags flags = {})
 {
     return detail::alignedOp(detail::sendAligned, fd,
                              std::forward<Container>(c), flags);
+}
+
+template <typename Container>
+auto sendto(Fd& fd, Container&& c, const SockAddrBuf& addr,
+            SendFlags flags = {})
+{
+    using Data = raw::detail::dataType<Container>;
+    auto ret = fd.sendto(
+        raw::asSpan<std::byte>(c), flags,
+        std::span(reinterpret_cast<const std::byte*>(&addr), addr.len));
+    return std::span<Data>(std::begin(c), ret.size() / sizeof(Data));
 }
 
 template <typename T>
@@ -90,6 +115,15 @@ template <typename T>
 inline void sendExact(Fd& fd, T&& t, SendFlags flags = {})
 {
     detail::sendExact(fd, raw::asSpan<std::byte>(t), flags);
+}
+
+template <typename Container>
+inline void sendtoExact(Fd& fd, Container&& c, const SockAddrBuf& addr,
+                        SendFlags flags = {})
+{
+    detail::sendtoExact(
+        fd, raw::asSpan<std::byte>(c), flags,
+        std::span(reinterpret_cast<const std::byte*>(&addr), addr.len));
 }
 
 inline size_t lseek(Fd& fd, off_t offset, Whence whence)
