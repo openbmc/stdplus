@@ -15,15 +15,29 @@ template <typename Fun, typename Byte, typename... Args>
 static void opExact(const char* name, Fun&& fun, Fd& fd, std::span<Byte> data,
                     Args&&... args)
 {
-    while (data.size() > 0)
+    std::size_t total = 0;
+    try
     {
-        auto ret = (fd.*fun)(data, std::forward<Args>(args)...);
-        if (ret.size() == 0)
+        while (total < data.size())
         {
-            throw exception::WouldBlock(
-                std::format("{} missing {}B", name, data.size()));
+            auto r = (fd.*fun)(data.subspan(total),
+                               std::forward<Args>(args)...);
+            if (r.size() == 0)
+            {
+                throw exception::WouldBlock(
+                    std::format("{} missing", name, data.size()));
+            }
+            total += r.size();
         }
-        data = data.subspan(ret.size());
+    }
+    catch (const std::system_error&)
+    {
+        if (total != 0)
+        {
+            throw exception::Incomplete(
+                std::format("{} is {}B/{}B", name, total, data.size()));
+        }
+        throw;
     }
 }
 
