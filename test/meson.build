@@ -47,7 +47,7 @@ if has_fd
     'fd/line': [stdplus_fd_dep, stdplus_dep, gmock_dep, gtest_main_dep],
     'fd/mmap': [stdplus_fd_dep, gtest_main_dep],
     'fd/mock': [stdplus_fd_dep, gmock_dep, gtest_main_dep],
-    'fd/ops': [stdplus_fd_dep, gtest_main_dep],
+    'fd/ops': [stdplus_fd_dep, stdplus_dep, gmock_dep, gtest_main_dep],
   }
   if has_gtest
     gtests += {
