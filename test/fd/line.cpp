@@ -1,14 +1,10 @@
-#include <sys/mman.h>
+#include "util.hpp"
 
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/gmock.hpp>
 #include <stdplus/fd/line.hpp>
-#include <stdplus/fd/managed.hpp>
-#include <stdplus/fd/ops.hpp>
-#include <stdplus/raw.hpp>
-#include <stdplus/util/cexec.hpp>
 
-#include <string_view>
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -16,14 +12,6 @@ namespace stdplus
 {
 namespace fd
 {
-
-ManagedFd makeMemfd(std::string_view contents)
-{
-    auto fd = ManagedFd(CHECK_ERRNO(memfd_create("test", 0), "memfd_create"));
-    write(fd, contents);
-    lseek(fd, 0, Whence::Set);
-    return fd;
-}
 
 TEST(LineReader, Empty)
 {
@@ -69,17 +57,6 @@ TEST(LineReader, LargerThanBuf)
 }
 
 using testing::_;
-
-inline auto readSv(std::string_view s)
-{
-    return [s](std::span<std::byte> buf) {
-        if (s.size())
-        {
-            memcpy(buf.data(), s.data(), s.size());
-        }
-        return buf.subspan(0, s.size());
-    };
-}
 
 TEST(LineReader, Nonblock)
 {
