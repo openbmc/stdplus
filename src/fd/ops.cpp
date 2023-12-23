@@ -66,19 +66,31 @@ static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
                                  size_t align, std::span<Byte> data,
                                  Args&&... args)
 {
-    std::span<Byte> ret;
-    do
+    std::size_t total = 0;
+    try
     {
-        auto r = (fd.*fun)(data.subspan(ret.size()),
-                           std::forward<Args>(args)...);
-        if (ret.size() != 0 && r.size() == 0)
+        do
         {
-            throw exception::WouldBlock(
-                std::format("{} is {}B/{}B", name, ret.size() % align, align));
+            auto r = (fd.*fun)(data.subspan(total),
+                               std::forward<Args>(args)...);
+            if (total != 0 && r.size() == 0)
+            {
+                throw exception::Incomplete(
+                    std::format("{} is {}B/{}B", name, total % align, align));
+            }
+            total += r.size();
+        } while (total % align != 0);
+    }
+    catch (const std::system_error&)
+    {
+        if (total % align)
+        {
+            throw exception::Incomplete(
+                std::format("{} is {}B/{}B", name, total % align, align));
         }
-        ret = data.subspan(0, ret.size() + r.size());
-    } while (ret.size() % align != 0);
-    return ret;
+        throw;
+    }
+    return std::span<Byte>(data.data(), total);
 }
 
 std::span<std::byte> readAligned(Fd& fd, size_t align, std::span<std::byte> buf)
