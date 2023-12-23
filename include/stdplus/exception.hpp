@@ -10,6 +10,12 @@ namespace stdplus
 namespace exception
 {
 
+struct Incomplete : public std::system_error
+{
+    Incomplete(const char* what);
+    Incomplete(const std::string& what);
+};
+
 struct WouldBlock : public std::system_error
 {
     WouldBlock(const char* what);

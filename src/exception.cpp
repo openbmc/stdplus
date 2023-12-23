@@ -21,6 +21,16 @@ namespace stdplus
 namespace exception
 {
 
+Incomplete::Incomplete(const char* what) :
+    std::system_error(std::make_error_code(std::errc::illegal_byte_sequence),
+                      what)
+{}
+
+Incomplete::Incomplete(const std::string& what) :
+    std::system_error(std::make_error_code(std::errc::illegal_byte_sequence),
+                      what)
+{}
+
 WouldBlock::WouldBlock(const char* what) :
     std::system_error(std::make_error_code(std::errc::operation_would_block),
                       what)
