@@ -93,4 +93,64 @@ TEST(ReadExact, EnoughInt)
     EXPECT_EQ(stdplus::ntoh(i), 0x01020304);
 }
 
+TEST(Read, Success)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("alph"));
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("one"));
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv(""));
+    }
+    char buf[15];
+    auto res = read(fd, buf);
+    EXPECT_EQ(std::string_view(res.begin(), res.end()), "alph");
+    res = read(fd, buf);
+    EXPECT_EQ(std::string_view(res.begin(), res.end()), "one");
+    EXPECT_TRUE(read(fd, buf).empty());
+}
+
+TEST(Read, NotEnoughInt)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("\0\0\0"sv));
+        EXPECT_CALL(fd, read(_)).WillRepeatedly(readSv(""));
+    }
+    std::array<int32_t, 1> i;
+    EXPECT_THROW(read(fd, i), exception::Incomplete);
+    EXPECT_TRUE(read(fd, i).empty());
+}
+
+TEST(Read, NotEnoughEofInt)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("\0\0\0"sv));
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    std::array<int32_t, 1> i;
+    EXPECT_THROW(read(fd, i), exception::Incomplete);
+    EXPECT_THROW(read(fd, i), exception::Eof);
+}
+
+TEST(Read, EnoughInt)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("\0\0\0\0"sv));
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("\x01\x02"sv));
+        EXPECT_CALL(fd, read(_)).WillOnce(readSv("\x03\x04"sv));
+    }
+    std::array<int32_t, 1> i;
+    read(fd, i);
+    EXPECT_EQ(i[0], 0);
+    read(fd, i);
+    EXPECT_EQ(stdplus::ntoh(i[0]), 0x01020304);
+}
+
 } // namespace stdplus::fd
