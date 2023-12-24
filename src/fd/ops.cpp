@@ -131,6 +131,56 @@ std::span<const std::byte> sendAligned(Fd& fd, size_t align,
     return opAligned("sendAligned", &Fd::send, fd, align, data, flags);
 }
 
+constexpr std::size_t maxStrideB = 65536;
+
+void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize)
+{
+    std::size_t strideB = 256;
+    std::size_t totalB = 0;
+    auto doRead = [&]() {
+        auto buf = resize(totalB + strideB);
+        auto r = fd.read(buf.subspan(totalB));
+        if (r.size() == 0)
+        {
+            throw exception::WouldBlock("readAll");
+        }
+        totalB += r.size();
+    };
+    auto validateSize = [&]() {
+        auto buf = resize(totalB);
+        if (totalB != buf.size())
+        {
+            throw exception::Incomplete(
+                std::format("readAll extra {}B", buf.size() - totalB));
+        }
+    };
+    try
+    {
+        while (strideB < maxStrideB)
+        {
+            doRead();
+            if (totalB >= strideB)
+            {
+                strideB = strideB << 1;
+            }
+        }
+        while (true)
+        {
+            doRead();
+        }
+    }
+    catch (const exception::Eof&)
+    {
+        validateSize();
+        return;
+    }
+    catch (const std::system_error&)
+    {
+        validateSize();
+        throw;
+    }
+}
+
 } // namespace detail
 } // namespace fd
 } // namespace stdplus
