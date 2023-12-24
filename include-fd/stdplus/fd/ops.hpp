@@ -1,11 +1,13 @@
 #pragma once
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/intf.hpp>
+#include <stdplus/function_view.hpp>
 #include <stdplus/net/addr/sock.hpp>
 #include <stdplus/raw.hpp>
 
 #include <span>
 #include <utility>
+#include <vector>
 
 namespace stdplus
 {
@@ -23,6 +25,7 @@ void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
 
 std::span<std::byte> readAligned(Fd& fd, size_t align,
                                  std::span<std::byte> buf);
+void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize);
 std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
                                  RecvFlags flags);
 std::span<const std::byte> writeAligned(Fd& fd, size_t align,
@@ -47,6 +50,20 @@ inline auto read(Fd& fd, Container&& c)
 {
     return detail::alignedOp(detail::readAligned, fd,
                              std::forward<Container>(c));
+}
+
+template <typename Container = std::vector<std::byte>>
+Container readAll(Fd& fd)
+{
+    using Data = raw::detail::dataType<Container>;
+    Container ret;
+    auto resize = [&](size_t req) {
+        ret.resize((req + sizeof(Data) - 1) / sizeof(Data));
+        return std::span(reinterpret_cast<std::byte*>(ret.data()),
+                         ret.size() * sizeof(Data));
+    };
+    detail::readAll(fd, resize);
+    return ret;
 }
 
 template <typename Container>
