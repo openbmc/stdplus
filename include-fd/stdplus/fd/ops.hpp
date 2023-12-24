@@ -26,6 +26,8 @@ void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
 std::span<std::byte> readAligned(Fd& fd, size_t align,
                                  std::span<std::byte> buf);
 void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize);
+std::span<std::byte> readAllFixed(Fd& fd, size_t align,
+                                  std::span<std::byte> buf);
 std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
                                  RecvFlags flags);
 std::span<const std::byte> writeAligned(Fd& fd, size_t align,
@@ -64,6 +66,13 @@ Container readAll(Fd& fd)
     };
     detail::readAll(fd, resize);
     return ret;
+}
+
+template <typename Container>
+inline auto readAllFixed(Fd& fd, Container&& c)
+{
+    return detail::alignedOp(detail::readAllFixed, fd,
+                             std::forward<Container>(c));
 }
 
 template <typename Container>
