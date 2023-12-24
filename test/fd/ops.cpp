@@ -167,4 +167,85 @@ TEST(Read, EnoughInt)
     EXPECT_EQ(stdplus::ntoh(i[0]), 0x01020304);
 }
 
+TEST(ReadAll, SuccessEmpty)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    EXPECT_EQ(readAll<std::string>(fd), "");
+}
+
+TEST(ReadAll, Success)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(4)))).WillOnce(readSv("alph"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(2)))).WillOnce(readSv("a "));
+        EXPECT_CALL(fd, read(SizeIs(Ge(3)))).WillOnce(readSv("one"));
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    EXPECT_EQ(readAll<std::string>(fd), "alpha one");
+}
+
+TEST(ReadAll, Block)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(4)))).WillOnce(readSv("alph"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(2)))).WillOnce(readSv("a "));
+        EXPECT_CALL(fd, read(_)).WillRepeatedly(readSv(""));
+    }
+    EXPECT_THROW(readAll<std::string>(fd), exception::WouldBlock);
+}
+
+TEST(ReadAll, NotEnough)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(5))))
+            .WillOnce(readSv("\x01\x02\x03\x04\x05"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(1)))).WillOnce(readSv("\x06"));
+        EXPECT_CALL(fd, read(_)).WillRepeatedly(readSv(""));
+    }
+    EXPECT_THROW(readAll<std::vector<int32_t>>(fd), exception::Incomplete);
+}
+
+TEST(ReadAll, NotEnoughEof)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(5))))
+            .WillOnce(readSv("\x01\x02\x03\x04\x05"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(1)))).WillOnce(readSv("\x06"));
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    EXPECT_THROW(readAll<std::vector<int32_t>>(fd), exception::Incomplete);
+}
+
+TEST(ReadAll, EnoughInt)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(5))))
+            .WillOnce(readSv("\x01\x02\x03\x04\x05"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(1)))).WillOnce(readSv("\x06"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(2)))).WillOnce(readSv("\x07\x08"));
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    EXPECT_EQ(readAll<std::vector<int32_t>>(fd),
+              (std::vector{stdplus::hton(int32_t{0x01020304}),
+                           stdplus::hton(int32_t{0x05060708})}));
+}
+
 } // namespace stdplus::fd
