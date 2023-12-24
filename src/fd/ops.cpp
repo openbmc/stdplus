@@ -181,6 +181,51 @@ void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize)
     }
 }
 
+std::span<std::byte> readAllFixed(Fd& fd, size_t align,
+                                  std::span<std::byte> buf)
+{
+    std::size_t totalB = 0;
+    auto validateSize = [&]() {
+        if (totalB % align != 0)
+        {
+            throw exception::Incomplete(std::format(
+                "readAllFixed partial {}B/{}B", totalB % align, align));
+        }
+    };
+    try
+    {
+        while (totalB < buf.size())
+        {
+            auto r = fd.read(
+                buf.subspan(totalB, std::min(maxStrideB, buf.size() - totalB)));
+            if (r.size() == 0)
+            {
+                throw exception::WouldBlock("readAllFixed");
+            }
+            totalB += r.size();
+        }
+        std::byte b;
+        auto r = fd.read(std::span(&b, 1));
+        if (r.size() == 0)
+        {
+            throw exception::WouldBlock("readAllFixed");
+        }
+        throw std::system_error(
+            std::make_error_code(std::errc::value_too_large),
+            "readAllFixed overflow");
+    }
+    catch (const exception::Eof& e)
+    {
+        validateSize();
+        return buf.subspan(0, totalB);
+    }
+    catch (const std::system_error& e)
+    {
+        validateSize();
+        throw;
+    }
+}
+
 } // namespace detail
 } // namespace fd
 } // namespace stdplus
