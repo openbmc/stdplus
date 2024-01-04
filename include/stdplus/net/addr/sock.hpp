@@ -16,6 +16,11 @@
 
 namespace stdplus
 {
+namespace detail
+{
+struct SockAddrUnsafe
+{};
+} // namespace detail
 
 struct SockAddrBuf
 {
@@ -59,6 +64,26 @@ struct Sock4Addr
 {
     In4Addr addr;
     std::uint16_t port;
+
+    static constexpr Sock4Addr fromBuf(const SockAddrBuf& buf)
+    {
+        if (buf.fam != AF_INET)
+        {
+            throw std::invalid_argument("Sock4Addr fromBuf");
+        }
+        return fromBuf(detail::SockAddrUnsafe(), buf);
+    }
+    static constexpr Sock4Addr fromBuf(detail::SockAddrUnsafe,
+                                       const SockAddrBuf& buf)
+    {
+        if (buf.len != sizeof(sockaddr_in))
+        {
+            throw std::invalid_argument("Sock4Addr fromBuf");
+        }
+        const auto& sin = reinterpret_cast<const sockaddr_in&>(buf);
+        return Sock4Addr{.addr = sin.sin_addr,
+                         .port = stdplus::ntoh(sin.sin_port)};
+    }
 
     constexpr bool operator==(Sock4Addr rhs) const noexcept
     {
@@ -104,6 +129,27 @@ struct Sock6Addr
     In6Addr addr;
     std::uint16_t port;
     std::uint32_t scope;
+
+    static constexpr Sock6Addr fromBuf(const SockAddrBuf& buf)
+    {
+        if (buf.fam != AF_INET6)
+        {
+            throw std::invalid_argument("Sock6Addr fromBuf");
+        }
+        return fromBuf(detail::SockAddrUnsafe(), buf);
+    }
+    static constexpr Sock6Addr fromBuf(detail::SockAddrUnsafe,
+                                       const SockAddrBuf& buf)
+    {
+        if (buf.len != sizeof(sockaddr_in6))
+        {
+            throw std::invalid_argument("Sock6Addr fromBuf");
+        }
+        const auto& sin6 = reinterpret_cast<const sockaddr_in6&>(buf);
+        return Sock6Addr{.addr = sin6.sin6_addr,
+                         .port = stdplus::ntoh(sin6.sin6_port),
+                         .scope = sin6.sin6_scope_id};
+    }
 
     constexpr bool operator==(Sock6Addr rhs) const noexcept
     {
@@ -168,6 +214,41 @@ struct SockUAddr
         }
         buf_[0] = abstract ? '@' : path[0];
         std::copy(path.begin() + 1, path.end(), buf_.begin() + 1);
+    }
+
+    constexpr SockUAddr(detail::SockAddrUnsafe, std::string_view path) noexcept
+    {
+        if (path.empty())
+        {
+            len_ = 0;
+            return;
+        }
+        bool abstract = path[0] == '\0';
+        // Abstract sockets are not null terminated but path sockets are
+        len_ = path.size() - (abstract ? 0 : 1);
+        buf_[0] = abstract ? '@' : path[0];
+        std::copy_n(path.begin() + 1, len_ - 1, buf_.begin() + 1);
+    }
+
+    static constexpr SockUAddr fromBuf(const SockAddrBuf& buf)
+    {
+        if (buf.fam != AF_UNIX)
+        {
+            throw std::invalid_argument("SockUAddr fromBuf");
+        }
+        return fromBuf(detail::SockAddrUnsafe(), buf);
+    }
+    static constexpr SockUAddr fromBuf(detail::SockAddrUnsafe,
+                                       const SockAddrBuf& buf)
+    {
+        if (buf.len < sizeof(sockaddr_un{}.sun_family))
+        {
+            throw std::invalid_argument("SockUAddr fromBuf");
+        }
+        const auto& sun = reinterpret_cast<const sockaddr_un&>(buf);
+        return SockUAddr{
+            detail::SockAddrUnsafe(),
+            {sun.sun_path, buf.len - offsetof(sockaddr_un, sun_path)}};
     }
 
     constexpr bool operator==(const SockUAddr& rhs) const noexcept
@@ -288,6 +369,19 @@ struct SockInAddr : detail::SockAnyAddr<detail::SockInAddrV>
     constexpr SockInAddr(Sock6Addr a) noexcept :
         detail::SockAnyAddr<detail::SockInAddrV>(a)
     {}
+
+    static constexpr SockInAddr fromBuf(const SockAddrBuf& buf)
+    {
+        if (buf.fam == AF_INET)
+        {
+            return Sock4Addr::fromBuf(detail::SockAddrUnsafe(), buf);
+        }
+        else if (buf.fam == AF_INET6)
+        {
+            return Sock6Addr::fromBuf(detail::SockAddrUnsafe(), buf);
+        }
+        throw std::invalid_argument("Unknown SockInAddr");
+    }
 };
 
 template <>
@@ -321,6 +415,23 @@ struct SockAnyAddr : detail::SockAnyAddr<detail::SockAnyAddrV>
         detail::SockAnyAddr<detail::SockAnyAddrV>(
             std::visit([](auto v) { return detail::SockAnyAddrV(v); }, a))
     {}
+
+    static constexpr SockAnyAddr fromBuf(const SockAddrBuf& buf)
+    {
+        if (buf.fam == AF_INET)
+        {
+            return Sock4Addr::fromBuf(detail::SockAddrUnsafe(), buf);
+        }
+        else if (buf.fam == AF_INET6)
+        {
+            return Sock6Addr::fromBuf(detail::SockAddrUnsafe(), buf);
+        }
+        else if (buf.fam == AF_UNIX)
+        {
+            return SockUAddr::fromBuf(detail::SockAddrUnsafe(), buf);
+        }
+        throw std::invalid_argument("Unknown SockInAddr");
+    }
 };
 
 template <>
