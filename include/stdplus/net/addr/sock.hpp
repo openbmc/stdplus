@@ -16,6 +16,12 @@
 
 namespace stdplus
 {
+namespace detail
+{
+struct SockAddrUnsafe
+{
+};
+}
 
 struct SockAddrBuf
 {
@@ -59,6 +65,18 @@ struct Sock4Addr
 {
     In4Addr addr;
     std::uint16_t port;
+
+    static constexpr Sock4Addr fromBuf(const SockAddrBuf &buf) {
+    if (buf.fam != AF_INET && buf.len != sizeof(sockaddr_in))
+    {
+	    throw std::invalid_argument("Sock4Addr fromBuf");
+    }
+    return fromBuf(detail::SockAddrUnsafe(), buf);
+    }
+    static constexpr Sock4Addr fromBuf(detail::SockAddrUnsafe, const SockAddrBuf &buf) noexcept {
+	const auto &sin = reinterpret_cast<const sockaddr_in&>(buf);
+	return Sock4Addr{.addr = sin.sin_addr, .port = stdplus::ntoh(sin.sin_port)};
+    }
 
     constexpr bool operator==(Sock4Addr rhs) const noexcept
     {
@@ -104,6 +122,18 @@ struct Sock6Addr
     In6Addr addr;
     std::uint16_t port;
     std::uint32_t scope;
+
+    static constexpr Sock6Addr fromBuf(const SockAddrBuf &buf) {
+    if (buf.fam != AF_INET6 && buf.len != sizeof(sockaddr_in6))
+    {
+	    throw std::invalid_argument("Sock6Addr fromBuf");
+    }
+    return fromBuf(detail::SockAddrUnsafe(), buf);
+    }
+    static constexpr Sock6Addr fromBuf(detail::SockAddrUnsafe, const SockAddrBuf &buf) noexcept {
+	const auto &sin6 = reinterpret_cast<const sockaddr_in6&>(buf);
+	return Sock6Addr{.addr = sin6.sin6_addr, .port = stdplus::ntoh(sin6.sin6_port), .scope = sin6.sin6_scope_id};
+    }
 
     constexpr bool operator==(Sock6Addr rhs) const noexcept
     {
@@ -168,6 +198,18 @@ struct SockUAddr
         }
         buf_[0] = abstract ? '@' : path[0];
         std::copy(path.begin() + 1, path.end(), buf_.begin() + 1);
+    }
+
+    static constexpr SockUAddr fromBuf(const SockAddrBuf &buf) {
+    if (buf.fam != AF_UNIX && buf.len > sizeof(sockaddr_un))
+    {
+	    throw std::invalid_argument("SockUAddr fromBuf");
+    }
+    return fromBuf(detail::SockAddrUnsafe(), buf);
+    }
+    static constexpr SockUAddr fromBuf(detail::SockAddrUnsafe, const SockAddrBuf &buf) noexcept {
+	const auto &sinu = reinterpret_cast<const sockaddr_un&>(buf);
+	return SockUAddr{.addr = sin6.sin6_addr, .port = stdplus::ntoh(sin6.sin6_port), .scope = sin6.sin6_scope_id};
     }
 
     constexpr bool operator==(const SockUAddr& rhs) const noexcept
