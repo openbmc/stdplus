@@ -45,7 +45,7 @@ class OpenFlags : public BitFlags<OpenFlag>
 {
   public:
     constexpr OpenFlags(OpenAccess access) :
-        BitFlags<OpenFlag>(std::to_underlying(access))
+        BitFlags<OpenFlag>(static_cast<int>(access))
     {}
 
     constexpr OpenFlags(BitFlags<OpenFlag> flags) : BitFlags<OpenFlag>(flags) {}

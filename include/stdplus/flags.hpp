@@ -16,28 +16,28 @@ class BitFlags
     using underlying = I;
 
     constexpr BitFlags() noexcept : val(0) {}
-    constexpr BitFlags(type t) noexcept : val(std::to_underlying(t)) {}
+    constexpr BitFlags(type t) noexcept : val(static_cast<underlying>(t)) {}
     explicit constexpr BitFlags(underlying val) noexcept : val(val) {}
 
     constexpr BitFlags& set(type flag) & noexcept
     {
-        val |= std::to_underlying(flag);
+        val |= static_cast<underlying>(flag);
         return *this;
     }
     constexpr BitFlags&& set(type flag) && noexcept
     {
-        val |= std::to_underlying(flag);
+        val |= static_cast<underlying>(flag);
         return std::move(*this);
     }
 
     constexpr BitFlags& unset(type flag) & noexcept
     {
-        val &= ~std::to_underlying(flag);
+        val &= ~static_cast<underlying>(flag);
         return *this;
     }
     constexpr BitFlags&& unset(type flag) && noexcept
     {
-        val &= ~std::to_underlying(flag);
+        val &= ~static_cast<underlying>(flag);
         return std::move(*this);
     }
 

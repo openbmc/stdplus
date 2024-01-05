@@ -105,7 +105,7 @@ class MMapFlags : public BitFlags<MMapFlag>
 {
   public:
     constexpr MMapFlags(MMapAccess access) :
-        BitFlags<MMapFlag>(std::to_underlying(access))
+        BitFlags<MMapFlag>(static_cast<int>(access))
     {}
 
     constexpr MMapFlags(BitFlags<MMapFlag> flags) : BitFlags<MMapFlag>(flags) {}

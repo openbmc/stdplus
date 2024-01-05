@@ -27,7 +27,7 @@ class DlOpenFlags : public stdplus::BitFlags<DlOpenFlag>
 {
   public:
     constexpr DlOpenFlags(DlOpenType type) :
-        BitFlags<DlOpenFlag>(std::to_underlying(type))
+        BitFlags<DlOpenFlag>(static_cast<int>(type))
     {}
 
     constexpr DlOpenFlags(BitFlags<DlOpenFlag> flags) :
