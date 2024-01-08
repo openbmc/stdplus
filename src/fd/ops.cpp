@@ -226,6 +226,14 @@ std::span<std::byte> readAllFixed(Fd& fd, size_t align,
     }
 }
 
+void verifyExact(size_t expected, size_t actual)
+{
+    if (expected != actual)
+    {
+        throw exception::WouldBlock("verifyExact");
+    }
+}
+
 } // namespace detail
 } // namespace fd
 } // namespace stdplus

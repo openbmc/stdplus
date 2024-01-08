@@ -352,4 +352,61 @@ TEST(ReadAllFixed, TooMuch)
     EXPECT_THROW(readAllFixed(fd, buf), std::system_error);
 }
 
+TEST(ReadAllExact, FailEmpty)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    std::array<char, 16> buf;
+    EXPECT_THROW(readAllExact(fd, buf), std::system_error);
+}
+
+TEST(ReadAllExact, FailPartial)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(4)))).WillOnce(readSv("alph"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(2)))).WillOnce(readSv("a "));
+        EXPECT_CALL(fd, read(SizeIs(Ge(3)))).WillOnce(readSv("one"));
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    std::array<char, 16> buf;
+    EXPECT_THROW(readAllExact(fd, buf), std::system_error);
+}
+
+TEST(ReadAllExact, Success)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(4)))).WillOnce(readSv("alph"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(2)))).WillOnce(readSv("a "));
+        EXPECT_CALL(fd, read(SizeIs(Ge(10)))).WillOnce(readSv("one tenner"));
+        EXPECT_CALL(fd, read(_))
+            .WillRepeatedly(testing::Throw(exception::Eof("test")));
+    }
+    std::array<char, 16> buf;
+    readAllExact(fd, buf);
+    EXPECT_EQ(std::string_view(buf.begin(), buf.end()), "alpha one tenner");
+}
+
+TEST(ReadAllExact, TooMuch)
+{
+    testing::StrictMock<FdMock> fd;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(fd, read(SizeIs(Ge(4)))).WillOnce(readSv("alph"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(2)))).WillOnce(readSv("a "));
+        EXPECT_CALL(fd, read(SizeIs(Ge(10)))).WillOnce(readSv("one tenner"));
+        EXPECT_CALL(fd, read(SizeIs(Ge(1)))).WillOnce(readSv("r"));
+    }
+    std::array<char, 16> buf;
+    EXPECT_THROW(readAllExact(fd, buf), std::system_error);
+}
+
 } // namespace stdplus::fd

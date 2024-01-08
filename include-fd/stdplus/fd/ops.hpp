@@ -36,6 +36,8 @@ std::span<const std::byte> sendAligned(Fd& fd, size_t align,
                                        std::span<const std::byte> data,
                                        SendFlags flags);
 
+void verifyExact(size_t expected, size_t actual);
+
 template <typename Fun, typename Container, typename... Args>
 auto alignedOp(Fun&& fun, Fd& fd, Container&& c, Args&&... args)
 {
@@ -123,6 +125,13 @@ template <typename T>
 inline void readExact(Fd& fd, T&& t)
 {
     detail::readExact(fd, raw::asSpan<std::byte>(t));
+}
+
+template <typename T>
+inline auto readAllExact(Fd& fd, T&& t)
+{
+    auto s = raw::asSpan<std::byte>(t);
+    detail::verifyExact(s.size(), detail::readAllFixed(fd, 1, s).size());
 }
 
 template <typename T>
