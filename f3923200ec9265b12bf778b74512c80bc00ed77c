@@ -22,6 +22,30 @@
       },
       "revId": "f3923200ec9265b12bf778b74512c80bc00ed77c",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86353573_61a6b789",
+        "filename": "src/fd/ops.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2024-01-10T09:17:09Z",
+      "side": 1,
+      "message": "`r` or `rc` is a pretty typical convention for return code in C code. I don\u0027t think we need long names for these type of variables.",
+      "parentUuid": "db2f0986_4d3592ac",
+      "range": {
+        "startLine": 67,
+        "startChar": 9,
+        "endLine": 67,
+        "endChar": 10
+      },
+      "revId": "f3923200ec9265b12bf778b74512c80bc00ed77c",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
