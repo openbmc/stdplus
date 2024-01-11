@@ -55,5 +55,10 @@ int ManagedFd::get() const
     return handle.value();
 }
 
+ManagedFd::operator bool() const noexcept
+{
+    return static_cast<bool>(handle);
+}
+
 } // namespace fd
 } // namespace stdplus

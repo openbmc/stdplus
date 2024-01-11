@@ -51,6 +51,7 @@ class ManagedFd : public FdImpl
     [[nodiscard]] int release();
 
     int get() const override;
+    explicit operator bool() const noexcept;
 
   private:
     detail::ManagedFdHandle handle;

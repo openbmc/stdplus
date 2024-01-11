@@ -39,5 +39,10 @@ int DupableFd::get() const
     return handle.value();
 }
 
+DupableFd::operator bool() const noexcept
+{
+    return static_cast<bool>(handle);
+}
+
 } // namespace fd
 } // namespace stdplus

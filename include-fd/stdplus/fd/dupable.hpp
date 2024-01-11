@@ -49,6 +49,7 @@ class DupableFd : public FdImpl
     [[nodiscard]] int release();
 
     int get() const override;
+    explicit operator bool() const noexcept;
 
   private:
     friend class ManagedFd;
