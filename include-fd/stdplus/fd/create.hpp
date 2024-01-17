@@ -69,6 +69,24 @@ enum class SocketType : int
     Stream = SOCK_STREAM,
 };
 
+enum class SocketFlag : int
+{
+    CloseOnExec = O_CLOEXEC,
+    NonBlock = O_NONBLOCK,
+};
+
+class SocketFlags : public BitFlags<SocketFlag>
+{
+  public:
+    constexpr SocketFlags(SocketType type) :
+        BitFlags<SocketFlag>(static_cast<int>(type))
+    {}
+
+    constexpr SocketFlags(BitFlags<SocketFlag> flags) :
+        BitFlags<SocketFlag>(flags)
+    {}
+};
+
 enum class SocketProto : int
 {
     ICMP = IPPROTO_ICMP,
@@ -78,7 +96,7 @@ enum class SocketProto : int
     UDP = IPPROTO_UDP,
 };
 
-DupableFd socket(SocketDomain domain, SocketType type, SocketProto protocol);
+DupableFd socket(SocketDomain domain, SocketFlags flags, SocketProto protocol);
 
 } // namespace fd
 } // namespace stdplus

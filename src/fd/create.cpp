@@ -18,10 +18,10 @@ DupableFd open(const_zstring pathname, OpenFlags flags, mode_t mode)
                     std::format("open `{}`", pathname.c_str())));
 }
 
-DupableFd socket(SocketDomain domain, SocketType type, SocketProto protocol)
+DupableFd socket(SocketDomain domain, SocketFlags flags, SocketProto protocol)
 {
     return DupableFd(
-        CHECK_ERRNO(::socket(static_cast<int>(domain), static_cast<int>(type),
+        CHECK_ERRNO(::socket(static_cast<int>(domain), static_cast<int>(flags),
                              static_cast<int>(protocol)),
                     "socket"));
 }
