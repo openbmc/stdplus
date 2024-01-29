@@ -30,10 +30,10 @@ TEST(Equal, Equal)
 TEST(CopyFrom, Empty)
 {
     const std::string_view cs;
-    EXPECT_THROW(copyFrom<int>(cs), std::runtime_error);
+    EXPECT_THROW(copyFrom<int>(cs), exception::Incomplete);
     std::string_view s;
-    EXPECT_THROW(copyFrom<int>(s), std::runtime_error);
-    EXPECT_THROW(copyFromStrict<char>(s), std::runtime_error);
+    EXPECT_THROW(copyFrom<int>(s), exception::Incomplete);
+    EXPECT_THROW(copyFromStrict<char>(s), exception::Incomplete);
 }
 
 TEST(CopyFrom, Basic)
@@ -48,7 +48,7 @@ TEST(CopyFrom, Partial)
 {
     const std::vector<char> s = {'a', 'b', 'c'};
     EXPECT_EQ('a', copyFrom<char>(s));
-    EXPECT_THROW(copyFromStrict<char>(s), std::runtime_error);
+    EXPECT_THROW(copyFromStrict<char>(s), exception::Incomplete);
     const char s2[] = "def";
     EXPECT_EQ('d', copyFrom<char>(s2));
 }
@@ -66,10 +66,10 @@ struct Int
 TEST(RefFrom, Empty)
 {
     const std::string_view cs;
-    EXPECT_THROW(refFrom<Int>(cs), std::runtime_error);
+    EXPECT_THROW(refFrom<Int>(cs), exception::Incomplete);
     std::string_view s;
-    EXPECT_THROW(refFrom<Int>(s), std::runtime_error);
-    EXPECT_THROW(refFromStrict<Int>(s), std::runtime_error);
+    EXPECT_THROW(refFrom<Int>(s), exception::Incomplete);
+    EXPECT_THROW(refFromStrict<Int>(s), exception::Incomplete);
 }
 
 TEST(RefFrom, Basic)
@@ -84,7 +84,7 @@ TEST(RefFrom, Partial)
 {
     const std::vector<char> s = {'a', 'b', 'c'};
     EXPECT_EQ('a', refFrom<char>(s));
-    EXPECT_THROW(refFromStrict<char>(s), std::runtime_error);
+    EXPECT_THROW(refFromStrict<char>(s), exception::Incomplete);
     const char s2[] = "def";
     EXPECT_EQ('d', refFrom<char>(s2));
 }
@@ -94,7 +94,7 @@ TEST(Extract, TooSmall)
     std::string str = "aaaa";
     str.resize(1);
     std::string_view s(str);
-    EXPECT_THROW(extract<int>(s), std::runtime_error);
+    EXPECT_THROW(extract<int>(s), exception::Incomplete);
     EXPECT_EQ("a", s);
 }
 
@@ -119,7 +119,7 @@ TEST(ExtractRef, TooSmall)
     std::array<char, sizeof(Int)> buf{};
     buf[0] = 'a';
     std::string_view s(buf.data(), 1);
-    EXPECT_THROW(extractRef<Int>(s), std::runtime_error);
+    EXPECT_THROW(extractRef<Int>(s), exception::Incomplete);
     EXPECT_EQ("a", s);
 }
 
@@ -173,7 +173,7 @@ TEST(SpanExtract, TooSmall)
 {
     const std::vector<char> v = {'c'};
     std::span<const char> s = v;
-    EXPECT_THROW(extract<int>(s), std::runtime_error);
+    EXPECT_THROW(extract<int>(s), exception::Incomplete);
     EXPECT_THAT(s, ElementsAreArray(v));
 }
 
@@ -197,7 +197,7 @@ TEST(SpanExtractRef, TooSmall)
 {
     const std::vector<char> v = {'c'};
     std::span<const char> s = v;
-    EXPECT_THROW(extractRef<Int>(s), std::runtime_error);
+    EXPECT_THROW(extractRef<Int>(s), exception::Incomplete);
     EXPECT_THAT(s, ElementsAreArray(v));
 }
 

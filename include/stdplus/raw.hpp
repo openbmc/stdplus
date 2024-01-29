@@ -1,5 +1,6 @@
 #pragma once
 #include <stdplus/concepts.hpp>
+#include <stdplus/exception.hpp>
 
 #include <algorithm>
 #include <format>
@@ -82,7 +83,7 @@ constexpr bool equal(const A& a, const B& b) noexcept
         const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
         if (bytes comp sizeof(ret))                                            \
         {                                                                      \
-            throw std::runtime_error(                                          \
+            throw exception::Incomplete(                                       \
                 std::format(#func ": {} < {}", bytes, sizeof(ret)));           \
         }                                                                      \
         const auto c_bytes = reinterpret_cast<const std::byte*>(std::data(c)); \
@@ -117,7 +118,7 @@ struct UnAligned
         const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
         if (bytes comp sizeof(Tp))                                             \
         {                                                                      \
-            throw std::runtime_error(                                          \
+            throw exception::Incomplete(                                       \
                 std::format(#func ": {} < {}", bytes, sizeof(Tp)));            \
         }                                                                      \
         return *reinterpret_cast<Tp*>(std::data(c));                           \
