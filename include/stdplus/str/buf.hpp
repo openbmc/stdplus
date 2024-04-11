@@ -330,6 +330,11 @@ class BasicStrBuf
         return as.store.dyn.ptr + oldlen;
     }
 
+    constexpr void append(const CharT *begin, const CharT *end)
+    {
+        std::copy(begin, end, append(end - begin));
+    }
+
     constexpr void push_back(CharT c) noexcept
     {
         *append(1) = c;
