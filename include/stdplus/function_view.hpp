@@ -74,8 +74,8 @@ struct function_view_base
         requires(!C && std::same_as<std::invoke_result_t<F, Args...>, R>)
     inline function_view_base(F& f) noexcept :
         memfun([](void* v, Args... args) {
-        return (*reinterpret_cast<F*>(v))(std::forward<Args>(args)...);
-    }),
+            return (*reinterpret_cast<F*>(v))(std::forward<Args>(args)...);
+        }),
         obj(std::addressof(f))
     {}
 
@@ -83,8 +83,9 @@ struct function_view_base
         requires std::same_as<std::invoke_result_t<F, Args...>, R>
     inline function_view_base(const F& f) noexcept :
         memfun([](void* v, Args... args) {
-        return (*reinterpret_cast<const F*>(v))(std::forward<Args>(args)...);
-    }),
+            return (*reinterpret_cast<const F*>(v))(
+                std::forward<Args>(args)...);
+        }),
         obj(const_cast<F*>(std::addressof(f)))
     {}
 
@@ -184,7 +185,8 @@ function_view(R (*)(Args...) noexcept(Nx))
     -> function_view<R(Args...) const noexcept(Nx)>;
 
 template <typename F>
-function_view(F) -> function_view<
-    typename detail::FViewGuide<decltype(&F::operator())>::type>;
+function_view(F)
+    -> function_view<
+        typename detail::FViewGuide<decltype(&F::operator())>::type>;
 
 } // namespace stdplus

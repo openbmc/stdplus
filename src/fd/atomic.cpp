@@ -37,8 +37,7 @@ static int mktemp(std::string& tmpl)
 
 AtomicWriter::AtomicWriter(const std::filesystem::path& filename, int mode,
                            std::string_view tmpl) :
-    filename(filename),
-    mode(mode),
+    filename(filename), mode(mode),
     tmpname(!tmpl.empty() ? std::string(tmpl) : makeTmpName(filename)),
     fd(mktemp(tmpname))
 {}

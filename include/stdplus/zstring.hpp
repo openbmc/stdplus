@@ -88,8 +88,7 @@ class basic_zstring
 #ifdef NDEBUG
         noexcept
 #endif
-        :
-        data_(str)
+        : data_(str)
     {
 #ifndef NDEBUG
         detail::zstring_validate(str, 0, N);
@@ -106,8 +105,7 @@ class basic_zstring
 #ifdef NDEBUG
         noexcept
 #endif
-        :
-        data_(str.data())
+        : data_(str.data())
     {
 #ifndef NDEBUG
         detail::zstring_validate(str.data(), str.size(), str.size() + 1);

@@ -76,11 +76,9 @@ template <template <typename, typename> typename Veq, typename... Vs,
           std::enable_if_t<detail::CanVeq<Veq, T, Vs...>::value, bool> = true>
 constexpr bool variantEq(const std::variant<Vs...>& vs, const T& t) noexcept
 {
-    return std::visit(
-        [&t](const auto& v) {
+    return std::visit([&t](const auto& v) {
         return Veq<std::remove_cvref_t<decltype(v)>, T>{}(v, t);
-    },
-        vs);
+    }, vs);
 }
 
 template <template <typename, typename> typename Veq, typename... Vs,

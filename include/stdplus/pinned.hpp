@@ -47,8 +47,7 @@ struct Pinned : CT
 
     template <typename... Args>
     constexpr Pinned(Args&&... args) noexcept(
-        noexcept(CT(std::declval<Args>()...))) :
-        CT(std::forward<Args>(args)...)
+        noexcept(CT(std::declval<Args>()...))) : CT(std::forward<Args>(args)...)
     {}
 
     template <typename Arg>
