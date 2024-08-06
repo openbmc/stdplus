@@ -29,7 +29,7 @@ Meson Build System which can be installed following the instructions at
 
 For a standard release build, you want something like:
 
-```
+```sh
 meson setup -Dexamples=false -Dtests=disabled builddir
 ninja -C builddir
 ninja -C builddir install
@@ -37,7 +37,7 @@ ninja -C builddir install
 
 For a test / debug build, a typical configuration is
 
-```
+```sh
 meson setup -Dtests=enabled builddir
 meson test -C builddir
 ```
