@@ -24,8 +24,8 @@ template <template <typename, typename> typename Veq, typename T, typename V,
           typename... Vs>
 struct CanVeq<Veq, T, V, Vs...>
 {
-    static inline constexpr bool value = Veq<T, V>::value ||
-                                         CanVeq<Veq, T, Vs...>::value;
+    static inline constexpr bool value =
+        Veq<T, V>::value || CanVeq<Veq, T, Vs...>::value;
 };
 
 template <typename T1, typename T2>
@@ -78,8 +78,8 @@ constexpr bool variantEq(const std::variant<Vs...>& vs, const T& t) noexcept
 {
     return std::visit(
         [&t](const auto& v) {
-        return Veq<std::remove_cvref_t<decltype(v)>, T>{}(v, t);
-    },
+            return Veq<std::remove_cvref_t<decltype(v)>, T>{}(v, t);
+        },
         vs);
 }
 
@@ -93,15 +93,15 @@ constexpr bool variantEq(const std::variant<Vs...>& vs,
 }
 
 template <typename... Vs>
-constexpr bool variantEqFuzzy(const std::variant<Vs...>& vs,
-                              const auto& t) noexcept
+constexpr bool
+    variantEqFuzzy(const std::variant<Vs...>& vs, const auto& t) noexcept
 {
     return variantEq<detail::VeqFuzzy>(vs, t);
 }
 
 template <typename... Vs>
-constexpr bool variantEqStrict(const std::variant<Vs...>& vs,
-                               const auto& t) noexcept
+constexpr bool
+    variantEqStrict(const std::variant<Vs...>& vs, const auto& t) noexcept
 {
     return variantEq<detail::VeqStrict>(vs, t);
 }

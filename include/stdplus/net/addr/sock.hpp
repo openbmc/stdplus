@@ -246,9 +246,9 @@ struct SockUAddr
             throw std::invalid_argument("SockUAddr fromBuf");
         }
         const auto& sun = reinterpret_cast<const sockaddr_un&>(buf);
-        return SockUAddr{
-            detail::SockAddrUnsafe(),
-            {sun.sun_path, buf.len - offsetof(sockaddr_un, sun_path)}};
+        return SockUAddr{detail::SockAddrUnsafe(),
+                         {sun.sun_path,
+                          buf.len - offsetof(sockaddr_un, sun_path)}};
     }
 
     constexpr bool operator==(const SockUAddr& rhs) const noexcept
@@ -461,8 +461,8 @@ struct ToStr<Sock4Addr>
     using FromAddr = ToStr<In4Addr>;
     using FromDec = IntToStr<10, std::uint16_t>;
     // Addr + sep + port chars
-    static inline constexpr std::size_t buf_size = FromAddr::buf_size + 1 +
-                                                   FromDec::buf_size;
+    static inline constexpr std::size_t buf_size =
+        FromAddr::buf_size + 1 + FromDec::buf_size;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, Sock4Addr v) const noexcept
@@ -501,8 +501,8 @@ struct ToStr<Sock6Addr>
     using FromAddr = ToStr<In6Addr>;
     using FromDec = IntToStr<10, std::uint16_t>;
     // Addr + sep + port chars
-    static inline constexpr std::size_t buf_size = FromAddr::buf_size + 1 +
-                                                   FromDec::buf_size;
+    static inline constexpr std::size_t buf_size =
+        FromAddr::buf_size + 1 + FromDec::buf_size;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, Sock6Addr v) const noexcept
@@ -538,8 +538,8 @@ template <>
 struct ToStr<SockUAddr>
 {
     using type = SockUAddr;
-    static inline constexpr std::size_t buf_size = detail::upfx.size() +
-                                                   SockUAddr::maxLen;
+    static inline constexpr std::size_t buf_size =
+        detail::upfx.size() + SockUAddr::maxLen;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, const SockUAddr& v) const noexcept

@@ -80,11 +80,9 @@ class basic_zstring_view
     template <typename T, size_type N>
     constexpr basic_zstring_view(T (&str)[N])
 #ifdef NDEBUG
-        noexcept :
-        sv(str)
+        noexcept : sv(str)
 #else
-        :
-        sv(str, detail::zstring_validate(str, 0, N))
+        : sv(str, detail::zstring_validate(str, 0, N))
 #endif
     {}
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
@@ -95,8 +93,7 @@ class basic_zstring_view
                                bool> = true>
     constexpr basic_zstring_view(const T& str)
 #ifdef NDEBUG
-        noexcept :
-        sv(str)
+        noexcept : sv(str)
 #else
         :
         sv(str.data(),
@@ -323,8 +320,8 @@ template <auto f>
 consteval auto cexprToZsv()
 {
     constexpr auto& d = cexprStrArr<f, /*nul=*/true>;
-    static_assert(detail::zstring_find_term(d.data(), d.size() - 1, d.size()) >=
-                  0);
+    static_assert(
+        detail::zstring_find_term(d.data(), d.size() - 1, d.size()) >= 0);
     return detail::unsafe_zstring_view(
         std::basic_string_view(d.begin(), d.end() - 1));
 }

@@ -44,18 +44,20 @@ struct Managed
          *  @param[in] maybeV - Maybe the object being managed
          */
         template <typename... Vs>
-        constexpr explicit HandleF(std::optional<T>&& maybeV, Vs&&... vs) noexcept(
-            std::is_nothrow_move_constructible_v<std::optional<T>>&& noexcept(
-                std::tuple<As...>(std::declval<Vs>()...))) :
-            as(std::forward<Vs>(vs)...),
-            maybeT(std::move(maybeV))
+        constexpr explicit HandleF(
+            std::optional<T>&& maybeV,
+            Vs&&... vs) noexcept(std::
+                                     is_nothrow_move_constructible_v<
+                                         std::optional<T>> &&
+                                 noexcept(std::tuple<As...>(
+                                     std::declval<Vs>()...))) :
+            as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
         {}
         template <typename... Vs>
         constexpr explicit HandleF(T&& maybeV, Vs&&... vs) noexcept(
-            std::is_nothrow_move_constructible_v<std::optional<T>>&& noexcept(
-                std::tuple<As...>(std::declval<Vs>()...))) :
-            as(std::forward<Vs>(vs)...),
-            maybeT(std::move(maybeV))
+            std::is_nothrow_move_constructible_v<std::optional<T>> &&
+            noexcept(std::tuple<As...>(std::declval<Vs>()...))) :
+            as(std::forward<Vs>(vs)...), maybeT(std::move(maybeV))
         {}
 
         HandleF(const HandleF& other) = delete;
@@ -64,16 +66,15 @@ struct Managed
         constexpr HandleF(HandleF&& other) noexcept(
             std::is_nothrow_move_constructible_v<std::tuple<As...>> &&
             std::is_nothrow_move_constructible_v<std::optional<T>>) :
-            as(std::move(other.as)),
-            maybeT(std::move(other.maybeT))
+            as(std::move(other.as)), maybeT(std::move(other.maybeT))
         {
             other.maybeT = std::nullopt;
         }
 
         constexpr HandleF& operator=(HandleF&& other) noexcept(
-            std::is_nothrow_move_assignable_v<std::tuple<As...>>&& noexcept(
-                std::declval<HandleF>().reset(
-                    std::declval<std::optional<T>>())))
+            std::is_nothrow_move_assignable_v<std::tuple<As...>> &&
+            noexcept(std::declval<HandleF>().reset(
+                std::declval<std::optional<T>>())))
         {
             if (this != &other)
             {
@@ -86,8 +87,8 @@ struct Managed
 
         virtual ~HandleF() noexcept(
             std::is_nothrow_destructible_v<std::tuple<As...>> &&
-            std::is_nothrow_destructible_v<std::optional<T>>&& noexcept(
-                std::declval<HandleF>().reset()))
+            std::is_nothrow_destructible_v<std::optional<T>> &&
+            noexcept(std::declval<HandleF>().reset()))
         {
             reset();
         }

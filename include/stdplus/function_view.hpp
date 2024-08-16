@@ -62,8 +62,8 @@ struct function_view_base
     static_assert(sizeof(fun) == sizeof(memfun));
     void* obj;
 
-    inline function_view_base() : fun(nullptr), obj(nullptr){};
-    inline function_view_base(std::nullptr_t) : function_view_base(){};
+    inline function_view_base() : fun(nullptr), obj(nullptr) {};
+    inline function_view_base(std::nullptr_t) : function_view_base() {};
 
     template <bool Nx2>
     constexpr function_view_base(R (*f)(Args...) noexcept(Nx2)) noexcept :
@@ -74,8 +74,8 @@ struct function_view_base
         requires(!C && std::same_as<std::invoke_result_t<F, Args...>, R>)
     inline function_view_base(F& f) noexcept :
         memfun([](void* v, Args... args) {
-        return (*reinterpret_cast<F*>(v))(std::forward<Args>(args)...);
-    }),
+            return (*reinterpret_cast<F*>(v))(std::forward<Args>(args)...);
+        }),
         obj(std::addressof(f))
     {}
 
@@ -83,8 +83,9 @@ struct function_view_base
         requires std::same_as<std::invoke_result_t<F, Args...>, R>
     inline function_view_base(const F& f) noexcept :
         memfun([](void* v, Args... args) {
-        return (*reinterpret_cast<const F*>(v))(std::forward<Args>(args)...);
-    }),
+            return (*reinterpret_cast<const F*>(v))(
+                std::forward<Args>(args)...);
+        }),
         obj(const_cast<F*>(std::addressof(f)))
     {}
 
@@ -184,7 +185,8 @@ function_view(R (*)(Args...) noexcept(Nx))
     -> function_view<R(Args...) const noexcept(Nx)>;
 
 template <typename F>
-function_view(F) -> function_view<
-    typename detail::FViewGuide<decltype(&F::operator())>::type>;
+function_view(F)
+    -> function_view<
+        typename detail::FViewGuide<decltype(&F::operator())>::type>;
 
 } // namespace stdplus

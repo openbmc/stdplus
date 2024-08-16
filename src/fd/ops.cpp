@@ -20,8 +20,8 @@ static void opExact(const char* name, Fun&& fun, Fd& fd, std::span<Byte> data,
     {
         while (total < data.size())
         {
-            auto r = (fd.*fun)(data.subspan(total),
-                               std::forward<Args>(args)...);
+            auto r =
+                (fd.*fun)(data.subspan(total), std::forward<Args>(args)...);
             if (r.size() == 0)
             {
                 throw exception::WouldBlock(
@@ -76,17 +76,17 @@ void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
 }
 
 template <typename Fun, typename Byte, typename... Args>
-static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
-                                 size_t align, std::span<Byte> data,
-                                 Args&&... args)
+static std::span<Byte>
+    opAligned(const char* name, Fun&& fun, Fd& fd, size_t align,
+              std::span<Byte> data, Args&&... args)
 {
     std::size_t total = 0;
     try
     {
         do
         {
-            auto r = (fd.*fun)(data.subspan(total),
-                               std::forward<Args>(args)...);
+            auto r =
+                (fd.*fun)(data.subspan(total), std::forward<Args>(args)...);
             if (total != 0 && r.size() == 0)
             {
                 throw exception::Incomplete(
@@ -124,9 +124,8 @@ std::span<const std::byte> writeAligned(Fd& fd, size_t align,
     return opAligned("writeAligned", &Fd::write, fd, align, data);
 }
 
-std::span<const std::byte> sendAligned(Fd& fd, size_t align,
-                                       std::span<const std::byte> data,
-                                       SendFlags flags)
+std::span<const std::byte> sendAligned(
+    Fd& fd, size_t align, std::span<const std::byte> data, SendFlags flags)
 {
     return opAligned("sendAligned", &Fd::send, fd, align, data, flags);
 }

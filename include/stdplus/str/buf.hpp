@@ -65,8 +65,8 @@ struct StrBufAS : Allocator
     static_assert(sizeof(std::declval<Store>().inl) >=
                   sizeof(std::declval<Store>().dyn));
 
-    static inline constexpr auto dyn_mask = std::size_t{1}
-                                            << ((sizeof(std::size_t) << 3) - 1);
+    static inline constexpr auto dyn_mask =
+        std::size_t{1} << ((sizeof(std::size_t) << 3) - 1);
     static inline constexpr auto inl_mask =
         decltype(Store::Inl::len){1} << ((sizeof(Store::Inl::len) << 3) - 1);
 

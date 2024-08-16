@@ -148,9 +148,9 @@ class Fd
     virtual FileFlags fcntlGetfl() const = 0;
 
   protected:
-    virtual std::span<std::byte> mmap(std::span<std::byte> window,
-                                      ProtFlags prot, MMapFlags flags,
-                                      off_t offset) = 0;
+    virtual std::span<std::byte>
+        mmap(std::span<std::byte> window, ProtFlags prot, MMapFlags flags,
+             off_t offset) = 0;
     virtual void munmap(std::span<std::byte> window) = 0;
     friend class MMap;
 };

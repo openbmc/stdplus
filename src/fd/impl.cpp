@@ -46,9 +46,8 @@ std::span<std::byte> FdImpl::recv(std::span<std::byte> buf, RecvFlags flags)
                 ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags)));
 }
 
-std::tuple<std::span<std::byte>, std::span<std::byte>>
-    FdImpl::recvfrom(std::span<std::byte> buf, RecvFlags flags,
-                     std::span<std::byte> sockaddr)
+std::tuple<std::span<std::byte>, std::span<std::byte>> FdImpl::recvfrom(
+    std::span<std::byte> buf, RecvFlags flags, std::span<std::byte> sockaddr)
 {
     socklen_t sockaddrsize = sockaddr.size();
     auto ret =
@@ -67,14 +66,14 @@ std::span<const std::byte> FdImpl::write(std::span<const std::byte> data)
 std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
                                         SendFlags flags)
 {
-    return fret(
-        data, "send",
-        ::send(get(), data.data(), data.size(), static_cast<int>(flags)));
+    return fret(data, "send",
+                ::send(get(), data.data(), data.size(),
+                       static_cast<int>(flags)));
 }
 
-std::span<const std::byte> FdImpl::sendto(std::span<const std::byte> data,
-                                          SendFlags flags,
-                                          std::span<const std::byte> sockaddr)
+std::span<const std::byte>
+    FdImpl::sendto(std::span<const std::byte> data, SendFlags flags,
+                   std::span<const std::byte> sockaddr)
 {
     return fret(
         data, "sendto",
