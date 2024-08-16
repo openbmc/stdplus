@@ -32,9 +32,8 @@ std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
                                  RecvFlags flags);
 std::span<const std::byte> writeAligned(Fd& fd, size_t align,
                                         std::span<const std::byte> data);
-std::span<const std::byte> sendAligned(Fd& fd, size_t align,
-                                       std::span<const std::byte> data,
-                                       SendFlags flags);
+std::span<const std::byte> sendAligned(
+    Fd& fd, size_t align, std::span<const std::byte> data, SendFlags flags);
 
 void verifyExact(size_t expected, size_t actual);
 

@@ -387,8 +387,8 @@ concept InAddr = std::same_as<Addr, In4Addr> || std::same_as<Addr, In6Addr> ||
                  std::same_as<Addr, InAnyAddr>;
 
 template <typename Addr>
-concept InAddrLike = InAddr<Addr> || std::same_as<Addr, in_addr> ||
-                     std::same_as<Addr, in6_addr>;
+concept InAddrLike =
+    InAddr<Addr> || std::same_as<Addr, in_addr> || std::same_as<Addr, in6_addr>;
 
 struct InAnyAddr : detail::InAnyAddrV
 {

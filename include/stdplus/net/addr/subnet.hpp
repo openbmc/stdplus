@@ -19,6 +19,7 @@ __attribute__((no_sanitize("undefined"))) constexpr uint32_t
     addr32Mask(std::ptrdiff_t pfx) noexcept
 {
     // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
+    // NOLINTNEXTLINE(clang-analyzer-core.BitwiseShift)
     auto v = ~uint32_t{0} << (32 - pfx);
     // Positive prefix check + mask to handle UB when the left shift becomes
     // more than 31 bits

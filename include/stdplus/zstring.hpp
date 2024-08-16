@@ -38,8 +38,8 @@ constexpr std::ptrdiff_t zstring_find_term(const CharT* str, std::size_t min,
 
 #ifndef NDEBUG
 template <typename CharT>
-constexpr std::size_t zstring_validate(const CharT* str, std::size_t min,
-                                       std::size_t max)
+constexpr std::size_t
+    zstring_validate(const CharT* str, std::size_t min, std::size_t max)
 {
     auto ret = zstring_find_term(str, min, max);
     if (ret < 0)
@@ -88,8 +88,7 @@ class basic_zstring
 #ifdef NDEBUG
         noexcept
 #endif
-        :
-        data_(str)
+        : data_(str)
     {
 #ifndef NDEBUG
         detail::zstring_validate(str, 0, N);
@@ -106,8 +105,7 @@ class basic_zstring
 #ifdef NDEBUG
         noexcept
 #endif
-        :
-        data_(str.data())
+        : data_(str.data())
     {
 #ifndef NDEBUG
         detail::zstring_validate(str.data(), str.size(), str.size() + 1);
