@@ -185,8 +185,7 @@ function_view(R (*)(Args...) noexcept(Nx))
     -> function_view<R(Args...) const noexcept(Nx)>;
 
 template <typename F>
-function_view(F)
-    -> function_view<
-        typename detail::FViewGuide<decltype(&F::operator())>::type>;
+function_view(F) -> function_view<
+    typename detail::FViewGuide<decltype(&F::operator())>::type>;
 
 } // namespace stdplus
