@@ -16,6 +16,23 @@
       "message": "@William - \n\n```\n../include/stdplus/util/cexec.hpp:85:11: warning: inline namespace reopened as a non-inline namespace [-Winline-namespace-reopened-noninline]\n   85 | namespace util\n      |           ^\n      | inline \n../include/stdplus/str/cat.hpp:49:18: note: previous definition is here\n   49 | inline namespace util\n      |                  ^\n```\n\nDo you want to apply a fix on top of this one?",
       "revId": "c6262a46286debd20a9ad7b24f1b062511ddd3a9",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9601ed00_a33c5bde",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2024-12-19T17:55:59Z",
+      "side": 1,
+      "message": "Merging since this is at least less broken than HEAD.",
+      "revId": "c6262a46286debd20a9ad7b24f1b062511ddd3a9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
