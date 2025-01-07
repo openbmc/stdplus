@@ -149,8 +149,8 @@ class Fd
 
   protected:
     virtual std::span<std::byte>
-        mmap(std::span<std::byte> window, ProtFlags prot, MMapFlags flags,
-             off_t offset) = 0;
+        mmap(std::byte *window, std::size_t size, ProtFlags prot,
+             MMapFlags flags, off_t offset) = 0;
     virtual void munmap(std::span<std::byte> window) = 0;
     friend class MMap;
 };
