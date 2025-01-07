@@ -6,8 +6,13 @@ namespace stdplus
 namespace fd
 {
 
+MMap::MMap(Fd& fd, size_t window_size, ProtFlags prot, MMapFlags flags,
+           off_t offset) :
+    mapping(fd.mmap(nullptr, window_size, prot, flags, offset), fd)
+{}
 MMap::MMap(Fd& fd, std::span<std::byte> window, ProtFlags prot, MMapFlags flags,
-           off_t offset) : mapping(fd.mmap(window, prot, flags, offset), fd)
+           off_t offset) :
+    mapping(fd.mmap(window.data(), window.size(), prot, flags, offset), fd)
 {}
 
 std::span<std::byte> MMap::get() const

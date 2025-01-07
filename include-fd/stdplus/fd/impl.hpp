@@ -40,8 +40,9 @@ class FdImpl : public Fd
     FileFlags fcntlGetfl() const override;
 
   protected:
-    std::span<std::byte> mmap(std::span<std::byte> window, ProtFlags prot,
-                              MMapFlags flags, off_t offset) override;
+    std::span<std::byte> mmap(std::byte* window, std::size_t size,
+                              ProtFlags prot, MMapFlags flags,
+                              off_t offset) override;
     void munmap(std::span<std::byte> window) override;
 };
 

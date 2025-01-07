@@ -48,8 +48,8 @@ class FdMock : public Fd
     MOCK_METHOD(void, fcntlSetfl, (FileFlags flags), (override));
     MOCK_METHOD(FileFlags, fcntlGetfl, (), (const, override));
     MOCK_METHOD(std::span<std::byte>, mmap,
-                (std::span<std::byte> window, ProtFlags prot, MMapFlags flags,
-                 off_t offset),
+                (std::byte * window, std::size_t size, ProtFlags prot,
+                 MMapFlags flags, off_t offset),
                 (override));
     MOCK_METHOD(void, munmap, (std::span<std::byte> window), (override));
 };
