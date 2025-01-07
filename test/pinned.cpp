@@ -81,6 +81,7 @@ TEST(PinnedRef, Basic)
 TEST(PinnedRef, Fundamental)
 {
     Pinned<int> pi = 4;
+    // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
     EXPECT_EQ(4, PinnedRef<int>(pi));
     EXPECT_EQ(4, PinnedRef<const int>(pi));
     EXPECT_EQ(4, PinnedRef(pi));
