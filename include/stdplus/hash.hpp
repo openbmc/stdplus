@@ -4,12 +4,6 @@
 #include <tuple>
 #include <utility>
 
-namespace std
-{
-template <class Key>
-struct hash;
-}
-
 namespace stdplus
 {
 

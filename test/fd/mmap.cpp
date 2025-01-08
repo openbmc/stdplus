@@ -2,6 +2,8 @@
 #include <stdplus/fd/mmap.hpp>
 
 #include <array>
+#include <cstddef>
+#include <span>
 
 #include <gtest/gtest.h>
 
