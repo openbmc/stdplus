@@ -98,7 +98,7 @@ class IoUringTest : public testing::Test
         if (io_uring_queue_init(1, &r, 0) == -ENOSYS)
         {
             // Not supported, skip running this test
-            exit(77);
+            GTEST_SKIP();
         }
         io_uring_queue_exit(&r);
     }
