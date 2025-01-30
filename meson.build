@@ -11,36 +11,36 @@ project(
   ])
 
 has_dl = false
-if not get_option('dl').disabled()
+if get_option('dl').allowed()
   dl_dep = meson.get_compiler('cpp').find_library('dl', required: false)
   has_dl = meson.get_compiler('cpp').links('''
     #include <dlfcn.h>
     int main() { dlopen("", 0); }
   ''', dependencies: dl_dep)
 endif
-if get_option('dl').enabled() and not has_dl
+if get_option('dl').allowed() and not has_dl
   error('libdl support required')
 endif
 
 has_fd = false
-if not get_option('fd').disabled()
+if get_option('fd').allowed()
   has_fd = true
 endif
 
 has_io_uring = false
-if not get_option('io_uring').disabled() and has_fd
+if get_option('io_uring').allowed() and has_fd
   io_uring_dep = dependency('liburing', required: get_option('io_uring'))
   if io_uring_dep.found()
     has_io_uring = true
   endif
 endif
-if get_option('io_uring').enabled() and not has_io_uring
+if get_option('io_uring').allowed() and not has_io_uring
   error('io_uring support is required')
 endif
 
 build_tests = get_option('tests')
 has_gtest = false
-if not build_tests.disabled() or not get_option('gtest').disabled()
+if build_tests.disabled() or not get_option('gtest').allowed()
   gtest_dep = dependency('gtest', required: false)
   gtest_main_dep = dependency('gtest', main: true, required: false)
   gmock_dep = dependency('gmock', required: false)
@@ -67,10 +67,10 @@ if not build_tests.disabled() or not get_option('gtest').disabled()
         ])
       gmock_dep = gtest_proj.dependency('gmock')
     else
-      assert(not build_tests.enabled() and not get_option('gtest').enabled(), 'Googletest is required')
+      assert(not build_tests.allowed() and not get_option('gtest').allowed(), 'Googletest is required')
     endif
   endif
-  if not get_option('gtest').disabled() and gtest_dep.found()
+  if get_option('gtest').allowed() and gtest_dep.found()
     has_gtest = true
   endif
 endif
@@ -96,6 +96,6 @@ build_examples = get_option('examples')
 if build_examples
   subdir('example')
 endif
-if not build_tests.disabled()
+if build_tests.allowed()
   subdir('test')
 endif
