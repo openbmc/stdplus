@@ -1,92 +1,98 @@
 project(
-  'stdplus',
-  'cpp',
-  version: '0.1',
-  meson_version: '>=1.1.1',
-  default_options: [
-    'warning_level=3',
-    'cpp_std=c++23',
-    'tests=' + (meson.is_subproject() ? 'disabled' : 'auto'),
-    'examples=' + (meson.is_subproject() ? 'false' : 'true'),
-  ])
+    'stdplus',
+    'cpp',
+    version: '0.1',
+    meson_version: '>=1.1.1',
+    default_options: [
+        'warning_level=3',
+        'cpp_std=c++23',
+        'tests=' + (meson.is_subproject() ? 'disabled' : 'auto'),
+        'examples=' + (meson.is_subproject() ? 'false' : 'true'),
+    ],
+)
 
 has_dl = false
 if not get_option('dl').disabled()
-  dl_dep = meson.get_compiler('cpp').find_library('dl', required: false)
-  has_dl = meson.get_compiler('cpp').links('''
+    dl_dep = meson.get_compiler('cpp').find_library('dl', required: false)
+    has_dl = meson.get_compiler('cpp').links(
+        '''
     #include <dlfcn.h>
     int main() { dlopen("", 0); }
-  ''', dependencies: dl_dep)
+  ''',
+        dependencies: dl_dep,
+    )
 endif
 if get_option('dl').enabled() and not has_dl
-  error('libdl support required')
+    error('libdl support required')
 endif
 
 has_fd = false
 if not get_option('fd').disabled()
-  has_fd = true
+    has_fd = true
 endif
 
 has_io_uring = false
 if not get_option('io_uring').disabled() and has_fd
-  io_uring_dep = dependency('liburing', required: get_option('io_uring'))
-  if io_uring_dep.found()
-    has_io_uring = true
-  endif
+    io_uring_dep = dependency('liburing', required: get_option('io_uring'))
+    if io_uring_dep.found()
+        has_io_uring = true
+    endif
 endif
 if get_option('io_uring').enabled() and not has_io_uring
-  error('io_uring support is required')
+    error('io_uring support is required')
 endif
 
 build_tests = get_option('tests')
 has_gtest = false
 if not build_tests.disabled() or not get_option('gtest').disabled()
-  gtest_dep = dependency('gtest', required: false)
-  gtest_main_dep = dependency('gtest', main: true, required: false)
-  gmock_dep = dependency('gmock', required: false)
-  if not gtest_dep.found() or not gmock_dep.found()
-    gtest_opts = import('cmake').subproject_options()
-    gtest_opts.add_cmake_defines({
-      'BUILD_SHARED_LIBS': 'ON',
-      'CMAKE_CXX_FLAGS': '-Wno-pedantic',
-    })
-    gtest_proj = import('cmake').subproject(
-      'googletest',
-      options: gtest_opts,
-      required: false)
-    if gtest_proj.found()
-      gtest_dep = declare_dependency(
-        dependencies: [
-          dependency('threads'),
-          gtest_proj.dependency('gtest'),
-        ])
-      gtest_main_dep = declare_dependency(
-        dependencies: [
-          gtest_dep,
-          gtest_proj.dependency('gtest_main'),
-        ])
-      gmock_dep = gtest_proj.dependency('gmock')
-    else
-      assert(not build_tests.enabled() and not get_option('gtest').enabled(), 'Googletest is required')
+    gtest_dep = dependency('gtest', required: false)
+    gtest_main_dep = dependency('gtest', main: true, required: false)
+    gmock_dep = dependency('gmock', required: false)
+    if not gtest_dep.found() or not gmock_dep.found()
+        gtest_opts = import('cmake').subproject_options()
+        gtest_opts.add_cmake_defines(
+            {'BUILD_SHARED_LIBS': 'ON', 'CMAKE_CXX_FLAGS': '-Wno-pedantic'},
+        )
+        gtest_proj = import('cmake').subproject(
+            'googletest',
+            options: gtest_opts,
+            required: false,
+        )
+        if gtest_proj.found()
+            gtest_dep = declare_dependency(
+                dependencies: [
+                    dependency('threads'),
+                    gtest_proj.dependency('gtest'),
+                ],
+            )
+            gtest_main_dep = declare_dependency(
+                dependencies: [gtest_dep, gtest_proj.dependency('gtest_main')],
+            )
+            gmock_dep = gtest_proj.dependency('gmock')
+        else
+            assert(
+                not build_tests.enabled() and not get_option('gtest').enabled(),
+                'Googletest is required',
+            )
+        endif
     endif
-  endif
-  if not get_option('gtest').disabled() and gtest_dep.found()
-    has_gtest = true
-  endif
+    if not get_option('gtest').disabled() and gtest_dep.found()
+        has_gtest = true
+    endif
 endif
 
 subdir('include')
 if has_dl
-  subdir('include-dl')
+    subdir('include-dl')
 endif
 if has_fd
-  subdir('include-fd')
+    subdir('include-fd')
 endif
 if has_io_uring
-  subdir('include-uring')
+    subdir('include-uring')
 endif
 if has_gtest
-  subdir('include-gtest')
+    subdir('include-gtest')
 endif
 
 subdir('src')
@@ -94,8 +100,8 @@ subdir('src')
 build_examples = get_option('examples')
 
 if build_examples
-  subdir('example')
+    subdir('example')
 endif
 if not build_tests.disabled()
-  subdir('test')
+    subdir('test')
 endif
