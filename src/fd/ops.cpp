@@ -76,9 +76,9 @@ void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
 }
 
 template <typename Fun, typename Byte, typename... Args>
-static std::span<Byte>
-    opAligned(const char* name, Fun&& fun, Fd& fd, size_t align,
-              std::span<Byte> data, Args&&... args)
+static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
+                                 size_t align, std::span<Byte> data,
+                                 Args&&... args)
 {
     std::size_t total = 0;
     try

@@ -24,8 +24,8 @@ namespace detail
 {
 
 template <typename CharT, typename Traits>
-constexpr auto
-    unsafe_zstring_view(std::basic_string_view<CharT, Traits> sv) noexcept
+constexpr auto unsafe_zstring_view(
+    std::basic_string_view<CharT, Traits> sv) noexcept
 {
     using SV = basic_zstring_view<CharT, Traits>;
     return SV(typename SV::unsafe(), sv);
@@ -276,13 +276,13 @@ class basic_zstring_view
         return basic_zstring_view(unsafe(), sv.substr(pos));
     }
 
-    constexpr bool
-        operator==(std::basic_string_view<CharT, Traits> rhs) const noexcept
+    constexpr bool operator==(
+        std::basic_string_view<CharT, Traits> rhs) const noexcept
     {
         return size() == rhs.size() && compare(rhs) == 0;
     }
-    constexpr Traits::comparison_category
-        operator<=>(std::basic_string_view<CharT, Traits> rhs) const noexcept
+    constexpr Traits::comparison_category operator<=>(
+        std::basic_string_view<CharT, Traits> rhs) const noexcept
     {
         return compare(rhs) <=> 0;
     }
@@ -299,9 +299,8 @@ class basic_zstring_view
 };
 
 template <typename CharT, typename Traits>
-std::basic_ostream<CharT, Traits>&
-    operator<<(std::basic_ostream<CharT, Traits>& os,
-               basic_zstring_view<CharT, Traits> v)
+std::basic_ostream<CharT, Traits>& operator<<(
+    std::basic_ostream<CharT, Traits>& os, basic_zstring_view<CharT, Traits> v)
 {
     return os << static_cast<std::basic_string_view<CharT, Traits>>(v);
 }

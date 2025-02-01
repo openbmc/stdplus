@@ -121,23 +121,23 @@ class Fd
     virtual std::span<std::byte> read(std::span<std::byte> buf) = 0;
     virtual std::span<std::byte> recv(std::span<std::byte> buf,
                                       RecvFlags flags) = 0;
-    virtual std::tuple<std::span<std::byte>, std::span<std::byte>>
-        recvfrom(std::span<std::byte> buf, RecvFlags flags,
-                 std::span<std::byte> sockaddr) = 0;
-    virtual std::span<const std::byte>
-        write(std::span<const std::byte> data) = 0;
+    virtual std::tuple<std::span<std::byte>, std::span<std::byte>> recvfrom(
+        std::span<std::byte> buf, RecvFlags flags,
+        std::span<std::byte> sockaddr) = 0;
+    virtual std::span<const std::byte> write(
+        std::span<const std::byte> data) = 0;
     virtual std::span<const std::byte> send(std::span<const std::byte> data,
                                             SendFlags flags) = 0;
-    virtual std::span<const std::byte>
-        sendto(std::span<const std::byte> data, SendFlags flags,
-               std::span<const std::byte> sockaddr) = 0;
+    virtual std::span<const std::byte> sendto(
+        std::span<const std::byte> data, SendFlags flags,
+        std::span<const std::byte> sockaddr) = 0;
     virtual size_t lseek(off_t offset, Whence whence) = 0;
     virtual void truncate(off_t size) = 0;
     virtual void bind(std::span<const std::byte> sockaddr) = 0;
     virtual void connect(std::span<const std::byte> sockaddr) = 0;
     virtual void listen(int backlog) = 0;
-    virtual std::optional<std::tuple<int, std::span<std::byte>>>
-        accept(std::span<std::byte> sockaddr) = 0;
+    virtual std::optional<std::tuple<int, std::span<std::byte>>> accept(
+        std::span<std::byte> sockaddr) = 0;
     virtual void setsockopt(SockLevel level, SockOpt optname,
                             std::span<const std::byte> opt) = 0;
     virtual int ioctl(unsigned long id, void* data) = 0;
@@ -148,9 +148,9 @@ class Fd
     virtual FileFlags fcntlGetfl() const = 0;
 
   protected:
-    virtual std::span<std::byte>
-        mmap(std::byte* window, std::size_t size, ProtFlags prot,
-             MMapFlags flags, off_t offset) = 0;
+    virtual std::span<std::byte> mmap(std::byte* window, std::size_t size,
+                                      ProtFlags prot, MMapFlags flags,
+                                      off_t offset) = 0;
     virtual void munmap(std::span<std::byte> window) = 0;
     friend class MMap;
 };

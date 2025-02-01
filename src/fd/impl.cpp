@@ -71,9 +71,9 @@ std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
                        static_cast<int>(flags)));
 }
 
-std::span<const std::byte>
-    FdImpl::sendto(std::span<const std::byte> data, SendFlags flags,
-                   std::span<const std::byte> sockaddr)
+std::span<const std::byte> FdImpl::sendto(std::span<const std::byte> data,
+                                          SendFlags flags,
+                                          std::span<const std::byte> sockaddr)
 {
     return fret(
         data, "sendto",
@@ -130,8 +130,8 @@ void FdImpl::listen(int backlog)
     CHECK_ERRNO(::listen(get(), backlog), "listen");
 }
 
-std::optional<std::tuple<int, std::span<std::byte>>>
-    FdImpl::accept(std::span<std::byte> sockaddr)
+std::optional<std::tuple<int, std::span<std::byte>>> FdImpl::accept(
+    std::span<std::byte> sockaddr)
 {
     socklen_t len = sockaddr.size();
     auto fd = ::accept(
