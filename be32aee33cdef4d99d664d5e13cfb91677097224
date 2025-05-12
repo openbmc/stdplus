@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9abc9c84_16e89dd5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2025-05-12T16:30:21Z",
+      "side": 1,
+      "message": "Merging this to unblock CI for other repositories.",
+      "revId": "be32aee33cdef4d99d664d5e13cfb91677097224",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
