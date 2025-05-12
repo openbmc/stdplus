@@ -16,6 +16,24 @@
       "message": "Please rebase on 77786.  I don\u0027t want to have to try to figure out what is your change and what is due to the reformatting.",
       "revId": "a74ad1f0f618761656d49930ca489a878badc85f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37eb49a8_4f765e41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2025-05-12T15:16:51Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "8a131818_8f9fbbbb",
+      "revId": "a74ad1f0f618761656d49930ca489a878badc85f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
