@@ -52,6 +52,24 @@
       "parentUuid": "91c0de44_f57c12c7",
       "revId": "d09ef2e8b002cba32ab4473bb231957d7d7e10e4",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "466ab67a_d8f860b4",
+        "filename": "test/io_uring.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1001712
+      },
+      "writtenOn": "2025-05-12T16:14:18Z",
+      "side": 1,
+      "message": "Remembering why i made this change:\n\nI saw the logs (last snippet) and you can replicate these logs with an unchecked optional access. To fix the unchecked access i plugged in another file descriptor instead.\n\n```\n\n\tstd::optional\u003cint\u003e x \u003d 2;\n\n\tx \u003d std::nullopt;\n\n\tstd::cout \u003c\u003c *x \u003c\u003c std::endl;\n```\n\n```\n[alex@thonkpadT14 cpp]$ g++ std_optional.cpp \n[alex@thonkpadT14 cpp]$ g++ --version\ng++ (GCC) 15.1.1 20250425\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n```\n```\n[alex@thonkpadT14 cpp]$ ./a.out \n/usr/include/c++/15.1.1/optional:1186: constexpr _Tp\u0026 std::optional\u003c_Tp\u003e::operator*() \u0026 [with _Tp \u003d int]: Assertion \u0027this-\u003e_M_is_engaged()\u0027 failed.\nAborted (core dumped)\n```",
+      "parentUuid": "91c0de44_f57c12c7",
+      "revId": "d09ef2e8b002cba32ab4473bb231957d7d7e10e4",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
