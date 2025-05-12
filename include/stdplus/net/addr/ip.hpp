@@ -533,21 +533,21 @@ inline namespace in_addr_literals
 {
 
 template <detail::CompileIn4Addr Str>
-constexpr auto operator"" _ip4() noexcept
+constexpr auto operator""_ip4() noexcept
 {
     static_assert(Str.valid, "stdplus::In4Addr");
     return Str.addr;
 }
 
 template <detail::CompileIn6Addr Str>
-constexpr auto operator"" _ip6() noexcept
+constexpr auto operator""_ip6() noexcept
 {
     static_assert(Str.valid, "stdplus::In6Addr");
     return Str.addr;
 }
 
 template <detail::CompileInAnyAddr Str>
-constexpr auto operator"" _ip() noexcept
+constexpr auto operator""_ip() noexcept
 {
     static_assert(Str.valid, "stdplus::InAnyAddr");
     return Str.v4 ? InAnyAddr(Str.u.addr4) : InAnyAddr(Str.u.addr6);
