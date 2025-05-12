@@ -309,7 +309,7 @@ std::basic_ostream<CharT, Traits>&
 inline namespace zstring_view_literals
 {
 template <detail::compile_zstring_view Str>
-constexpr auto operator"" _zsv() noexcept
+constexpr auto operator""_zsv() noexcept
 {
     static_assert(Str.valid, "stdplus::zstring_view");
     return Str.getzsv();

@@ -330,21 +330,21 @@ inline namespace subnet_literals
 {
 
 template <detail::CompileSubnet4 Str>
-constexpr auto operator"" _sub4() noexcept
+constexpr auto operator""_sub4() noexcept
 {
     static_assert(Str.valid, "stdplus::Subnet4");
     return Subnet4(Str.addr, Str.pfx);
 }
 
 template <detail::CompileSubnet6 Str>
-constexpr auto operator"" _sub6() noexcept
+constexpr auto operator""_sub6() noexcept
 {
     static_assert(Str.valid, "stdplus::Subnet6");
     return Subnet6(Str.addr, Str.pfx);
 }
 
 template <detail::CompileSubnetAny Str>
-constexpr auto operator"" _sub() noexcept
+constexpr auto operator""_sub() noexcept
 {
     static_assert(Str.valid, "stdplus::SubnetAny");
     return Str.v4 ? SubnetAny(Str.u.addr4, Str.pfx)
