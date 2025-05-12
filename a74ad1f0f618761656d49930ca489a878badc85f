@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a131818_8f9fbbbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2025-05-12T15:12:22Z",
+      "side": 1,
+      "message": "Please rebase on 77786.  I don\u0027t want to have to try to figure out what is your change and what is due to the reformatting.",
+      "revId": "a74ad1f0f618761656d49930ca489a878badc85f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
