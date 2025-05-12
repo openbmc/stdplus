@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab70672c_1e58e0ac",
+        "filename": "test/io_uring.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2025-05-12T15:48:59Z",
+      "side": 1,
+      "message": "Why does this become a zero?  It seems like we were actively trying to test something here related to `fh.reset`, which we\u0027ve now removed?\n\n0 is a valid file descriptor, right?  So, I\u0027m not sure what we\u0027re doing now vs before.",
+      "revId": "d09ef2e8b002cba32ab4473bb231957d7d7e10e4",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
