@@ -266,7 +266,7 @@ TEST_F(IoUringTest, RegisterFiles)
     // Without registration we should only be able to write to the regular fd
     fh.reset();
     testFdWrite(STDERR_FILENO, 0);
-    testFdWrite(*fh, IOSQE_FIXED_FILE, -EBADF);
+    testFdWrite(0, IOSQE_FIXED_FILE, -EBADF);
 
     std::vector<IoUring::FileHandle> fhs;
     EXPECT_LT(ring.getFiles().size(), 9);
