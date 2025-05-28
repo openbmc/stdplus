@@ -25,18 +25,18 @@ constexpr std::size_t updateSeed(std::size_t seed, std::size_t v) noexcept
 }
 
 template <typename T>
-constexpr std::size_t
-    hashMultiS(std::size_t seed,
-               const T& t) noexcept(noexcept(hash<T>{}(std::declval<T>())))
+constexpr std::size_t hashMultiS(std::size_t seed, const T& t) noexcept(
+    noexcept(hash<T>{}(std::declval<T>())))
 {
     return updateSeed(seed, hash<T>{}(t));
 }
 
 template <typename T, typename... Ts>
-constexpr std::size_t
-    hashMultiS(std::size_t seed, const T& t, const Ts&... ts) noexcept(
-        (noexcept(hashMultiS(0, std::declval<T>())) && ... &&
-         noexcept(hashMultiS(0, std::declval<Ts>()))))
+constexpr std::size_t hashMultiS(
+    std::size_t seed, const T& t,
+    const Ts&... ts) noexcept((noexcept(hashMultiS(0, std::declval<T>())) &&
+                               ... &&
+                               noexcept(hashMultiS(0, std::declval<Ts>()))))
 {
     return hashMultiS(hashMultiS(seed, t), ts...);
 }
@@ -49,8 +49,8 @@ constexpr std::size_t hashMulti() noexcept
 }
 
 template <typename T>
-constexpr std::size_t
-    hashMulti(const T& t) noexcept(noexcept(hash<T>{}(std::declval<T>())))
+constexpr std::size_t hashMulti(const T& t) noexcept(
+    noexcept(hash<T>{}(std::declval<T>())))
 {
     return hash<T>{}(t);
 }
@@ -67,9 +67,9 @@ namespace detail
 {
 
 template <typename T>
-constexpr std::size_t
-    hashArr(std::size_t seed, const T* ts,
-            std::size_t n) noexcept(noexcept(hashMulti(std::declval<T>())))
+constexpr std::size_t hashArr(
+    std::size_t seed, const T* ts,
+    std::size_t n) noexcept(noexcept(hashMulti(std::declval<T>())))
 {
     if (n == 1)
     {
@@ -79,9 +79,8 @@ constexpr std::size_t
 }
 
 template <typename T>
-constexpr std::size_t
-    hashArr(const T* ts,
-            std::size_t n) noexcept(noexcept(hashMulti(std::declval<T>())))
+constexpr std::size_t hashArr(const T* ts, std::size_t n) noexcept(
+    noexcept(hashMulti(std::declval<T>())))
 {
     if (n == 0)
     {

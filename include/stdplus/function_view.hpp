@@ -130,8 +130,8 @@ struct function_view<R(Args...) noexcept(Nx)> :
     {}
 
     template <bool Nx2>
-    inline function_view&
-        operator=(const function_view<R(Args...) noexcept(Nx2)>& other) noexcept
+    inline function_view& operator=(
+        const function_view<R(Args...) noexcept(Nx2)>& other) noexcept
     {
         this->fun = other.fun;
         this->obj = other.obj;

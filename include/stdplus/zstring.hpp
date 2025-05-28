@@ -38,8 +38,8 @@ constexpr std::ptrdiff_t zstring_find_term(const CharT* str, std::size_t min,
 
 #ifndef NDEBUG
 template <typename CharT>
-constexpr std::size_t
-    zstring_validate(const CharT* str, std::size_t min, std::size_t max)
+constexpr std::size_t zstring_validate(const CharT* str, std::size_t min,
+                                       std::size_t max)
 {
     auto ret = zstring_find_term(str, min, max);
     if (ret < 0)
@@ -142,8 +142,8 @@ class basic_zstring
     {
         return data_ + size;
     }
-    constexpr basic_zstring<const CharT, Traits>
-        csuffix(size_type size) const noexcept
+    constexpr basic_zstring<const CharT, Traits> csuffix(
+        size_type size) const noexcept
     {
         return data_ + size;
     }
@@ -195,8 +195,8 @@ class basic_zstring
     }
 
     template <typename CharT1>
-    constexpr Traits::comparison_category
-        operator<=>(basic_zstring<CharT1, Traits> rhs) const noexcept
+    constexpr Traits::comparison_category operator<=>(
+        basic_zstring<CharT1, Traits> rhs) const noexcept
     {
         return compare(rhs.data()) <=> 0;
     }
@@ -211,8 +211,8 @@ class basic_zstring
     {
         return compare(rhs.data(), rhs.size()) <=> 0;
     }
-    constexpr Traits::comparison_category
-        operator<=>(std::basic_string_view<decay_t, Traits> rhs) const noexcept
+    constexpr Traits::comparison_category operator<=>(
+        std::basic_string_view<decay_t, Traits> rhs) const noexcept
     {
         return compare(rhs.data(), rhs.size()) <=> 0;
     }
@@ -227,9 +227,9 @@ class basic_zstring
 };
 
 template <typename CharT, typename Traits>
-std::basic_ostream<std::remove_const_t<CharT>, Traits>&
-    operator<<(std::basic_ostream<std::remove_const_t<CharT>, Traits>& os,
-               basic_zstring<CharT, Traits> v)
+std::basic_ostream<std::remove_const_t<CharT>, Traits>& operator<<(
+    std::basic_ostream<std::remove_const_t<CharT>, Traits>& os,
+    basic_zstring<CharT, Traits> v)
 {
     return os << v.c_str();
 }

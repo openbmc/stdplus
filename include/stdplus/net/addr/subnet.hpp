@@ -15,8 +15,8 @@ namespace detail
 {
 
 // AddressSan doesn't understand our masking of shift UB
-__attribute__((no_sanitize("undefined"))) constexpr uint32_t
-    addr32Mask(std::ptrdiff_t pfx) noexcept
+__attribute__((no_sanitize("undefined"))) constexpr uint32_t addr32Mask(
+    std::ptrdiff_t pfx) noexcept
 {
     // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
     // NOLINTNEXTLINE(clang-analyzer-core.BitwiseShift)

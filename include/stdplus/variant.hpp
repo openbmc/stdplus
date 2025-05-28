@@ -93,15 +93,15 @@ constexpr bool variantEq(const std::variant<Vs...>& vs,
 }
 
 template <typename... Vs>
-constexpr bool
-    variantEqFuzzy(const std::variant<Vs...>& vs, const auto& t) noexcept
+constexpr bool variantEqFuzzy(const std::variant<Vs...>& vs,
+                              const auto& t) noexcept
 {
     return variantEq<detail::VeqFuzzy>(vs, t);
 }
 
 template <typename... Vs>
-constexpr bool
-    variantEqStrict(const std::variant<Vs...>& vs, const auto& t) noexcept
+constexpr bool variantEqStrict(const std::variant<Vs...>& vs,
+                               const auto& t) noexcept
 {
     return variantEq<detail::VeqStrict>(vs, t);
 }

@@ -404,8 +404,8 @@ class BasicStrBuf
         return end();
     }
 
-    constexpr bool
-        operator==(std::basic_string_view<CharT> other) const noexcept
+    constexpr bool operator==(
+        std::basic_string_view<CharT> other) const noexcept
     {
         return std::basic_string_view<CharT>{*this} == other;
     }
