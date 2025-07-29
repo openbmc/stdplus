@@ -51,7 +51,7 @@ struct ToStr<EtherAddr>
     using type = EtherAddr;
     using ToHex = IntToStr<16, uint8_t>;
     // 6 octets * 2 hex chars + 5 separators
-    static inline constexpr uint8_t buf_size = 15 + ToHex::buf_size;
+    static inline constexpr uint8_t buf_size = 15;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, EtherAddr v) const noexcept
