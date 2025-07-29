@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d321dc40_bb967b2f",
+        "filename": "include/stdplus/net/addr/ether.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000021
+      },
+      "writtenOn": "2025-07-29T16:42:57Z",
+      "side": 1,
+      "message": "6 * 2 \u003d 12 + 5 \u003d 17 not 15",
+      "revId": "14544ae864dd9ea73e21d180cf0c15e1cc60f20e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
