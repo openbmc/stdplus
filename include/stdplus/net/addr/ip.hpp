@@ -10,7 +10,11 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <stdexcept>
+#include <string>
+#include <string_view>
+#include <type_traits>
 #include <variant>
 
 namespace stdplus
@@ -565,6 +569,181 @@ constexpr bool In6Addr::isUnicast() const noexcept
     return *this != "::"_ip6 && // ::/128
            byte(0) != 0xff;     // ff00::/8
 }
+
+} // namespace stdplus
+
+namespace stdplus
+{
+namespace net
+{
+
+// Simple, ASCII-only domain name validation per RFC 1035/1123 LDH rule.
+// - Total length <= 253 (without trailing dot)
+// - Labels 1..63
+// - Allowed: a-z A-Z 0-9 '-'
+// - Label must not start/end with '-'
+// - Optional trailing dot allowed (ignored for validation)
+inline bool isDomainName(std::string_view name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
+    }
+
+    // Strip one trailing dot if present (absolute FQDN)
+    if (name.back() == '.')
+    {
+        name.remove_suffix(1);
+        if (name.empty())
+        {
+            return false;
+        }
+    }
+
+    if (name.size() > 253)
+    {
+        return false;
+    }
+
+    std::size_t start = 0;
+    while (start <= name.size())
+    {
+        std::size_t dot = name.find('.', start);
+        std::size_t end = (dot == std::string_view::npos) ? name.size() : dot;
+        std::size_t len = end - start;
+        // Label length constraints
+        if (len == 0 || len > 63)
+        {
+            return false;
+        }
+        // First and last char of label must be alnum
+        auto first = static_cast<unsigned char>(name[start]);
+        auto last = static_cast<unsigned char>(name[end - 1]);
+        if (!std::isalnum(first) || !std::isalnum(last))
+        {
+            return false;
+        }
+        // Allowed chars within label: alnum or '-'
+        for (std::size_t i = start; i < end; ++i)
+        {
+            unsigned char ch = static_cast<unsigned char>(name[i]);
+            if (!(std::isalnum(ch) || ch == '-'))
+            {
+                return false;
+            }
+        }
+        if (dot == std::string_view::npos)
+        {
+            break;
+        }
+        start = dot + 1;
+    }
+    return true;
+}
+
+struct DomainName
+{
+    std::string name;
+
+    constexpr bool operator==(const DomainName& rhs) const noexcept
+    {
+        return name == rhs.name;
+    }
+};
+
+// A host can be either an IP address (v4/v6) or a domain name
+using HostOrAddr = std::variant<DomainName, stdplus::InAnyAddr>;
+
+} // namespace net
+} // namespace stdplus
+
+namespace stdplus
+{
+
+template <>
+struct FromStr<stdplus::net::DomainName>
+{
+    template <typename CharT>
+    constexpr stdplus::net::DomainName operator()(
+        std::basic_string_view<CharT> sv) const
+    {
+        // Normalize: remove one trailing dot, lowercase ASCII
+        std::string normalized;
+        normalized.reserve(sv.size());
+        for (CharT c : sv)
+        {
+            normalized.push_back(static_cast<char>(c));
+        }
+        if (!normalized.empty() && normalized.back() == '.')
+        {
+            normalized.pop_back();
+        }
+        for (char& c : normalized)
+        {
+            if (c >= 'A' && c <= 'Z')
+            {
+                c = static_cast<char>(c - 'A' + 'a');
+            }
+        }
+        if (!net::isDomainName(normalized))
+        {
+            throw std::invalid_argument("Invalid domain name");
+        }
+        return net::DomainName{std::move(normalized)};
+    }
+};
+
+template <>
+struct ToStr<stdplus::net::DomainName>
+{
+    using type = stdplus::net::DomainName;
+    // 253 (RFC total limit without trailing dot)
+    static inline constexpr std::size_t buf_size = 253;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, const type& v) const noexcept
+    {
+        return std::copy(v.name.begin(), v.name.end(), buf);
+    }
+};
+
+template <>
+struct FromStr<stdplus::net::HostOrAddr>
+{
+    template <typename CharT>
+    constexpr stdplus::net::HostOrAddr operator()(
+        std::basic_string_view<CharT> sv) const
+    {
+        // Prefer IP parse first
+        try
+        {
+            return FromStr<InAnyAddr>{}(sv);
+        }
+        catch (...)
+        {}
+        return FromStr<stdplus::net::DomainName>{}(sv);
+    }
+};
+
+template <>
+struct ToStr<stdplus::net::HostOrAddr>
+{
+    using type = stdplus::net::HostOrAddr;
+    static inline constexpr std::size_t buf_size =
+        (ToStr<InAnyAddr>::buf_size > ToStr<stdplus::net::DomainName>::buf_size)
+            ? ToStr<InAnyAddr>::buf_size
+            : ToStr<stdplus::net::DomainName>::buf_size;
+
+    template <typename CharT>
+    constexpr CharT* operator()(CharT* buf, const type& v) const noexcept
+    {
+        return std::visit(
+            [&](auto&& inner) {
+                return ToStr<std::decay_t<decltype(inner)>>{}(buf, inner);
+            },
+            v);
+    }
+};
 
 } // namespace stdplus
 
