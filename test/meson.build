@@ -11,6 +11,7 @@ gtests = {
     'net/addr/ip': [stdplus_dep, gtest_main_dep],
     'net/addr/sock': [stdplus_dep, gtest_main_dep],
     'net/addr/subnet': [stdplus_dep, gtest_main_dep],
+    'net/addr/hostname': [stdplus_dep, gtest_main_dep],
     'numeric/endian': [stdplus_dep, gtest_main_dep],
     'numeric/str': [stdplus_dep, gtest_main_dep],
     'pinned': [stdplus_dep, gtest_main_dep],

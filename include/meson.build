@@ -16,6 +16,7 @@ install_headers(
     'stdplus/net/addr/ip.hpp',
     'stdplus/net/addr/sock.hpp',
     'stdplus/net/addr/subnet.hpp',
+    'stdplus/net/addr/hostname.hpp',
     'stdplus/numeric/endian.hpp',
     'stdplus/numeric/str.hpp',
     'stdplus/pinned.hpp',
