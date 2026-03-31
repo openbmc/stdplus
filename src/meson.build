@@ -53,6 +53,7 @@ stdplus_srcs = [
     'net/addr/ip.cpp',
     'net/addr/sock.cpp',
     'net/addr/subnet.cpp',
+    'net/addr/hostname.cpp',
     'numeric/endian.cpp',
     'numeric/str.cpp',
     'pinned.cpp',
