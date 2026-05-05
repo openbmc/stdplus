@@ -68,6 +68,24 @@
       "parentUuid": "171d11db_722fec72",
       "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6e93e32_a6a40fce",
+        "filename": "src/net/addr/hostname.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1001762
+      },
+      "writtenOn": "2026-05-05T08:08:04Z",
+      "side": 1,
+      "message": "I thought regex would improve the readability. If performance is the reason, then we can make pattern object static, which reduces compilation time.Either way is ok for me.",
+      "parentUuid": "435bb918_7de05128",
+      "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
