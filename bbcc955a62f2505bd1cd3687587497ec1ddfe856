@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1139875d_7155df5b",
+        "filename": "include/stdplus/net/addr/hostname.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2026-05-05T05:22:44Z",
+      "side": 1,
+      "message": "Just implement `operator\u003c\u003d\u003e`.",
+      "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76d578f7_de045526",
         "filename": "src/net/addr/hostname.cpp",
         "patchSetId": 1
@@ -14,6 +31,23 @@
       "writtenOn": "2026-05-05T05:02:34Z",
       "side": 1,
       "message": "can we do something like this \n```\nbool isValid(const std::string\u0026 hostname) {\n    if (hostname.empty() || hostname.length() \u003e 253) return false;\n\n    std::regex pattern(R\"(^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])$)\");\n\n    return std::regex_match(hostname, pattern);\n}\n```",
+      "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "171d11db_722fec72",
+        "filename": "src/net/addr/hostname.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2026-05-05T05:22:44Z",
+      "side": 1,
+      "message": "This entire function should never have to allocate, we should be able to do something like above with a regex or some other FSM.\n\nIdeally though I\u0027d prefer we not regex for this, we can write the expression up front and don\u0027t need the complexity.\n\nHeck, gemini gave me a pretty good impl that appears to follow the exact rules from RFC1123\n```\n#include \u003cstring_view\u003e\n#include \u003ccstddef\u003e\n\n// Standard std::isalnum is not guaranteed constexpr and is locale-dependent.\n// Using custom traits ensures predictable, non-allocating compile-time execution.\nconstexpr bool is_alpha(char c) noexcept {\n    return (c \u003e\u003d \u0027a\u0027 \u0026\u0026 c \u003c\u003d \u0027z\u0027) || (c \u003e\u003d \u0027A\u0027 \u0026\u0026 c \u003c\u003d \u0027Z\u0027);\n}\n\nconstexpr bool is_digit(char c) noexcept {\n    return (c \u003e\u003d \u00270\u0027 \u0026\u0026 c \u003c\u003d \u00279\u0027);\n}\n\nconstexpr bool is_alnum(char c) noexcept {\n    return is_alpha(c) || is_digit(c);\n}\n\n[[nodiscard]] constexpr bool is_valid_fqdn(std::string_view fqdn) noexcept {\n    // RFC 1035: Total FQDN length cannot exceed 253 characters.\n    if (fqdn.empty() || fqdn.length() \u003e 253) {\n        return false;\n    }\n\n    enum class State {\n        Start,      // Initial state, or expecting the first char of a new label\n        LabelChar,  // Processing valid alphanumeric characters in a label\n        Hyphen,     // Just processed a hyphen\n        Dot         // Just processed a dot separator\n    };\n\n    State state \u003d State::Start;\n    std::size_t label_len \u003d 0;\n    bool has_dot \u003d false;\n\n    for (char c : fqdn) {\n        if (c \u003d\u003d \u0027.\u0027) {\n            // Fails if: starts with dot, consecutive dots (empty label), or label ends in hyphen.\n            if (state \u003d\u003d State::Start || state \u003d\u003d State::Dot || state \u003d\u003d State::Hyphen) {\n                return false;\n            }\n            state \u003d State::Dot;\n            label_len \u003d 0;\n            has_dot \u003d true;\n        } \n        else if (c \u003d\u003d \u0027-\u0027) {\n            // Fails if: label starts with a hyphen.\n            if (state \u003d\u003d State::Start || state \u003d\u003d State::Dot) {\n                return false;\n            }\n            state \u003d State::Hyphen;\n            if (++label_len \u003e 63) return false; // RFC 1035 max label length\n        } \n        else if (is_alnum(c)) {\n            state \u003d State::LabelChar;\n            if (++label_len \u003e 63) return false;\n        } \n        else {\n            // Reject any illegal characters (spaces, underscores, special symbols)\n            return false;\n        }\n    }\n\n    // A valid FQDN cannot end in a hyphen.\n    if (state \u003d\u003d State::Hyphen) {\n        return false;\n    }\n\n    // A trailing dot is permitted in FQDNs (representing the root).\n    // An FQDN practically requires at least one dot to distinguish from a local hostname.\n    return has_dot || state \u003d\u003d State::Dot; \n}\n```",
       "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
