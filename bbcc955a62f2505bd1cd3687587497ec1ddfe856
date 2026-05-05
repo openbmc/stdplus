@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76d578f7_de045526",
+        "filename": "src/net/addr/hostname.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1001762
+      },
+      "writtenOn": "2026-05-05T05:02:34Z",
+      "side": 1,
+      "message": "can we do something like this \n```\nbool isValid(const std::string\u0026 hostname) {\n    if (hostname.empty() || hostname.length() \u003e 253) return false;\n\n    std::regex pattern(R\"(^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])$)\");\n\n    return std::regex_match(hostname, pattern);\n}\n```",
+      "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
