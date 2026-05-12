@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dccfa5aa_a9840711",
+        "filename": "include/stdplus/net/addr/hostname.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2026-05-12T09:39:14Z",
+      "side": 1,
+      "message": "inline",
+      "revId": "dac686d8ebf40f4b393d12c79745b73114a60585",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
