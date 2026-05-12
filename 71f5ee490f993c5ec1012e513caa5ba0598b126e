@@ -16,6 +16,24 @@
       "message": "It would be better to just return the `const std::string \u0026` here since you pay no penalty for doing so. It allows conversion to zstrings, which std::string_view does not.\n\nFWIW I think it was better when it was just called `.str()`",
       "revId": "71f5ee490f993c5ec1012e513caa5ba0598b126e",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e33b6da4_c54402bf",
+        "filename": "include/stdplus/net/addr/hostname.hpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1002622
+      },
+      "writtenOn": "2026-05-12T09:22:39Z",
+      "side": 1,
+      "message": "updated the return type and function name to const std::string\u0026 str()",
+      "parentUuid": "fd9aee0d_df77e28f",
+      "revId": "71f5ee490f993c5ec1012e513caa5ba0598b126e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
