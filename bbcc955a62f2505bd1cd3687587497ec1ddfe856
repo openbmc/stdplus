@@ -53,6 +53,24 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5b2fc82_2ad9c3ac",
+        "filename": "src/net/addr/hostname.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1002622
+      },
+      "writtenOn": "2026-05-12T10:51:45Z",
+      "side": 1,
+      "message": "used FSM instead",
+      "parentUuid": "76d578f7_de045526",
+      "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "171d11db_722fec72",
