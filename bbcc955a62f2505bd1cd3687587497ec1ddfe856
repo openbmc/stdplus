@@ -18,6 +18,24 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "129e480e_e0ac6f52",
+        "filename": "include/stdplus/net/addr/hostname.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1002622
+      },
+      "writtenOn": "2026-05-12T08:53:01Z",
+      "side": 1,
+      "message": "Agreed \u003c\u003d\u003e spaceship operator is implemented",
+      "parentUuid": "1139875d_7155df5b",
+      "revId": "bbcc955a62f2505bd1cd3687587497ec1ddfe856",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76d578f7_de045526",
