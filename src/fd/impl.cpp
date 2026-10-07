@@ -35,19 +35,21 @@ static std::span<Byte> fret(std::span<Byte> buf, const char* name, ssize_t r)
     return buf.subspan(0, r);
 }
 
-std::span<std::byte> FdImpl::read(std::span<std::byte> buf)
+std::span<std::byte> FdImpl::read(std::span<std::byte> buf) const
 {
     return fret(buf, "read", ::read(get(), buf.data(), buf.size()));
 }
 
-std::span<std::byte> FdImpl::recv(std::span<std::byte> buf, RecvFlags flags)
+std::span<std::byte> FdImpl::recv(std::span<std::byte> buf,
+                                  RecvFlags flags) const
 {
     return fret(buf, "recv",
                 ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags)));
 }
 
 std::tuple<std::span<std::byte>, std::span<std::byte>> FdImpl::recvfrom(
-    std::span<std::byte> buf, RecvFlags flags, std::span<std::byte> sockaddr)
+    std::span<std::byte> buf, RecvFlags flags,
+    std::span<std::byte> sockaddr) const
 {
     socklen_t sockaddrsize = sockaddr.size();
     auto ret =
@@ -58,22 +60,22 @@ std::tuple<std::span<std::byte>, std::span<std::byte>> FdImpl::recvfrom(
     return std::make_tuple(ret, sockaddr.subspan(0, sockaddrsize));
 }
 
-std::span<const std::byte> FdImpl::write(std::span<const std::byte> data)
+std::span<const std::byte> FdImpl::write(std::span<const std::byte> data) const
 {
     return fret(data, "write", ::write(get(), data.data(), data.size()));
 }
 
 std::span<const std::byte> FdImpl::send(std::span<const std::byte> data,
-                                        SendFlags flags)
+                                        SendFlags flags) const
 {
     return fret(data, "send",
                 ::send(get(), data.data(), data.size(),
                        static_cast<int>(flags)));
 }
 
-std::span<const std::byte> FdImpl::sendto(std::span<const std::byte> data,
-                                          SendFlags flags,
-                                          std::span<const std::byte> sockaddr)
+std::span<const std::byte> FdImpl::sendto(
+    std::span<const std::byte> data, SendFlags flags,
+    std::span<const std::byte> sockaddr) const
 {
     return fret(
         data, "sendto",
@@ -97,18 +99,18 @@ static std::string_view whenceStr(Whence whence)
     }
 }
 
-size_t FdImpl::lseek(off_t offset, Whence whence)
+size_t FdImpl::lseek(off_t offset, Whence whence) const
 {
     return CHECK_ERRNO(::lseek(get(), offset, static_cast<int>(whence)),
                        std::format("lseek {}B {}", offset, whenceStr(whence)));
 }
 
-void FdImpl::truncate(off_t size)
+void FdImpl::truncate(off_t size) const
 {
     CHECK_ERRNO(::ftruncate(get(), size), std::format("ftruncate {}B", size));
 }
 
-void FdImpl::bind(std::span<const std::byte> sockaddr)
+void FdImpl::bind(std::span<const std::byte> sockaddr) const
 {
     CHECK_ERRNO(
         ::bind(get(), reinterpret_cast<const struct sockaddr*>(sockaddr.data()),
@@ -116,7 +118,7 @@ void FdImpl::bind(std::span<const std::byte> sockaddr)
         "bind");
 }
 
-void FdImpl::connect(std::span<const std::byte> sockaddr)
+void FdImpl::connect(std::span<const std::byte> sockaddr) const
 {
     CHECK_ERRNO(
         ::connect(get(),
@@ -125,13 +127,13 @@ void FdImpl::connect(std::span<const std::byte> sockaddr)
         "connect");
 }
 
-void FdImpl::listen(int backlog)
+void FdImpl::listen(int backlog) const
 {
     CHECK_ERRNO(::listen(get(), backlog), "listen");
 }
 
 std::optional<std::tuple<int, std::span<std::byte>>> FdImpl::accept(
-    std::span<std::byte> sockaddr)
+    std::span<std::byte> sockaddr) const
 {
     socklen_t len = sockaddr.size();
     auto fd = ::accept(
@@ -148,14 +150,14 @@ std::optional<std::tuple<int, std::span<std::byte>>> FdImpl::accept(
 }
 
 void FdImpl::setsockopt(SockLevel level, SockOpt optname,
-                        std::span<const std::byte> opt)
+                        std::span<const std::byte> opt) const
 {
     CHECK_ERRNO(::setsockopt(get(), static_cast<int>(level),
                              static_cast<int>(optname), opt.data(), opt.size()),
                 "setsockopt");
 }
 
-int FdImpl::ioctl(unsigned long id, void* data)
+int FdImpl::ioctl(unsigned long id, void* data) const
 {
     return constIoctl(id, data);
 }
@@ -166,7 +168,7 @@ int FdImpl::constIoctl(unsigned long id, void* data) const
                        std::format("ioctl {:#x}", id));
 }
 
-void FdImpl::fcntlSetfd(FdFlags flags)
+void FdImpl::fcntlSetfd(FdFlags flags) const
 {
     CHECK_ERRNO(::fcntl(get(), F_SETFD, static_cast<int>(flags)),
                 "fcntl setfd");
@@ -177,7 +179,7 @@ FdFlags FdImpl::fcntlGetfd() const
     return FdFlags(CHECK_ERRNO(::fcntl(get(), F_GETFD), "fcntl getfd"));
 }
 
-void FdImpl::fcntlSetfl(FileFlags flags)
+void FdImpl::fcntlSetfl(FileFlags flags) const
 {
     CHECK_ERRNO(::fcntl(get(), F_SETFL, static_cast<int>(flags)),
                 "fcntl setfl");
@@ -189,7 +191,8 @@ FileFlags FdImpl::fcntlGetfl() const
 }
 
 std::span<std::byte> FdImpl::mmap(std::byte* window, std::size_t size,
-                                  ProtFlags prot, MMapFlags flags, off_t offset)
+                                  ProtFlags prot, MMapFlags flags,
+                                  off_t offset) const
 {
     auto ret = ::mmap(window, size, static_cast<int>(prot),
                       static_cast<int>(flags), get(), offset);
@@ -200,7 +203,7 @@ std::span<std::byte> FdImpl::mmap(std::byte* window, std::size_t size,
     return {reinterpret_cast<std::byte*>(ret), size};
 }
 
-void FdImpl::munmap(std::span<std::byte> window)
+void FdImpl::munmap(std::span<std::byte> window) const
 {
     CHECK_ERRNO(::munmap(window.data(), window.size()), "munmap");
 }
