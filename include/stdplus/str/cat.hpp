@@ -117,12 +117,13 @@ constexpr void strAppend(stdplus::BasicStrBuf<CharT, ObjSize, Alloc>& dst,
 template <typename CharT>
 struct DedSV : std::basic_string_view<CharT>
 {
-    DedSV(const CharT* p) noexcept : std::basic_string_view<CharT>(p) {}
+    constexpr DedSV(const CharT* p) noexcept : std::basic_string_view<CharT>(p)
+    {}
     template <typename Traits, typename Alloc>
-    DedSV(const std::basic_string<CharT, Traits, Alloc>& s) noexcept :
+    constexpr DedSV(const std::basic_string<CharT, Traits, Alloc>& s) noexcept :
         std::basic_string_view<CharT>(s)
     {}
-    DedSV(std::basic_string_view<CharT> sv) noexcept :
+    constexpr DedSV(std::basic_string_view<CharT> sv) noexcept :
         std::basic_string_view<CharT>(sv)
     {}
 };
