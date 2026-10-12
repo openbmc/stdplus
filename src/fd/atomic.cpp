@@ -81,6 +81,10 @@ AtomicWriter::~AtomicWriter()
 
 void AtomicWriter::commit(bool allow_copy)
 {
+    if (!fd)
+    {
+        throw std::system_error(EBADF, std::generic_category(), "commit");
+    }
     try
     {
         CHECK_ERRNO(fsync(get()), "fsync");
