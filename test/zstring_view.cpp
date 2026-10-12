@@ -99,6 +99,11 @@ TEST(ZstringView, Suffix)
     EXPECT_EQ("c", s1.suffix(1));
     EXPECT_EQ("", s1.suffix(2));
     EXPECT_THROW(s1.suffix(3), std::out_of_range);
+
+    EXPECT_TRUE(s1.starts_with("a"sv));
+    EXPECT_FALSE(s1.starts_with("c"sv));
+    EXPECT_TRUE(s1.ends_with("c"sv));
+    EXPECT_FALSE(s1.ends_with("a"sv));
 }
 
 TEST(ZstringView, NoTypeCoercion)
