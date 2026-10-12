@@ -55,19 +55,21 @@ Lifetime::Lifetime(Lifetime&& other) : loc(other.loc), id(next_id++)
 
 Lifetime& Lifetime::operator=(const Lifetime& other)
 {
-    auto old_id = id;
-    id = next_id++;
+    auto new_id = next_id++;
+    loc = other.loc;
     stdplus::print(stderr, "Lifetime Copy {} {}->{} drop {}\n", Loc{loc},
-                   other.id, id, old_id);
+                   other.id, new_id, id);
+    id = new_id;
     return *this;
 }
 
 Lifetime& Lifetime::operator=(Lifetime&& other)
 {
-    auto old_id = id;
-    id = next_id++;
+    auto new_id = next_id++;
+    loc = other.loc;
     stdplus::print(stderr, "Lifetime Move {} {}->{} drop {}\n", Loc{loc},
-                   other.id, id, old_id);
+                   other.id, new_id, id);
+    id = new_id;
     return *this;
 }
 
