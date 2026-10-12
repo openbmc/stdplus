@@ -154,7 +154,9 @@ TEST_F(IoUringTest, HandlerCalled)
 
     // Handle all of the outstanding requests
     ring.submit();
-    EXPECT_CALL(h[0], handleCQE(_));
+    EXPECT_CALL(h[0], handleCQE(_)).WillOnce([&](io_uring_cqe&) {
+        ring.process();
+    });
     EXPECT_CALL(h[1], handleCQE(_));
     ring.process();
     testing::Mock::VerifyAndClearExpectations(&h[0]);
