@@ -208,6 +208,17 @@ TEST(SockUAddr, FromBuf)
 
     buf.len = sizeof(buf.fam);
     EXPECT_EQ(SockUAddr::fromBuf(buf), SockUAddr(""));
+
+    sun.sun_path[0] = '\0';
+    buf.len = sizeof(buf.fam) + 1;
+    EXPECT_EQ(SockUAddr::fromBuf(buf), SockUAddr("@"));
+
+    sun.sun_path[0] = '/';
+    buf.len = sizeof(buf.fam) + 1;
+    EXPECT_EQ(SockUAddr::fromBuf(buf), SockUAddr(""));
+
+    buf.len = sizeof(sockaddr_un) + 1;
+    EXPECT_THROW(SockUAddr::fromBuf(buf), std::invalid_argument);
 }
 
 TEST(SockUAddr, FromStr)

@@ -226,8 +226,11 @@ struct SockUAddr
         bool abstract = path[0] == '\0';
         // Abstract sockets are not null terminated but path sockets are
         len_ = path.size() - (abstract ? 0 : 1);
-        buf_[0] = abstract ? '@' : path[0];
-        std::copy_n(path.begin() + 1, len_ - 1, buf_.begin() + 1);
+        if (len_ > 0)
+        {
+            buf_[0] = abstract ? '@' : path[0];
+            std::copy_n(path.begin() + 1, len_ - 1, buf_.begin() + 1);
+        }
     }
 
     static constexpr SockUAddr fromBuf(const SockAddrBuf& buf)
@@ -241,7 +244,8 @@ struct SockUAddr
     static constexpr SockUAddr fromBuf(detail::SockAddrUnsafe,
                                        const SockAddrBuf& buf)
     {
-        if (buf.len < sizeof(sockaddr_un{}.sun_family))
+        if (buf.len < sizeof(sockaddr_un{}.sun_family) ||
+            buf.len > sizeof(sockaddr_un))
         {
             throw std::invalid_argument("SockUAddr fromBuf");
         }
