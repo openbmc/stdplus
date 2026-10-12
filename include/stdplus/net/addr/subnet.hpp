@@ -1,3 +1,4 @@
+#pragma once
 #include <fmt/core.h>
 
 #include <stdplus/net/addr/ip.hpp>
