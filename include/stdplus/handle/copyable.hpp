@@ -85,7 +85,7 @@ struct Copyable
 
         constexpr HandleF& operator=(const HandleF& other) noexcept(
             noexcept(std::declval<HandleF>().reset()) &&
-            std::is_nothrow_copy_constructible_v<std::tuple<As...>> &&
+            std::is_nothrow_copy_assignable_v<std::tuple<As...>> &&
             noexcept(std::declval<HandleF>().reset(
                 std::declval<const std::optional<T>&>())))
         {
