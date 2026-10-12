@@ -8,6 +8,7 @@
 #include <stdplus/util/cexec.hpp>
 
 #include <algorithm>
+#include <vector>
 
 namespace stdplus
 {
@@ -66,15 +67,36 @@ void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring) noexcept
     stdplus::exception::ignore([&]() { ring->updateFile(slot, -1); })();
 }
 
+static void replaceFileTable(io_uring& ring, std::vector<int>& files,
+                             std::vector<int>&& new_files)
+{
+    if (!files.empty())
+    {
+        io_uring_unregister_files(&ring);
+    }
+    int r = io_uring_register_files(&ring, new_files.data(), new_files.size());
+    if (r < 0)
+    {
+        if (!files.empty())
+        {
+            // Best effort. If restoring the previous table fails too, keep
+            // `files` unchanged so that outstanding FileHandles stay within
+            // bounds; subsequent updates then report the kernel error.
+            io_uring_register_files(&ring, files.data(), files.size());
+        }
+        CHECK_RET(r, "io_uring_register_files");
+    }
+    files = std::move(new_files);
+}
+
 void IoUring::reserveFiles(size_t num)
 {
     auto new_size = std::max<size_t>(7, num + filesAllocated);
     if (files.size() < new_size)
     {
-        io_uring_unregister_files(&ring);
-        files.resize(new_size, -1);
-        CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
-                  "io_uring_register_files");
+        auto new_files = files;
+        new_files.resize(new_size, -1);
+        replaceFileTable(ring, files, std::move(new_files));
     }
 }
 
@@ -90,11 +112,11 @@ void IoUring::reserveFiles(size_t num)
         }
     }
 
-    io_uring_unregister_files(&ring);
-    files.resize(std::max<size_t>(7, files.size() * 2 + 1), -1);
-    setFile(slot, fd);
-    CHECK_RET(io_uring_register_files(&ring, files.data(), files.size()),
-              "io_uring_register_files");
+    auto new_files = files;
+    new_files.resize(std::max<size_t>(7, files.size() * 2 + 1), -1);
+    new_files[slot] = fd;
+    replaceFileTable(ring, files, std::move(new_files));
+    filesAllocated++;
     return FileHandle(slot, *this);
 }
 
