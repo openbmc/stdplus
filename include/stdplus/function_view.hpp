@@ -53,7 +53,8 @@ concept NonFView = !IsFView<std::decay_t<F>>::value;
 
 template <typename F>
 concept NonFunc =
-    !std::is_function_v<std::remove_pointer_t<std::remove_cvref_t<F>>>;
+    !std::is_function_v<std::remove_pointer_t<std::remove_cvref_t<F>>> &&
+    NonFView<F>;
 
 template <typename R, bool C, bool Nx, typename... Args>
 struct function_view_base
@@ -67,13 +68,43 @@ struct function_view_base
     static_assert(sizeof(fun) == sizeof(memfun));
     void* obj;
 
-    constexpr function_view_base(R (*fun)(Args...), void* obj) noexcept :
-        fun(fun), obj(obj)
-    {}
+    template <bool C2, bool Nx2>
+    constexpr function_view_base(
+        const function_view_base<R, C2, Nx2, Args...>& other) noexcept :
+        obj(other.obj)
+    {
+        if (obj == nullptr)
+        {
+            fun = other.fun;
+        }
+        else
+        {
+            memfun = other.memfun;
+        }
+    }
+
+    template <bool C2, bool Nx2>
+    constexpr void assign(
+        const function_view_base<R, C2, Nx2, Args...>& other) noexcept
+    {
+        obj = other.obj;
+        if (obj == nullptr)
+        {
+            fun = other.fun;
+        }
+        else
+        {
+            memfun = other.memfun;
+        }
+    }
+
+    template <typename, bool, bool, typename...>
+    friend struct function_view_base;
 
   public:
-    inline function_view_base() : fun(nullptr), obj(nullptr) {};
-    inline function_view_base(std::nullptr_t) : function_view_base() {};
+    constexpr function_view_base() noexcept : fun(nullptr), obj(nullptr) {};
+    constexpr function_view_base(std::nullptr_t) noexcept :
+        function_view_base() {};
 
     template <bool Nx2>
         requires(!Nx || Nx2)
@@ -85,7 +116,7 @@ struct function_view_base
         requires(!C && std::invocable<F&, Args...> &&
                  (!Nx || std::is_nothrow_invocable_v<F&, Args...>) &&
                  std::same_as<std::invoke_result_t<F&, Args...>, R>)
-    inline function_view_base(F& f) noexcept :
+    constexpr function_view_base(F& f) noexcept :
         memfun([](void* v, Args... args) {
             return (*reinterpret_cast<F*>(v))(std::forward<Args>(args)...);
         }),
@@ -96,7 +127,7 @@ struct function_view_base
         requires(std::invocable<const F&, Args...> &&
                  (!Nx || std::is_nothrow_invocable_v<const F&, Args...>) &&
                  std::same_as<std::invoke_result_t<const F&, Args...>, R>)
-    inline function_view_base(const F& f) noexcept :
+    constexpr function_view_base(const F& f) noexcept :
         memfun([](void* v, Args... args) {
             return (*reinterpret_cast<const F*>(v))(
                 std::forward<Args>(args)...);
@@ -113,9 +144,9 @@ struct function_view_base
         return memfun(obj, std::forward<Args>(args)...);
     }
 
-    inline explicit operator bool() const noexcept
+    constexpr explicit operator bool() const noexcept
     {
-        return fun != nullptr;
+        return obj != nullptr || fun != nullptr;
     }
 };
 
@@ -129,41 +160,39 @@ struct function_view<R(Args...) noexcept(Nx)> :
 
     template <bool Nx2>
         requires(!Nx || Nx2)
-    inline function_view(
+    constexpr function_view(
         const function_view<R(Args...) noexcept(Nx2)>& other) noexcept :
-        _Base(other.fun, other.obj)
+        _Base(other)
     {}
 
     template <bool Nx2>
         requires(!Nx || Nx2)
-    inline function_view(
+    constexpr function_view(
         const function_view<R(Args...) const noexcept(Nx2)>& other) noexcept :
-        _Base(other.fun, other.obj)
+        _Base(other)
     {}
 
     template <bool Nx2>
         requires(!Nx || Nx2)
-    inline function_view& operator=(
+    constexpr function_view& operator=(
         const function_view<R(Args...) noexcept(Nx2)>& other) noexcept
     {
-        this->fun = other.fun;
-        this->obj = other.obj;
+        this->assign(other);
         return *this;
     }
 
     template <bool Nx2>
         requires(!Nx || Nx2)
-    inline function_view& operator=(
+    constexpr function_view& operator=(
         const function_view<R(Args...) const noexcept(Nx2)>& other) noexcept
     {
-        this->fun = other.fun;
-        this->obj = other.obj;
+        this->assign(other);
         return *this;
     }
 
     template <detail::NonFView F>
         requires std::constructible_from<_Base, F>
-    inline function_view(F&& f) noexcept : _Base(std::forward<F>(f))
+    constexpr function_view(F&& f) noexcept : _Base(std::forward<F>(f))
     {}
 };
 
@@ -175,24 +204,23 @@ struct function_view<R(Args...) const noexcept(Nx)> :
 
     template <bool Nx2>
         requires(!Nx || Nx2)
-    inline function_view(
+    constexpr function_view(
         const function_view<R(Args...) const noexcept(Nx2)>& other) noexcept :
-        _Base(other.fun, other.obj)
+        _Base(other)
     {}
 
     template <bool Nx2>
         requires(!Nx || Nx2)
-    inline function_view& operator=(
+    constexpr function_view& operator=(
         const function_view<R(Args...) const noexcept(Nx2)>& other) noexcept
     {
-        this->fun = other.fun;
-        this->obj = other.obj;
+        this->assign(other);
         return *this;
     }
 
     template <detail::NonFView F>
         requires std::constructible_from<_Base, F>
-    inline function_view(F&& f) noexcept : _Base(std::forward<F>(f))
+    constexpr function_view(F&& f) noexcept : _Base(std::forward<F>(f))
     {}
 
     template <typename>
