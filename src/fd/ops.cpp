@@ -25,7 +25,7 @@ static void opExact(const char* name, Fun&& fun, const Fd& fd,
             if (r.size() == 0)
             {
                 throw exception::WouldBlock(
-                    std::format("{} missing", name, data.size()));
+                    std::format("{} missing {}B", name, data.size()));
             }
             total += r.size();
         }
