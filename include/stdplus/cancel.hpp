@@ -21,7 +21,10 @@ struct CancelableF
 {
     inline void operator()(Cancelable* c) noexcept
     {
-        c->cancel();
+        if (c != nullptr)
+        {
+            c->cancel();
+        }
     }
 };
 
@@ -33,7 +36,7 @@ struct Cancel : detail::CancelHandle
 {
     Cancel() : detail::CancelHandle(std::nullopt) {}
     template <typename T>
-    explicit Cancel(T&& t) : detail::CancelHandle(t)
+    explicit Cancel(T&& t) : detail::CancelHandle(std::forward<T>(t))
     {}
 };
 
