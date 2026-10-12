@@ -246,8 +246,9 @@ if has_gtest
         install_mode: 'rwxr-xr-x',
         install_dir: get_option('bindir'),
     )
-
-    meson.override_find_program('run_with_tmp', files('run_with_tmp'))
 endif
 
-run_with_tmp = find_program('run_with_tmp', native: true)
+if has_gtest or not build_tests.disabled()
+    meson.override_find_program('run_with_tmp', files('run_with_tmp'))
+    run_with_tmp = find_program('run_with_tmp', native: true)
+endif
