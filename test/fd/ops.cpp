@@ -176,6 +176,18 @@ TEST(Read, EnoughInt)
     EXPECT_EQ(stdplus::ntoh(i[0]), 0x01020304);
 }
 
+TEST(Read, InvalidAlignment)
+{
+    testing::StrictMock<FdMock> fd;
+    std::array<std::byte, 6> buf{};
+    EXPECT_THROW(detail::readAligned(fd, 0, buf), std::invalid_argument);
+    EXPECT_THROW(detail::readAligned(fd, 4, buf), std::invalid_argument);
+    EXPECT_THROW(detail::writeAligned(fd, 0, buf), std::invalid_argument);
+    EXPECT_THROW(detail::writeAligned(fd, 4, buf), std::invalid_argument);
+    EXPECT_THROW(detail::readAllFixed(fd, 0, buf), std::invalid_argument);
+    EXPECT_THROW(detail::readAllFixed(fd, 4, buf), std::invalid_argument);
+}
+
 TEST(ReadAll, SuccessEmpty)
 {
     testing::StrictMock<FdMock> fd;

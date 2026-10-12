@@ -2,6 +2,7 @@
 #include <stdplus/fd/ops.hpp>
 
 #include <format>
+#include <stdexcept>
 #include <utility>
 
 namespace stdplus
@@ -80,6 +81,11 @@ static std::span<Byte> opAligned(const char* name, Fun&& fun, const Fd& fd,
                                  size_t align, std::span<Byte> data,
                                  Args&&... args)
 {
+    if (align == 0 || data.size() % align != 0)
+    {
+        throw std::invalid_argument(
+            std::format("{} unaligned {}B/{}B", name, data.size(), align));
+    }
     std::size_t total = 0;
     try
     {
@@ -186,6 +192,11 @@ void readAll(const Fd& fd,
 std::span<std::byte> readAllFixed(const Fd& fd, size_t align,
                                   std::span<std::byte> buf)
 {
+    if (align == 0 || buf.size() % align != 0)
+    {
+        throw std::invalid_argument(
+            std::format("readAllFixed unaligned {}B/{}B", buf.size(), align));
+    }
     std::size_t totalB = 0;
     auto validateSize = [&]() {
         if (totalB % align != 0)
