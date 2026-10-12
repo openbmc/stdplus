@@ -185,6 +185,28 @@ TEST_F(IoUringTest, HandlerReplacement)
     testing::Mock::VerifyAndClearExpectations(&h[1]);
 }
 
+TEST_F(IoUringTest, SQEExhaustionAndStaleUserData)
+{
+    IoUring small_ring(1);
+    {
+        auto& sqe = small_ring.getSQE();
+        io_uring_prep_nop(&sqe);
+        small_ring.setHandler(sqe, &h[0]);
+    }
+    EXPECT_THROW(small_ring.getSQE(), std::system_error);
+    small_ring.submit();
+    EXPECT_CALL(h[0], handleCQE(_));
+    small_ring.process();
+    testing::Mock::VerifyAndClearExpectations(&h[0]);
+
+    // Reused SQE slot must have user_data cleared
+    auto& sqe2 = small_ring.getSQE();
+    EXPECT_EQ(sqe2.user_data, 0u);
+    io_uring_prep_nop(&sqe2);
+    small_ring.submit();
+    small_ring.process();
+}
+
 TEST_F(IoUringTest, EventFd)
 {
     auto& efd = ring.getEventFd();
