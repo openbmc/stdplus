@@ -26,8 +26,8 @@ union StrBufStore<CharT, BufLen, std::endian::little>
     } inl;
     struct Dyn
     {
-        std::uint8_t rsvd[offsetof(Inl, len) + 1 - sizeof(CharT*) -
-                          sizeof(std::size_t) * 2];
+        std::uint8_t rsvd[offsetof(Inl, len) + sizeof(Inl::len) -
+                          sizeof(CharT*) - sizeof(std::size_t) * 2];
         CharT* ptr;
         std::size_t cap;
         std::size_t len;
@@ -67,8 +67,10 @@ struct StrBufAS : Allocator
 
     static inline constexpr auto dyn_mask =
         std::size_t{1} << ((sizeof(std::size_t) << 3) - 1);
-    static inline constexpr auto inl_mask =
-        decltype(Store::Inl::len){1} << ((sizeof(Store::Inl::len) << 3) - 1);
+    static inline constexpr std::size_t flag_offset =
+        std::endian::native == std::endian::little
+            ? offsetof(typename Store::Inl, len) + sizeof(Store::Inl::len) - 1
+            : 0;
 
     Store store;
 
@@ -78,7 +80,8 @@ struct StrBufAS : Allocator
         {
             return true;
         }
-        return store.inl.len & inl_mask;
+        return reinterpret_cast<const unsigned char*>(&store)[flag_offset] &
+               0x80;
     }
 
     constexpr std::size_t dynLen() const noexcept
