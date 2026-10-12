@@ -27,6 +27,8 @@ TEST(StrCat, Multi)
 {
     EXPECT_EQ("func world test ff",
               strCat("func", " world"sv, " test"s, " ff"_zsv));
+    static_assert(strCat("func", " world"sv, " test"s, " ff"_zsv) ==
+                  "func world test ff");
 }
 
 TEST(StrCat, MoveStr)
