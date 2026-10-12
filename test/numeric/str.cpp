@@ -115,6 +115,10 @@ TEST(StrToInt, Uint8_10)
     EXPECT_THROW(dec("-1"sv), std::invalid_argument);
     EXPECT_THROW(dec("a0"sv), std::invalid_argument);
     EXPECT_THROW(dec(".0"sv), std::invalid_argument);
+    EXPECT_THROW(dec("\x80"sv), std::invalid_argument);
+    EXPECT_THROW(dec("\xff"sv), std::invalid_argument);
+    EXPECT_EQ(42, dec(L"42"sv));
+    EXPECT_THROW(dec(L"\x100"sv), std::invalid_argument);
     EXPECT_THROW(dec("257"sv), std::overflow_error);
     EXPECT_THROW(dec("300"sv), std::overflow_error);
 }
