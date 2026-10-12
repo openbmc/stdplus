@@ -219,9 +219,9 @@ class basic_zstring_view
     }
 
 #define zstring_view_has(func)                                                 \
-    constexpr bool func(string_view_base sv) const noexcept                    \
+    constexpr bool func(string_view_base v) const noexcept                     \
     {                                                                          \
-        return sv.func(sv);                                                    \
+        return sv.func(v);                                                     \
     }                                                                          \
     constexpr bool func(value_type c) const noexcept                           \
     {                                                                          \
