@@ -100,9 +100,3 @@ template <typename T>
 PinnedRef(const Pinned<T>& t) -> PinnedRef<const T>;
 
 } // namespace stdplus
-
-namespace std
-{
-template <class T>
-typename stdplus::Pinned<T>&& move(stdplus::Pinned<T>& t) noexcept = delete;
-}
