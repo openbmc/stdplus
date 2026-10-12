@@ -102,8 +102,8 @@ struct hash : std::hash<Key>
 template <typename T, std::size_t N>
 struct hash<std::array<T, N>>
 {
-    constexpr std::size_t operator()(const std::array<T, N>& a) noexcept(
-        noexcept(hashMulti(std::declval<T>())))
+    constexpr std::size_t operator()(const std::array<T, N>& a) const
+        noexcept(noexcept(hashMulti(std::declval<T>())))
     {
         return detail::hashArr(a.data(), N);
     }
@@ -112,8 +112,8 @@ struct hash<std::array<T, N>>
 template <typename T, std::size_t N>
 struct hash<T[N]>
 {
-    constexpr std::size_t operator()(const T (&a)[N]) noexcept(
-        noexcept(hashMulti(std::declval<T>())))
+    constexpr std::size_t operator()(const T (&a)[N]) const
+        noexcept(noexcept(hashMulti(std::declval<T>())))
     {
         return detail::hashArr(a, N);
     }
@@ -122,8 +122,8 @@ struct hash<T[N]>
 template <typename... Ts>
 struct hash<std::tuple<Ts...>>
 {
-    constexpr std::size_t operator()(const std::tuple<Ts...>& ts) noexcept(
-        noexcept(hashMulti(std::declval<Ts>()...)))
+    constexpr std::size_t operator()(const std::tuple<Ts...>& ts) const
+        noexcept(noexcept(hashMulti(std::declval<Ts>()...)))
     {
         return std::apply(hashMulti<Ts...>, ts);
     }
