@@ -1,3 +1,5 @@
+#include <sys/socket.h>
+
 #include <stdplus/fd/create.hpp>
 
 #include <system_error>
@@ -21,6 +23,8 @@ TEST(Create, Open)
 
 TEST(Create, Socket)
 {
+    static_assert(static_cast<int>(SocketFlag::CloseOnExec) == SOCK_CLOEXEC);
+    static_assert(static_cast<int>(SocketFlag::NonBlock) == SOCK_NONBLOCK);
     auto fd =
         socket(SocketDomain::UNIX,
                SocketFlags(SocketType::Datagram).set(SocketFlag::CloseOnExec),
