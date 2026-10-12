@@ -97,12 +97,15 @@ TEST(Hostname, EmptyString)
     EXPECT_THROW(Hostname(""), std::exception);
 }
 
-// Test all-numeric hostnames (should be rejected)
+// Test all-numeric hostnames and numeric TLDs (should be rejected)
 TEST(Hostname, AllNumeric)
 {
     EXPECT_THROW(Hostname("123456"), std::exception);
     EXPECT_THROW(Hostname("192.168.1"), std::exception);
     EXPECT_THROW(Hostname("256.1.1.1"), std::exception);
+    EXPECT_THROW(Hostname("192.168.1.1."), std::exception);
+    EXPECT_THROW(Hostname("example.123"), std::exception);
+    EXPECT_THROW(Hostname("example.123."), std::exception);
 }
 
 // Test comparison operators (using spaceship operator)
