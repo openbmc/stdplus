@@ -340,6 +340,12 @@ TEST_F(IoUringTest, RegisterFiles)
     fh = ring.registerFile(STDERR_FILENO);
     EXPECT_GT(ring.getFiles().size(), 1);
     EXPECT_EQ(*fh, 0);
+
+    // Failed registration into an existing table must leave slots intact
+    EXPECT_THROW((void)ring.registerFile(99999), std::system_error);
+    EXPECT_EQ(ring.getFiles()[0], STDERR_FILENO);
+    EXPECT_EQ(ring.getFiles()[1], -1);
+
     fh = ring.registerFile(STDOUT_FILENO);
     EXPECT_EQ(*fh, 1);
     EXPECT_GT(ring.getFiles().size(), 2);
