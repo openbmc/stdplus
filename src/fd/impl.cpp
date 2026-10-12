@@ -148,8 +148,9 @@ std::optional<std::tuple<int, std::span<std::byte>>> FdImpl::accept(
     std::span<std::byte> sockaddr) const
 {
     socklen_t len = sockaddr.size();
-    auto fd = ::accept(
-        get(), reinterpret_cast<struct sockaddr*>(sockaddr.data()), &len);
+    auto fd =
+        ::accept4(get(), reinterpret_cast<struct sockaddr*>(sockaddr.data()),
+                  &len, SOCK_CLOEXEC);
     if (fd == -1)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
