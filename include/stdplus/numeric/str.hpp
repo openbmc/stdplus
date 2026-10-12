@@ -120,15 +120,17 @@ constexpr CharT* uintToStr(CharT* buf, T v, uint8_t min_width) noexcept
 template <uint8_t base, std::integral T, typename CharT>
 constexpr CharT* intToStr(CharT* buf, T v, uint8_t min_width) noexcept
 {
+    using UT = std::make_unsigned_t<T>;
+    UT uv = static_cast<UT>(v);
     if constexpr (std::is_signed_v<T>)
     {
         if (v < 0)
         {
             *(buf++) = '-';
-            v = -v;
+            uv = ~uv + 1u;
         }
     }
-    return uintToStr<base>(buf, std::make_unsigned_t<T>(v), min_width);
+    return uintToStr<base>(buf, uv, min_width);
 }
 
 inline constexpr auto charTable = []() {
@@ -245,7 +247,9 @@ struct IntToStr
     static_assert(base > 1 && base <= detail::maxBase);
 
     static inline constexpr size_t buf_size = []() {
-        T v = std::numeric_limits<T>::max();
+        using UT = std::make_unsigned_t<T>;
+        UT v = static_cast<UT>(std::numeric_limits<T>::max()) +
+               std::is_signed_v<T>;
         uint8_t i = 0;
         for (; v != 0; ++i)
         {
