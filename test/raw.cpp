@@ -32,8 +32,26 @@ TEST(CopyFrom, Empty)
     const std::string_view cs;
     EXPECT_THROW(copyFrom<int>(cs), exception::Incomplete);
     std::string_view s;
-    EXPECT_THROW(copyFrom<int>(s), exception::Incomplete);
-    EXPECT_THROW(copyFromStrict<char>(s), exception::Incomplete);
+    try
+    {
+        copyFrom<int>(s);
+        FAIL();
+    }
+    catch (const exception::Incomplete& e)
+    {
+        EXPECT_NE(std::string_view(e.what()).find("copyFrom: 0 < 4"),
+                  std::string_view::npos);
+    }
+    try
+    {
+        copyFromStrict<char>(s);
+        FAIL();
+    }
+    catch (const exception::Incomplete& e)
+    {
+        EXPECT_NE(std::string_view(e.what()).find("copyFromStrict: 0 != 1"),
+                  std::string_view::npos);
+    }
 }
 
 TEST(CopyFrom, Basic)
@@ -68,8 +86,26 @@ TEST(RefFrom, Empty)
     const std::string_view cs;
     EXPECT_THROW(refFrom<Int>(cs), exception::Incomplete);
     std::string_view s;
-    EXPECT_THROW(refFrom<Int>(s), exception::Incomplete);
-    EXPECT_THROW(refFromStrict<Int>(s), exception::Incomplete);
+    try
+    {
+        refFrom<Int>(s);
+        FAIL();
+    }
+    catch (const exception::Incomplete& e)
+    {
+        EXPECT_NE(std::string_view(e.what()).find("refFrom: 0 < 4"),
+                  std::string_view::npos);
+    }
+    try
+    {
+        refFromStrict<Int>(s);
+        FAIL();
+    }
+    catch (const exception::Incomplete& e)
+    {
+        EXPECT_NE(std::string_view(e.what()).find("refFromStrict: 0 != 4"),
+                  std::string_view::npos);
+    }
 }
 
 TEST(RefFrom, Basic)
