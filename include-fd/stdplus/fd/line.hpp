@@ -18,9 +18,9 @@ class LineReader
 
     LineReader(const Fd& fd);
     LineReader(const LineReader&) = delete;
-    LineReader(LineReader&&) = default;
+    LineReader(LineReader&&) = delete;
     LineReader& operator=(const LineReader&) = delete;
-    LineReader& operator=(LineReader&&) = default;
+    LineReader& operator=(LineReader&&) = delete;
 
     const std::string* readLine();
 

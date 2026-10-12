@@ -5,6 +5,7 @@
 #include <stdplus/fd/line.hpp>
 
 #include <string>
+#include <type_traits>
 
 #include <gtest/gtest.h>
 
@@ -12,6 +13,11 @@ namespace stdplus
 {
 namespace fd
 {
+
+static_assert(!std::is_copy_constructible_v<LineReader>);
+static_assert(!std::is_move_constructible_v<LineReader>);
+static_assert(!std::is_copy_assignable_v<LineReader>);
+static_assert(!std::is_move_assignable_v<LineReader>);
 
 TEST(LineReader, Empty)
 {
