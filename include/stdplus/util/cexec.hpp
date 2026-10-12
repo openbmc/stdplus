@@ -41,12 +41,18 @@
         if constexpr (::std::is_pointer_v<decltype(check_errno_ret)>)          \
         {                                                                      \
             if (check_errno_ret == nullptr)                                    \
-                ::stdplus::util::doError(errno, (error_handler));              \
+            {                                                                  \
+                const int check_errno_err = errno;                             \
+                ::stdplus::util::doError(check_errno_err, (error_handler));    \
+            }                                                                  \
         }                                                                      \
         else if constexpr (::std::is_signed_v<decltype(check_errno_ret)>)      \
         {                                                                      \
             if (check_errno_ret < 0)                                           \
-                ::stdplus::util::doError(errno, (error_handler));              \
+            {                                                                  \
+                const int check_errno_err = errno;                             \
+                ::stdplus::util::doError(check_errno_err, (error_handler));    \
+            }                                                                  \
         }                                                                      \
         else                                                                   \
         {                                                                      \
