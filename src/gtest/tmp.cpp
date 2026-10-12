@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <format>
+#include <system_error>
 
 namespace stdplus
 {
@@ -13,17 +14,18 @@ TestWithTmp::TestWithTmp() :
         "{}/{}", SuiteTmpDir(),
         ::testing::UnitTest::GetInstance()->current_test_info()->name()))
 {
-    std::filesystem::create_directory(CaseTmpDir());
+    std::filesystem::create_directories(CaseTmpDir());
 }
 
 TestWithTmp::~TestWithTmp()
 {
-    std::filesystem::remove_all(CaseTmpDir());
+    std::error_code ec;
+    std::filesystem::remove_all(CaseTmpDir(), ec);
 }
 
 void TestWithTmp::SetUpTestSuite()
 {
-    std::filesystem::create_directory(SuiteTmpDir());
+    std::filesystem::create_directories(SuiteTmpDir());
 }
 
 void TestWithTmp::TearDownTestSuite()
