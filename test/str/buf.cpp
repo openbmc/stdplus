@@ -268,4 +268,28 @@ TEST(StrBuf, StatefulAllocator)
     EXPECT_EQ(0u, c1.size());
 }
 
+TEST(StrBuf, ShrinkAndAppendBounds)
+{
+    StrBuf inl;
+    std::copy_n("hello", 5, inl.append(5));
+    inl.shrink(2);
+    EXPECT_EQ("hel", std::string_view(inl));
+    inl.shrink(100);
+    EXPECT_EQ(0u, inl.size());
+    EXPECT_EQ("", std::string_view(inl));
+
+    StrBuf dyn;
+    std::copy(data.begin(), data.end(), dyn.append(data.size()));
+    dyn.shrink(5);
+    EXPECT_EQ(data.substr(0, data.size() - 5), std::string_view(dyn));
+    dyn.shrink(data.size() + 100);
+    EXPECT_EQ(0u, dyn.size());
+    EXPECT_EQ("", std::string_view(dyn));
+
+    constexpr std::size_t max_flag =
+        std::size_t{1} << ((sizeof(std::size_t) << 3) - 1);
+    EXPECT_THROW(inl.append(max_flag), std::length_error);
+    EXPECT_THROW(dyn.append(max_flag), std::length_error);
+}
+
 } // namespace stdplus
