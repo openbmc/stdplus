@@ -171,9 +171,10 @@ void IoUring::process() noexcept
     io_uring_cqe* cqe;
     while (io_uring_peek_cqe(&ring, &cqe) == 0)
     {
-        auto h = reinterpret_cast<CQEHandler*>(cqe->user_data);
-        dropHandler(h, *cqe);
+        auto cqe_copy = *cqe;
         io_uring_cqe_seen(&ring, cqe);
+        auto h = reinterpret_cast<CQEHandler*>(cqe_copy.user_data);
+        dropHandler(h, cqe_copy);
     }
 }
 
