@@ -119,6 +119,15 @@ TEST(Sock6Addr, ToStr)
     EXPECT_EQ("[ff00::]:128", tsh(Sock6Addr(In6Addr{0xff}, 128, 0)));
     EXPECT_EQ("a [102:304::]:32 b",
               std::format("a {} b", Sock6Addr(In6Addr{1, 2, 3, 4}, 32, 0)));
+    const Sock6Addr maxAddr{
+        In6Addr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+        65535, 0};
+    EXPECT_EQ("[ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff]:65535", tsh(maxAddr));
+    StrBuf sbuf;
+    ToStrAdap<ToStr<Sock6Addr>>{}(sbuf, maxAddr);
+    EXPECT_EQ("[ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff]:65535",
+              std::string_view(sbuf));
 }
 
 TEST(SockUAddr, Basic)

@@ -500,9 +500,9 @@ struct ToStr<Sock6Addr>
     using type = Sock6Addr;
     using FromAddr = ToStr<In6Addr>;
     using FromDec = IntToStr<10, std::uint16_t>;
-    // Addr + sep + port chars
+    // '[' + Addr + ']' + ':' + port chars
     static inline constexpr std::size_t buf_size =
-        FromAddr::buf_size + 1 + FromDec::buf_size;
+        FromAddr::buf_size + 3 + FromDec::buf_size;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, Sock6Addr v) const noexcept
