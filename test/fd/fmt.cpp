@@ -38,5 +38,17 @@ TEST(FormatBuffer, Basic)
     EXPECT_EQ(4109, fd.lseek(0, Whence::Cur));
 }
 
+TEST(FormatBuffer, UnwindException)
+{
+    ManagedFd fd;
+    EXPECT_THROW(
+        {
+            FormatBuffer buf(fd, 4096);
+            buf.appends("hi\n");
+            throw std::runtime_error("unwind");
+        },
+        std::runtime_error);
+}
+
 } // namespace fd
 } // namespace stdplus
