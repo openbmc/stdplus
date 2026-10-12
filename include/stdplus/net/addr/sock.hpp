@@ -11,6 +11,7 @@
 
 #include <array>
 #include <cstdint>
+#include <cstring>
 #include <format>
 #include <string_view>
 
@@ -27,6 +28,10 @@ struct SockAddrBuf
     union
     {
         sa_family_t fam;
+        sockaddr sa_;
+        sockaddr_in sin_;
+        sockaddr_in6 sin6_;
+        sockaddr_un sun_;
         sockaddr_storage ss_;
     };
     std::uint8_t len;
@@ -34,13 +39,23 @@ struct SockAddrBuf
     static inline constexpr std::size_t maxLen = sizeof(ss_);
     static_assert(maxLen <= std::numeric_limits<decltype(len)>::max());
 
+    /** @brief Returns the address family independently of which union
+     *         member was written last. Not usable in constant expressions.
+     */
+    inline sa_family_t family() const noexcept
+    {
+        sa_family_t ret;
+        std::memcpy(&ret, &ss_, sizeof(ret));
+        return ret;
+    }
+
     inline operator const sockaddr*() const
     {
-        return reinterpret_cast<const sockaddr*>(&ss_);
+        return &sa_;
     }
     inline operator sockaddr*()
     {
-        return reinterpret_cast<sockaddr*>(&ss_);
+        return &sa_;
     }
 };
 static_assert(std::is_standard_layout_v<SockAddrBuf>);
@@ -67,7 +82,9 @@ struct Sock4Addr
 
     static constexpr Sock4Addr fromBuf(const SockAddrBuf& buf)
     {
-        if (buf.fam != AF_INET)
+        if (buf.len < sizeof(buf.fam) ||
+            (std::is_constant_evaluated() ? buf.sin_.sin_family
+                                          : buf.family()) != AF_INET)
         {
             throw std::invalid_argument("Sock4Addr fromBuf");
         }
@@ -80,7 +97,7 @@ struct Sock4Addr
         {
             throw std::invalid_argument("Sock4Addr fromBuf");
         }
-        const auto& sin = reinterpret_cast<const sockaddr_in&>(buf);
+        const auto& sin = buf.sin_;
         return Sock4Addr{.addr = sin.sin_addr,
                          .port = stdplus::ntoh(sin.sin_port)};
     }
@@ -109,10 +126,8 @@ struct Sock4Addr
 
     constexpr SockAddrBuf buf() const noexcept
     {
-        SockAddrBuf ret;
-        reinterpret_cast<sockaddr_in&>(ret) = sockaddr();
-        ret.len = sockaddrLen();
-        return ret;
+        return {.sin_ = sockaddr(),
+                .len = static_cast<std::uint8_t>(sockaddrLen())};
     }
     constexpr operator SockAddrBuf() const noexcept
     {
@@ -132,7 +147,9 @@ struct Sock6Addr
 
     static constexpr Sock6Addr fromBuf(const SockAddrBuf& buf)
     {
-        if (buf.fam != AF_INET6)
+        if (buf.len < sizeof(buf.fam) ||
+            (std::is_constant_evaluated() ? buf.sin6_.sin6_family
+                                          : buf.family()) != AF_INET6)
         {
             throw std::invalid_argument("Sock6Addr fromBuf");
         }
@@ -145,7 +162,7 @@ struct Sock6Addr
         {
             throw std::invalid_argument("Sock6Addr fromBuf");
         }
-        const auto& sin6 = reinterpret_cast<const sockaddr_in6&>(buf);
+        const auto& sin6 = buf.sin6_;
         return Sock6Addr{.addr = sin6.sin6_addr,
                          .port = stdplus::ntoh(sin6.sin6_port),
                          .scope = sin6.sin6_scope_id};
@@ -176,10 +193,8 @@ struct Sock6Addr
 
     constexpr SockAddrBuf buf() const noexcept
     {
-        SockAddrBuf ret;
-        reinterpret_cast<sockaddr_in6&>(ret) = sockaddr();
-        ret.len = sockaddrLen();
-        return ret;
+        return {.sin6_ = sockaddr(),
+                .len = static_cast<std::uint8_t>(sockaddrLen())};
     }
     constexpr operator SockAddrBuf() const noexcept
     {
@@ -235,7 +250,9 @@ struct SockUAddr
 
     static constexpr SockUAddr fromBuf(const SockAddrBuf& buf)
     {
-        if (buf.fam != AF_UNIX)
+        if (buf.len < sizeof(buf.fam) ||
+            (std::is_constant_evaluated() ? buf.sun_.sun_family
+                                          : buf.family()) != AF_UNIX)
         {
             throw std::invalid_argument("SockUAddr fromBuf");
         }
@@ -249,7 +266,7 @@ struct SockUAddr
         {
             throw std::invalid_argument("SockUAddr fromBuf");
         }
-        const auto& sun = reinterpret_cast<const sockaddr_un&>(buf);
+        const auto& sun = buf.sun_;
         return SockUAddr{detail::SockAddrUnsafe(),
                          {sun.sun_path,
                           buf.len - offsetof(sockaddr_un, sun_path)}};
@@ -284,9 +301,9 @@ struct SockUAddr
 
     constexpr SockAddrBuf buf() const noexcept
     {
-        SockAddrBuf ret;
-        fill(reinterpret_cast<sockaddr_un&>(ret));
-        ret.len = sockaddrLen();
+        SockAddrBuf ret{.sun_ = {},
+                        .len = static_cast<std::uint8_t>(sockaddrLen())};
+        fill(ret.sun_);
         return ret;
     }
     constexpr operator SockAddrBuf() const noexcept
@@ -380,11 +397,33 @@ struct SockInAddr : detail::SockAnyAddr<detail::SockInAddrV>
 
     static constexpr SockInAddr fromBuf(const SockAddrBuf& buf)
     {
-        if (buf.fam == AF_INET)
+        if (buf.len < sizeof(buf.fam))
+        {
+            throw std::invalid_argument("Unknown SockInAddr");
+        }
+        if (std::is_constant_evaluated())
+        {
+            // Only the union member that was written last may be read in a
+            // constant expression, so select the candidate by length and let
+            // its fromBuf() verify the family through that member. A
+            // SockUAddr buffer of the same length is therefore rejected with
+            // a compile-time error rather than std::invalid_argument.
+            if (buf.len == sizeof(sockaddr_in))
+            {
+                return Sock4Addr::fromBuf(buf);
+            }
+            if (buf.len == sizeof(sockaddr_in6))
+            {
+                return Sock6Addr::fromBuf(buf);
+            }
+            throw std::invalid_argument("Unknown SockInAddr");
+        }
+        const auto fam = buf.family();
+        if (fam == AF_INET)
         {
             return Sock4Addr::fromBuf(detail::SockAddrUnsafe(), buf);
         }
-        else if (buf.fam == AF_INET6)
+        else if (fam == AF_INET6)
         {
             return Sock6Addr::fromBuf(detail::SockAddrUnsafe(), buf);
         }
@@ -424,21 +463,28 @@ struct SockAnyAddr : detail::SockAnyAddr<detail::SockAnyAddrV>
             std::visit([](auto v) { return detail::SockAnyAddrV(v); }, a))
     {}
 
+    // Never a constant expression since family() is not constexpr. Calling
+    // it from a constexpr function relies on C++23 (P2448R2).
     static constexpr SockAnyAddr fromBuf(const SockAddrBuf& buf)
     {
-        if (buf.fam == AF_INET)
+        if (buf.len < sizeof(buf.fam))
+        {
+            throw std::invalid_argument("Unknown SockAnyAddr");
+        }
+        const auto fam = buf.family();
+        if (fam == AF_INET)
         {
             return Sock4Addr::fromBuf(detail::SockAddrUnsafe(), buf);
         }
-        else if (buf.fam == AF_INET6)
+        else if (fam == AF_INET6)
         {
             return Sock6Addr::fromBuf(detail::SockAddrUnsafe(), buf);
         }
-        else if (buf.fam == AF_UNIX)
+        else if (fam == AF_UNIX)
         {
             return SockUAddr::fromBuf(detail::SockAddrUnsafe(), buf);
         }
-        throw std::invalid_argument("Unknown SockInAddr");
+        throw std::invalid_argument("Unknown SockAnyAddr");
     }
 };
 
