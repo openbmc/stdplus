@@ -1,6 +1,8 @@
 #include <stdplus/debug/lifetime.hpp>
 #include <stdplus/print.hpp>
 
+#include <atomic>
+
 using std::literals::string_view_literals::operator""sv;
 
 template <typename CharT>
@@ -23,7 +25,7 @@ struct std::formatter<std::source_location, CharT>
 namespace stdplus::debug
 {
 
-static std::size_t next_id = 0;
+static std::atomic<std::size_t> next_id = 0;
 
 Lifetime::Lifetime(std::source_location loc) : loc(loc), id(next_id++)
 {
