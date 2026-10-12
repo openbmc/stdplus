@@ -29,7 +29,7 @@ class FormatBuffer
     FormatBuffer(const FormatBuffer&) = delete;
     FormatBuffer(FormatBuffer&&) = default;
     FormatBuffer& operator=(const FormatBuffer&) = delete;
-    FormatBuffer& operator=(FormatBuffer&&) = default;
+    FormatBuffer& operator=(FormatBuffer&&) = delete;
 
     template <typename... Args>
     inline void append(std::format_string<Args...> fmt, Args&&... args)
