@@ -10,6 +10,7 @@ namespace stdplus
 TEST(Print, Basic)
 {
     auto file = std::tmpfile();
+    prints(file, std::string_view{});
     print(file, "hello");
     print(file, "hi {}\n", 4);
     println(file, "ho\n");
