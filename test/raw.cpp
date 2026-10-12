@@ -3,6 +3,7 @@
 #include <stdplus/raw.hpp>
 
 #include <array>
+#include <cstdint>
 #include <span>
 #include <stdexcept>
 #include <string_view>
@@ -123,6 +124,20 @@ TEST(RefFrom, Partial)
     EXPECT_THROW(refFromStrict<char>(s), exception::Incomplete);
     const char s2[] = "def";
     EXPECT_EQ('d', refFrom<char>(s2));
+}
+
+TEST(RefFrom, SufficientlyAlignedElements)
+{
+    struct alignas(std::uint32_t) Word
+    {
+        std::uint8_t b[4];
+    };
+    std::array<Word, 2> words{};
+    EXPECT_EQ(static_cast<void*>(words.data()),
+              static_cast<void*>(&refFrom<std::uint32_t>(words)));
+    std::array<std::uint64_t, 1> wide{};
+    EXPECT_EQ(static_cast<void*>(wide.data()),
+              static_cast<void*>(&refFrom<std::uint32_t>(wide)));
 }
 
 TEST(Extract, TooSmall)

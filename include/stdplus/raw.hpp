@@ -114,7 +114,7 @@ struct UnAligned
     constexpr Tp& func(Container&& c)                                          \
     {                                                                          \
         static_assert(std::is_same_v<A, Aligned> ||                            \
-                      sizeof(*std::data(c)) % alignof(Tp) == 0);               \
+                      alignof(detail::dataType<Container>) >= alignof(Tp));    \
         const size_t bytes = std::size(c) * sizeof(*std::data(c));             \
         if (bytes comp sizeof(Tp))                                             \
         {                                                                      \
