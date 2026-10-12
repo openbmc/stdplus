@@ -9,7 +9,7 @@ namespace stdplus
 namespace fd
 {
 
-LineReader::LineReader(Fd& fd) : fd(fd) {}
+LineReader::LineReader(const Fd& fd) : fd(fd) {}
 
 const std::string* LineReader::readLine()
 {

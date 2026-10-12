@@ -12,8 +12,8 @@ namespace detail
 {
 
 template <typename Fun, typename Byte, typename... Args>
-static void opExact(const char* name, Fun&& fun, Fd& fd, std::span<Byte> data,
-                    Args&&... args)
+static void opExact(const char* name, Fun&& fun, const Fd& fd,
+                    std::span<Byte> data, Args&&... args)
 {
     std::size_t total = 0;
     try
@@ -41,27 +41,27 @@ static void opExact(const char* name, Fun&& fun, Fd& fd, std::span<Byte> data,
     }
 }
 
-void readExact(Fd& fd, std::span<std::byte> data)
+void readExact(const Fd& fd, std::span<std::byte> data)
 {
     opExact("readExact", &Fd::read, fd, data);
 }
 
-void recvExact(Fd& fd, std::span<std::byte> data, RecvFlags flags)
+void recvExact(const Fd& fd, std::span<std::byte> data, RecvFlags flags)
 {
     opExact("recvExact", &Fd::recv, fd, data, flags);
 }
 
-void writeExact(Fd& fd, std::span<const std::byte> data)
+void writeExact(const Fd& fd, std::span<const std::byte> data)
 {
     opExact("writeExact", &Fd::write, fd, data);
 }
 
-void sendExact(Fd& fd, std::span<const std::byte> data, SendFlags flags)
+void sendExact(const Fd& fd, std::span<const std::byte> data, SendFlags flags)
 {
     opExact("sendExact", &Fd::send, fd, data, flags);
 }
 
-void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
+void sendtoExact(const Fd& fd, std::span<const std::byte> data, SendFlags flags,
                  std::span<const std::byte> addr)
 {
     auto r = fd.sendto(data, flags, addr);
@@ -76,7 +76,7 @@ void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
 }
 
 template <typename Fun, typename Byte, typename... Args>
-static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
+static std::span<Byte> opAligned(const char* name, Fun&& fun, const Fd& fd,
                                  size_t align, std::span<Byte> data,
                                  Args&&... args)
 {
@@ -107,32 +107,35 @@ static std::span<Byte> opAligned(const char* name, Fun&& fun, Fd& fd,
     return std::span<Byte>(data.data(), total);
 }
 
-std::span<std::byte> readAligned(Fd& fd, size_t align, std::span<std::byte> buf)
+std::span<std::byte> readAligned(const Fd& fd, size_t align,
+                                 std::span<std::byte> buf)
 {
     return opAligned("readAligned", &Fd::read, fd, align, buf);
 }
 
-std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
-                                 RecvFlags flags)
+std::span<std::byte> recvAligned(const Fd& fd, size_t align,
+                                 std::span<std::byte> buf, RecvFlags flags)
 {
     return opAligned("recvAligned", &Fd::recv, fd, align, buf, flags);
 }
 
-std::span<const std::byte> writeAligned(Fd& fd, size_t align,
+std::span<const std::byte> writeAligned(const Fd& fd, size_t align,
                                         std::span<const std::byte> data)
 {
     return opAligned("writeAligned", &Fd::write, fd, align, data);
 }
 
-std::span<const std::byte> sendAligned(
-    Fd& fd, size_t align, std::span<const std::byte> data, SendFlags flags)
+std::span<const std::byte> sendAligned(const Fd& fd, size_t align,
+                                       std::span<const std::byte> data,
+                                       SendFlags flags)
 {
     return opAligned("sendAligned", &Fd::send, fd, align, data, flags);
 }
 
 constexpr std::size_t maxStrideB = 65536;
 
-void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize)
+void readAll(const Fd& fd,
+             function_view<std::span<std::byte>(size_t req)> resize)
 {
     std::size_t strideB = 256;
     std::size_t totalB = 0;
@@ -180,7 +183,7 @@ void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize)
     }
 }
 
-std::span<std::byte> readAllFixed(Fd& fd, size_t align,
+std::span<std::byte> readAllFixed(const Fd& fd, size_t align,
                                   std::span<std::byte> buf)
 {
     std::size_t totalB = 0;

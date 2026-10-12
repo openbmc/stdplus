@@ -16,29 +16,31 @@ namespace fd
 namespace detail
 {
 
-void readExact(Fd& fd, std::span<std::byte> data);
-void recvExact(Fd& fd, std::span<std::byte> data, RecvFlags flags);
-void writeExact(Fd& fd, std::span<const std::byte> data);
-void sendExact(Fd& fd, std::span<const std::byte> data, SendFlags flags);
-void sendtoExact(Fd& fd, std::span<const std::byte> data, SendFlags flags,
+void readExact(const Fd& fd, std::span<std::byte> data);
+void recvExact(const Fd& fd, std::span<std::byte> data, RecvFlags flags);
+void writeExact(const Fd& fd, std::span<const std::byte> data);
+void sendExact(const Fd& fd, std::span<const std::byte> data, SendFlags flags);
+void sendtoExact(const Fd& fd, std::span<const std::byte> data, SendFlags flags,
                  std::span<const std::byte> addr);
 
-std::span<std::byte> readAligned(Fd& fd, size_t align,
+std::span<std::byte> readAligned(const Fd& fd, size_t align,
                                  std::span<std::byte> buf);
-void readAll(Fd& fd, function_view<std::span<std::byte>(size_t req)> resize);
-std::span<std::byte> readAllFixed(Fd& fd, size_t align,
+void readAll(const Fd& fd,
+             function_view<std::span<std::byte>(size_t req)> resize);
+std::span<std::byte> readAllFixed(const Fd& fd, size_t align,
                                   std::span<std::byte> buf);
-std::span<std::byte> recvAligned(Fd& fd, size_t align, std::span<std::byte> buf,
-                                 RecvFlags flags);
-std::span<const std::byte> writeAligned(Fd& fd, size_t align,
+std::span<std::byte> recvAligned(const Fd& fd, size_t align,
+                                 std::span<std::byte> buf, RecvFlags flags);
+std::span<const std::byte> writeAligned(const Fd& fd, size_t align,
                                         std::span<const std::byte> data);
-std::span<const std::byte> sendAligned(
-    Fd& fd, size_t align, std::span<const std::byte> data, SendFlags flags);
+std::span<const std::byte> sendAligned(const Fd& fd, size_t align,
+                                       std::span<const std::byte> data,
+                                       SendFlags flags);
 
 void verifyExact(size_t expected, size_t actual);
 
 template <typename Fun, typename Container, typename... Args>
-auto alignedOp(Fun&& fun, Fd& fd, Container&& c, Args&&... args)
+auto alignedOp(Fun&& fun, const Fd& fd, Container&& c, Args&&... args)
 {
     using Data = raw::detail::dataType<Container>;
     auto ret = fun(fd, sizeof(Data), raw::asSpan<std::byte>(c),
@@ -49,14 +51,14 @@ auto alignedOp(Fun&& fun, Fd& fd, Container&& c, Args&&... args)
 } // namespace detail
 
 template <typename Container>
-inline auto read(Fd& fd, Container&& c)
+inline auto read(const Fd& fd, Container&& c)
 {
     return detail::alignedOp(detail::readAligned, fd,
                              std::forward<Container>(c));
 }
 
 template <typename Container = std::vector<std::byte>>
-Container readAll(Fd& fd)
+Container readAll(const Fd& fd)
 {
     using Data = raw::detail::dataType<Container>;
     Container ret;
@@ -70,21 +72,22 @@ Container readAll(Fd& fd)
 }
 
 template <typename Container>
-inline auto readAllFixed(Fd& fd, Container&& c)
+inline auto readAllFixed(const Fd& fd, Container&& c)
 {
     return detail::alignedOp(detail::readAllFixed, fd,
                              std::forward<Container>(c));
 }
 
 template <typename Container>
-inline auto recv(Fd& fd, Container&& c, RecvFlags flags = {})
+inline auto recv(const Fd& fd, Container&& c, RecvFlags flags = {})
 {
     return detail::alignedOp(detail::recvAligned, fd,
                              std::forward<Container>(c), flags);
 }
 
 template <typename Container>
-auto recvfrom(Fd& fd, Container&& c, SockAddrBuf& addr, RecvFlags flags = {})
+auto recvfrom(const Fd& fd, Container&& c, SockAddrBuf& addr,
+              RecvFlags flags = {})
 {
     using Data = raw::detail::dataType<Container>;
     auto ret = fd.recvfrom(
@@ -96,21 +99,21 @@ auto recvfrom(Fd& fd, Container&& c, SockAddrBuf& addr, RecvFlags flags = {})
 }
 
 template <typename Container>
-inline auto write(Fd& fd, Container&& c)
+inline auto write(const Fd& fd, Container&& c)
 {
     return detail::alignedOp(detail::writeAligned, fd,
                              std::forward<Container>(c));
 }
 
 template <typename Container>
-inline auto send(Fd& fd, Container&& c, SendFlags flags = {})
+inline auto send(const Fd& fd, Container&& c, SendFlags flags = {})
 {
     return detail::alignedOp(detail::sendAligned, fd,
                              std::forward<Container>(c), flags);
 }
 
 template <typename Container>
-auto sendto(Fd& fd, Container&& c, const SockAddrBuf& addr,
+auto sendto(const Fd& fd, Container&& c, const SockAddrBuf& addr,
             SendFlags flags = {})
 {
     using Data = raw::detail::dataType<Container>;
@@ -121,38 +124,38 @@ auto sendto(Fd& fd, Container&& c, const SockAddrBuf& addr,
 }
 
 template <typename T>
-inline void readExact(Fd& fd, T&& t)
+inline void readExact(const Fd& fd, T&& t)
 {
     detail::readExact(fd, raw::asSpan<std::byte>(t));
 }
 
 template <typename T>
-inline auto readAllExact(Fd& fd, T&& t)
+inline auto readAllExact(const Fd& fd, T&& t)
 {
     auto s = raw::asSpan<std::byte>(t);
     detail::verifyExact(s.size(), detail::readAllFixed(fd, 1, s).size());
 }
 
 template <typename T>
-inline void recvExact(Fd& fd, T&& t, RecvFlags flags = {})
+inline void recvExact(const Fd& fd, T&& t, RecvFlags flags = {})
 {
     detail::recvExact(fd, raw::asSpan<std::byte>(t), flags);
 }
 
 template <typename T>
-inline void writeExact(Fd& fd, T&& t)
+inline void writeExact(const Fd& fd, T&& t)
 {
     detail::writeExact(fd, raw::asSpan<std::byte>(t));
 }
 
 template <typename T>
-inline void sendExact(Fd& fd, T&& t, SendFlags flags = {})
+inline void sendExact(const Fd& fd, T&& t, SendFlags flags = {})
 {
     detail::sendExact(fd, raw::asSpan<std::byte>(t), flags);
 }
 
 template <typename Container>
-inline void sendtoExact(Fd& fd, Container&& c, const SockAddrBuf& addr,
+inline void sendtoExact(const Fd& fd, Container&& c, const SockAddrBuf& addr,
                         SendFlags flags = {})
 {
     detail::sendtoExact(
@@ -160,52 +163,52 @@ inline void sendtoExact(Fd& fd, Container&& c, const SockAddrBuf& addr,
         std::span(reinterpret_cast<const std::byte*>(&addr), addr.len));
 }
 
-inline size_t lseek(Fd& fd, off_t offset, Whence whence)
+inline size_t lseek(const Fd& fd, off_t offset, Whence whence)
 {
     return fd.lseek(offset, whence);
 }
 
-inline void truncate(Fd& fd, off_t size)
+inline void truncate(const Fd& fd, off_t size)
 {
     return fd.truncate(size);
 }
 
-inline void bind(Fd& fd, const SockAddrBuf& addr)
+inline void bind(const Fd& fd, const SockAddrBuf& addr)
 {
     return fd.bind({reinterpret_cast<const std::byte*>(&addr), addr.len});
 }
 
-inline void bind(Fd& fd, const SockAddr auto& addr)
+inline void bind(const Fd& fd, const SockAddr auto& addr)
 {
     return bind(fd, addr.buf());
 }
 
-inline void bind(Fd& fd, const auto& sockaddr)
+inline void bind(const Fd& fd, const auto& sockaddr)
 {
     return fd.bind(raw::asSpan<std::byte>(sockaddr));
 }
 
-inline void connect(Fd& fd, const SockAddrBuf& addr)
+inline void connect(const Fd& fd, const SockAddrBuf& addr)
 {
     return fd.connect({reinterpret_cast<const std::byte*>(&addr), addr.len});
 }
 
-inline void connect(Fd& fd, const SockAddr auto& addr)
+inline void connect(const Fd& fd, const SockAddr auto& addr)
 {
     return connect(fd, addr.buf());
 }
 
-inline void connect(Fd& fd, const auto& sockaddr)
+inline void connect(const Fd& fd, const auto& sockaddr)
 {
     return fd.connect(raw::asSpan<std::byte>(sockaddr));
 }
 
-inline void listen(Fd& fd, int backlog)
+inline void listen(const Fd& fd, int backlog)
 {
     return fd.listen(backlog);
 }
 
-inline std::optional<DupableFd> accept(Fd& fd)
+inline std::optional<DupableFd> accept(const Fd& fd)
 {
     auto ret = fd.accept(std::span<std::byte>{});
     if (!ret)
@@ -215,7 +218,7 @@ inline std::optional<DupableFd> accept(Fd& fd)
     return DupableFd(std::move(std::get<0>(*ret)));
 }
 
-inline std::optional<DupableFd> accept(Fd& fd, SockAddrBuf& addr)
+inline std::optional<DupableFd> accept(const Fd& fd, SockAddrBuf& addr)
 {
     auto ret =
         fd.accept(std::span(reinterpret_cast<std::byte*>(&addr), addr.maxLen));
@@ -228,7 +231,8 @@ inline std::optional<DupableFd> accept(Fd& fd, SockAddrBuf& addr)
 }
 
 template <typename Opt>
-inline void setsockopt(Fd& fd, SockLevel level, SockOpt optname, Opt&& opt)
+inline void setsockopt(const Fd& fd, SockLevel level, SockOpt optname,
+                       Opt&& opt)
 {
     return fd.setsockopt(level, optname, raw::asSpan<std::byte>(opt));
 }
@@ -240,7 +244,7 @@ inline int constIoctl(const Fd& fd, unsigned long id, Data&& data)
 }
 
 template <typename Data>
-inline int ioctl(Fd& fd, unsigned long id, Data&& data)
+inline int ioctl(const Fd& fd, unsigned long id, Data&& data)
 {
     return fd.ioctl(id, raw::asSpan<std::byte>(data).data());
 }
@@ -250,7 +254,7 @@ inline FdFlags getFdFlags(const Fd& fd)
     return fd.fcntlGetfd();
 }
 
-inline void setFdFlags(Fd& fd, FdFlags flags)
+inline void setFdFlags(const Fd& fd, FdFlags flags)
 {
     return fd.fcntlSetfd(flags);
 }
@@ -260,7 +264,7 @@ inline FileFlags getFileFlags(const Fd& fd)
     return fd.fcntlGetfl();
 }
 
-inline void setFileFlags(Fd& fd, FileFlags flags)
+inline void setFileFlags(const Fd& fd, FileFlags flags)
 {
     return fd.fcntlSetfl(flags);
 }

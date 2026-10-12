@@ -6,7 +6,7 @@ namespace stdplus
 namespace fd
 {
 
-FormatBuffer::FormatBuffer(Fd& fd, size_t max) : fd(fd), max(max) {}
+FormatBuffer::FormatBuffer(const Fd& fd, size_t max) : fd(fd), max(max) {}
 
 FormatBuffer::~FormatBuffer() noexcept(false)
 {

@@ -16,7 +16,7 @@ class LineReader
   public:
     static constexpr size_t buf_size = 4096;
 
-    LineReader(Fd& fd);
+    LineReader(const Fd& fd);
     LineReader(const LineReader&) = delete;
     LineReader(LineReader&&) = default;
     LineReader& operator=(const LineReader&) = delete;
@@ -25,7 +25,7 @@ class LineReader
     const std::string* readLine();
 
   private:
-    std::reference_wrapper<Fd> fd;
+    std::reference_wrapper<const Fd> fd;
     std::array<char, buf_size> buf;
     std::span<char> buf_data;
     std::string line;
