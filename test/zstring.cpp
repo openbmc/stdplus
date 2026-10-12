@@ -45,6 +45,13 @@ TEST(Zstring, Construct)
 
     auto from_str = [&](const_zstring cs) { EXPECT_EQ(cs, "ac"); };
     from_str("ac"s);
+
+    static_assert(std::is_constructible_v<zstring, std::string&>);
+    static_assert(!std::is_constructible_v<zstring, const std::string&>);
+    static_assert(!std::is_constructible_v<zstring, std::string&&>);
+    static_assert(std::is_constructible_v<const_zstring, std::string&>);
+    static_assert(std::is_constructible_v<const_zstring, const std::string&>);
+    static_assert(std::is_constructible_v<const_zstring, std::string&&>);
 }
 
 TEST(Zstring, NoTypeCoercion)

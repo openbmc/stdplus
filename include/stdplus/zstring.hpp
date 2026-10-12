@@ -97,10 +97,14 @@ class basic_zstring
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true>
     constexpr basic_zstring(T str) noexcept : data_(str)
     {}
-    template <typename T,
-              std::enable_if_t<detail::same_string<std::remove_cvref_t<T>,
-                                                   decay_t, Traits>::value,
-                               bool> = true>
+    template <
+        typename T,
+        std::enable_if_t<detail::same_string<std::remove_cvref_t<T>, decay_t,
+                                             Traits>::value &&
+                             (std::is_const_v<CharT> ||
+                              (std::is_lvalue_reference_v<T> &&
+                               !std::is_const_v<std::remove_reference_t<T>>)),
+                         bool> = true>
     constexpr basic_zstring(T&& str)
 #ifdef NDEBUG
         noexcept
