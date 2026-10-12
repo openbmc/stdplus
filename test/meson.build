@@ -1,5 +1,6 @@
 gtests = {
     'cancel': [stdplus_dep, gtest_main_dep],
+    'debug/lifetime': [stdplus_dep, gtest_main_dep],
     'exception': [stdplus_dep, gtest_main_dep],
     'function_view': [stdplus_dep, gtest_main_dep],
     'handle/copyable': [stdplus_dep, gtest_main_dep],
