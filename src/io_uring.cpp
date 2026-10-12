@@ -1,6 +1,7 @@
 #include <liburing.h>
 #include <sys/eventfd.h>
 
+#include <stdplus/exception.hpp>
 #include <stdplus/fd/managed.hpp>
 #include <stdplus/fd/ops.hpp>
 #include <stdplus/io_uring.hpp>
@@ -46,9 +47,9 @@ IoUring::FileHandle::FileHandle(unsigned slot, IoUring& ring) :
     slot(slot, &ring)
 {}
 
-void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring)
+void IoUring::FileHandle::drop(unsigned&& slot, IoUring*& ring) noexcept
 {
-    ring->updateFile(slot, -1);
+    stdplus::exception::ignore([&]() { ring->updateFile(slot, -1); })();
 }
 
 void IoUring::reserveFiles(size_t num)

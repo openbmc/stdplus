@@ -1,3 +1,4 @@
+#include <stdplus/exception.hpp>
 #include <stdplus/fd/mmap.hpp>
 #include <stdplus/util/cexec.hpp>
 
@@ -21,9 +22,9 @@ std::span<std::byte> MMap::get() const
 }
 
 void MMap::drop(std::span<std::byte>&& mapping,
-                std::reference_wrapper<const Fd>& fd)
+                std::reference_wrapper<const Fd>& fd) noexcept
 {
-    fd.get().munmap(mapping);
+    stdplus::exception::ignore([&]() { fd.get().munmap(mapping); })();
 }
 
 } // namespace fd

@@ -37,7 +37,7 @@ void* Dl::open(const char* file, int flags)
     return ret;
 }
 
-void Dl::close(void*&& handle)
+void Dl::close(void*&& handle) noexcept
 {
     ::dlclose(handle);
 }

@@ -22,7 +22,8 @@ class MMap
     std::span<std::byte> get() const;
 
   private:
-    static void drop(std::span<std::byte>&&, std::reference_wrapper<const Fd>&);
+    static void drop(std::span<std::byte>&&,
+                     std::reference_wrapper<const Fd>&) noexcept;
     Managed<std::span<std::byte>,
             std::reference_wrapper<const Fd>>::Handle<drop>
         mapping;

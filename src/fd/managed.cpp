@@ -3,8 +3,10 @@
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/fd/managed.hpp>
 #include <stdplus/fd/ops.hpp>
-#include <stdplus/util/cexec.hpp>
 
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 #include <utility>
 
 namespace stdplus
@@ -14,9 +16,14 @@ namespace fd
 namespace detail
 {
 
-void drop(int&& fd)
+void drop(int&& fd) noexcept
 {
-    CHECK_ERRNO(close(fd), "close");
+    // Do not retry on EINTR: Linux releases the descriptor even then.
+    if (close(fd) != 0)
+    {
+        const int err = errno;
+        std::fprintf(stderr, "close(%d): %s\n", fd, std::strerror(err));
+    }
 }
 
 } // namespace detail

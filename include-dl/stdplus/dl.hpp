@@ -46,7 +46,7 @@ class Dl
     void info(int request, void* info);
 
     static void* open(const char* filename, int flags);
-    static void close(void*&& handle);
+    static void close(void*&& handle) noexcept;
     stdplus::Managed<void*>::Handle<close> handle;
 };
 

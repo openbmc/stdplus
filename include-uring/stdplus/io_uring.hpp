@@ -41,7 +41,7 @@ class IoUring
       private:
         explicit FileHandle(unsigned slot, IoUring& ring);
 
-        static void drop(unsigned&& slot, IoUring*& ring);
+        static void drop(unsigned&& slot, IoUring*& ring) noexcept;
 
         Managed<unsigned, IoUring*>::Handle<drop> slot;
 

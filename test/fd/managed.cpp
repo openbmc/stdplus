@@ -1,2 +1,15 @@
 #include <stdplus/fd/managed.hpp>
-int main(int, char*[]) {}
+
+#include <system_error>
+
+#include <gtest/gtest.h>
+
+namespace stdplus::fd
+{
+
+TEST(ManagedFd, InvalidFd)
+{
+    EXPECT_THROW(ManagedFd(-1), std::system_error);
+}
+
+} // namespace stdplus::fd

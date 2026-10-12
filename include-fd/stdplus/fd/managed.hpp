@@ -13,7 +13,7 @@ namespace detail
  *
  *  @param[in] fd - File descriptor to close
  */
-void drop(int&& fd);
+void drop(int&& fd) noexcept;
 
 using ManagedFdHandle = Managed<int>::Handle<drop>;
 
