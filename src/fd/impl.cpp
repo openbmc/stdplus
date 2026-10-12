@@ -7,6 +7,7 @@
 #include <stdplus/fd/impl.hpp>
 #include <stdplus/util/cexec.hpp>
 
+#include <algorithm>
 #include <format>
 #include <string_view>
 
@@ -51,12 +52,23 @@ std::tuple<std::span<std::byte>, std::span<std::byte>> FdImpl::recvfrom(
     std::span<std::byte> buf, RecvFlags flags,
     std::span<std::byte> sockaddr) const
 {
+    if (sockaddr.empty())
+    {
+        auto ret = fret(
+            buf, "recv",
+            ::recv(get(), buf.data(), buf.size(), static_cast<int>(flags)));
+        return std::make_tuple(ret, sockaddr);
+    }
     socklen_t sockaddrsize = sockaddr.size();
     auto ret =
         fret(buf, "recvfrom",
              ::recvfrom(get(), buf.data(), buf.size(), static_cast<int>(flags),
                         reinterpret_cast<struct sockaddr*>(sockaddr.data()),
                         &sockaddrsize));
+    if (sockaddrsize > sockaddr.size())
+    {
+        throw util::makeSystemError(EOVERFLOW, "recvfrom");
+    }
     return std::make_tuple(ret, sockaddr.subspan(0, sockaddrsize));
 }
 
@@ -146,7 +158,8 @@ std::optional<std::tuple<int, std::span<std::byte>>> FdImpl::accept(
         }
         throw util::makeSystemError(errno, "accept");
     }
-    return std::make_tuple(fd, sockaddr.subspan(0, len));
+    return std::make_tuple(
+        fd, sockaddr.subspan(0, std::min<std::size_t>(len, sockaddr.size())));
 }
 
 void FdImpl::setsockopt(SockLevel level, SockOpt optname,

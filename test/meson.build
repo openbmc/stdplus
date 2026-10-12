@@ -43,7 +43,7 @@ if has_fd
         'fd/managed': [stdplus_fd_dep, gtest_main_dep],
         'fd/fmt': [stdplus_fd_dep, stdplus_dep, gtest_main_dep],
         'fd/intf': [stdplus_fd_dep],
-        'fd/impl': [stdplus_fd_dep],
+        'fd/impl': [stdplus_fd_dep, stdplus_dep, gtest_main_dep],
         'fd/line': [stdplus_fd_dep, stdplus_dep, gmock_dep, gtest_main_dep],
         'fd/mmap': [stdplus_fd_dep, gtest_main_dep],
         'fd/mock': [stdplus_fd_dep, gmock_dep, gtest_main_dep],
