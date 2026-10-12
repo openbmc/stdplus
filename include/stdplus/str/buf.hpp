@@ -335,7 +335,7 @@ class BasicStrBuf
         std::copy(begin, end, append(end - begin));
     }
 
-    constexpr void push_back(CharT c) noexcept
+    constexpr void push_back(CharT c)
     {
         *append(1) = c;
     }
