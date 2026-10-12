@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <format>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <string_view>
@@ -50,6 +51,11 @@ inline constexpr bool hasData<T, std::void_t<dataType<T>, sizeType<T>>> = true;
 
 template <typename T>
 concept ContainsTrivial = hasData<T> && containsTrivial<T>;
+template <typename T>
+concept BorrowedTrivial =
+    ContainsTrivial<T> &&
+    (std::is_lvalue_reference_v<T> ||
+     std::ranges::enable_borrowed_range<std::remove_cvref_t<T>>);
 template <typename T>
 concept NotContainerTrivial = !hasData<T> && TriviallyCopyable<T>;
 
@@ -109,7 +115,7 @@ struct UnAligned
  */
 #define STDPLUS_REF_FROM(func, comp)                                           \
     template <TriviallyCopyable T, typename A = stdplus::raw::UnAligned,       \
-              detail::ContainsTrivial Container,                               \
+              detail::BorrowedTrivial Container,                               \
               typename Tp = detail::copyConst<T, detail::dataType<Container>>> \
     constexpr Tp& func(Container&& c)                                          \
     {                                                                          \
@@ -186,9 +192,11 @@ constexpr std::basic_string_view<CharT> asView(const T& t) noexcept
     static_assert(sizeof(T) % sizeof(CharT) == 0);
     return {reinterpret_cast<const CharT*>(&t), sizeof(T) / sizeof(CharT)};
 }
+template <typename CharT, detail::NotContainerTrivial T>
+void asView(const T&&) = delete;
 
-template <typename CharT, detail::ContainsTrivial Container>
-constexpr std::basic_string_view<CharT> asView(const Container& c) noexcept
+template <typename CharT, detail::BorrowedTrivial Container>
+constexpr std::basic_string_view<CharT> asView(Container&& c) noexcept
 {
     static_assert(sizeof(*std::data(c)) % sizeof(CharT) == 0);
     return {reinterpret_cast<const CharT*>(std::data(c)),
@@ -202,7 +210,9 @@ constexpr std::span<IntTp> asSpan(T& t) noexcept
     static_assert(sizeof(T) % sizeof(IntTp) == 0);
     return {reinterpret_cast<IntTp*>(&t), sizeof(T) / sizeof(IntTp)};
 }
-template <TriviallyCopyable IntT, detail::ContainsTrivial Container,
+template <TriviallyCopyable IntT, detail::NotContainerTrivial T>
+void asSpan(const T&&) = delete;
+template <TriviallyCopyable IntT, detail::BorrowedTrivial Container,
           typename IntTp = detail::copyConst<IntT, detail::dataType<Container>>>
 constexpr std::span<IntTp> asSpan(Container&& c) noexcept
 {
