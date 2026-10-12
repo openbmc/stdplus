@@ -73,6 +73,7 @@ TEST(Subnet4, FromStr)
     EXPECT_EQ((SubnetAny{in_addr{}, 30}), fs("0.0.0.0/30"sv));
     EXPECT_EQ((SubnetAny{in_addr{}, 30}), "0.0.0.0/30"_sub4);
     static_assert(!detail::CompileSubnet4("127.0.0.1").valid);
+    static_assert(!detail::CompileSubnet4("127.0.0.1/33").valid);
 }
 
 TEST(Subnet4, ToStr)
@@ -150,6 +151,7 @@ TEST(Subnet6, FromStr)
     EXPECT_EQ((Subnet6{in6_addr{}, 80}), fs("::/80"sv));
     EXPECT_EQ((Subnet6{in6_addr{}, 80}), "::/80"_sub6);
     static_assert(!detail::CompileSubnet6("::1").valid);
+    static_assert(!detail::CompileSubnet6("::1/129").valid);
 }
 
 TEST(Subnet6, ToStr)
@@ -230,6 +232,8 @@ TEST(SubnetAny, FromStr)
     EXPECT_EQ((SubnetAny{in_addr{}, 30}), "0.0.0.0/30"_sub);
     EXPECT_EQ((SubnetAny{in6_addr{}, 80}), fs("::/80"sv));
     EXPECT_EQ((SubnetAny{in6_addr{}, 80}), "::/80"_sub);
+    static_assert(!detail::CompileSubnetAny("127.0.0.1/33").valid);
+    static_assert(!detail::CompileSubnetAny("::1/129").valid);
 }
 
 TEST(SubnetAny, ToStr)
@@ -256,6 +260,10 @@ TEST(Ops, MaskToPfx)
 
     EXPECT_THROW(maskToPfx(In4Addr{{0, 0x8}}), std::invalid_argument);
     EXPECT_THROW(maskToPfx(In4Addr{{0x40}}), std::invalid_argument);
+
+    EXPECT_EQ((In4Addr{{0xff, 0xff, 0xff, 0xff}}), pfxToMask<In4Addr>(32));
+    EXPECT_EQ((In4Addr{}), pfxToMask<In4Addr>(0));
+    EXPECT_THROW(pfxToMask<In4Addr>(33), std::invalid_argument);
 }
 
 } // namespace stdplus
