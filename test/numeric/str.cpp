@@ -28,6 +28,15 @@ TEST(IntToStr, Int8_10)
     char buf[enc.buf_size];
     EXPECT_EQ("42", std::string_view(buf, enc(buf, 42)));
     EXPECT_EQ("-127", std::string_view(buf, enc(buf, -127)));
+    EXPECT_EQ("-128", std::string_view(buf, enc(buf, -128)));
+
+    IntToStr<2, int8_t> enc2;
+    static_assert(enc2.buf_size == 9);
+    char buf2[enc2.buf_size];
+    EXPECT_EQ("-10000000", std::string_view(buf2, enc2(buf2, -128)));
+
+    EXPECT_EQ("-9223372036854775808",
+              stdplus::toStr(std::numeric_limits<int64_t>::min()));
 }
 
 TEST(IntToStr, Uint16_10)
