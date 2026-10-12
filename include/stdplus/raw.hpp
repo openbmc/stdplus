@@ -84,7 +84,7 @@ constexpr bool equal(const A& a, const B& b) noexcept
         if (bytes comp sizeof(ret))                                            \
         {                                                                      \
             throw exception::Incomplete(                                       \
-                std::format(#func ": {} < {}", bytes, sizeof(ret)));           \
+                std::format(#func ": {} " #comp " {}", bytes, sizeof(ret)));   \
         }                                                                      \
         const auto c_bytes = reinterpret_cast<const std::byte*>(std::data(c)); \
         const auto ret_bytes = reinterpret_cast<std::byte*>(&ret);             \
@@ -119,7 +119,7 @@ struct UnAligned
         if (bytes comp sizeof(Tp))                                             \
         {                                                                      \
             throw exception::Incomplete(                                       \
-                std::format(#func ": {} < {}", bytes, sizeof(Tp)));            \
+                std::format(#func ": {} " #comp " {}", bytes, sizeof(Tp)));    \
         }                                                                      \
         return *reinterpret_cast<Tp*>(std::data(c));                           \
     }
