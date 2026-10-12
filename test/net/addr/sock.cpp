@@ -26,21 +26,23 @@ TEST(Sock4Addr, Basic)
     EXPECT_EQ(In4Addr{{255}}, addr.sin_addr);
     EXPECT_EQ(3959, stdplus::ntoh(addr.sin_port));
     EXPECT_EQ(sizeof(sockaddr_in), addr1.sockaddrLen());
+    static_assert(Sock4Addr::fromBuf(addr1.buf()) == addr1);
+    static_assert(SockInAddr::fromBuf(addr1.buf()) == addr1);
 }
 
 TEST(Sock4Addr, FromBuf)
 {
     SockAddrBuf buf = {};
-    auto& sin = reinterpret_cast<sockaddr_in&>(buf);
+    auto& sin = buf.sin_;
     sin.sin_addr.s_addr = stdplus::hton(std::uint32_t{0xff000000});
     sin.sin_port = stdplus::hton(std::uint16_t{33});
     EXPECT_THROW(Sock4Addr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET;
+    sin.sin_family = AF_INET;
     EXPECT_THROW(Sock4Addr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET6;
+    sin.sin_family = AF_INET6;
     buf.len = sizeof(sockaddr_in);
     EXPECT_THROW(Sock4Addr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET;
+    sin.sin_family = AF_INET;
     EXPECT_EQ(Sock4Addr::fromBuf(buf), Sock4Addr(In4Addr{{255, 0, 0, 0}}, 33));
 }
 
@@ -82,21 +84,23 @@ TEST(Sock6Addr, Basic)
     EXPECT_EQ(In6Addr{{255}}, addr.sin6_addr);
     EXPECT_EQ(3959, stdplus::ntoh(addr.sin6_port));
     EXPECT_EQ(sizeof(sockaddr_in6), addr1.sockaddrLen());
+    static_assert(Sock6Addr::fromBuf(addr1.buf()) == addr1);
+    static_assert(SockInAddr::fromBuf(addr1.buf()) == addr1);
 }
 
 TEST(Sock6Addr, FromBuf)
 {
     SockAddrBuf buf = {};
-    auto& sin6 = reinterpret_cast<sockaddr_in6&>(buf);
+    auto& sin6 = buf.sin6_;
     sin6.sin6_addr.s6_addr[0] = 0xff;
     sin6.sin6_port = stdplus::hton(std::uint16_t{33});
     EXPECT_THROW(Sock6Addr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET6;
+    sin6.sin6_family = AF_INET6;
     EXPECT_THROW(Sock6Addr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET;
+    sin6.sin6_family = AF_INET;
     buf.len = sizeof(sockaddr_in6);
     EXPECT_THROW(Sock6Addr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET6;
+    sin6.sin6_family = AF_INET6;
     EXPECT_EQ(Sock6Addr::fromBuf(buf), Sock6Addr(In6Addr{{0xff}}, 33, 0));
 }
 
@@ -169,10 +173,14 @@ TEST(SockUAddr, Basic)
         std::equal(ptr, ptr + buf.len, reinterpret_cast<std::uint8_t*>(&addr)));
     addr = addr3;
     EXPECT_EQ("/nope\0"sv, std::string_view(addr.sun_path, 6));
+    auto buf3 = addr3.buf();
+    EXPECT_EQ("/nope\0"sv, std::string_view(buf3.sun_.sun_path, 6));
     auto addr_empty = addr4.sockaddr();
     EXPECT_EQ(AF_UNIX, addr_empty.sun_family);
     static_assert(addr4.sockaddr().sun_family == AF_UNIX);
     static_assert(addr3.sockaddr().sun_path[5] == '\0');
+    static_assert(SockUAddr::fromBuf(addr3.buf()) == addr3);
+    static_assert(SockUAddr::fromBuf(addr1.buf()) == addr1);
     // A maximum-length abstract name fills sun_path completely. Writing a
     // NUL terminator past it is only detected reliably under ASan.
     SockUAddr max_abs(std::string(SockUAddr::maxLen, '\0'));
@@ -189,16 +197,16 @@ TEST(SockUAddr, Basic)
 TEST(SockUAddr, FromBuf)
 {
     SockAddrBuf buf = {};
-    auto& sun = reinterpret_cast<sockaddr_un&>(buf);
+    auto& sun = buf.sun_;
     auto path = "/my-path"sv;
     std::copy(path.begin(), path.end(), sun.sun_path);
     EXPECT_THROW(SockUAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_UNIX;
+    sun.sun_family = AF_UNIX;
     EXPECT_THROW(SockUAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET6;
+    sun.sun_family = AF_INET6;
     buf.len = sizeof(buf.fam) + path.size() + 1;
     EXPECT_THROW(SockUAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_UNIX;
+    sun.sun_family = AF_UNIX;
     EXPECT_EQ(SockUAddr::fromBuf(buf), SockUAddr(path));
 
     path = "\0abs-path"sv;
@@ -255,15 +263,15 @@ TEST(SockInAddr, FromBuf)
 {
     SockAddrBuf buf = {};
     EXPECT_THROW(SockInAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_UNIX;
+    buf.sun_.sun_family = AF_UNIX;
     buf.len = sizeof(sockaddr_un);
     EXPECT_THROW(SockInAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET6;
+    buf.sin6_.sin6_family = AF_INET6;
     buf.len = sizeof(sockaddr_in);
     EXPECT_THROW(SockInAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET;
+    buf.sin_.sin_family = AF_INET;
     EXPECT_EQ(SockInAddr::fromBuf(buf), SockInAddr(In4Addr{}, 0));
-    buf.fam = AF_INET6;
+    buf.sin6_.sin6_family = AF_INET6;
     buf.len = sizeof(sockaddr_in6);
     EXPECT_EQ(SockInAddr::fromBuf(buf), SockInAddr(In6Addr{}, 0));
 }
@@ -302,16 +310,17 @@ TEST(SockAnyAddr, FromBuf)
 {
     SockAddrBuf buf = {};
     EXPECT_THROW(SockAnyAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_UNIX;
+    buf.sun_.sun_family = AF_UNIX;
     EXPECT_THROW(SockInAddr::fromBuf(buf), std::invalid_argument);
+    EXPECT_THROW(SockAnyAddr::fromBuf(buf), std::invalid_argument);
     buf.len = sizeof(sockaddr_un{}.sun_family);
     EXPECT_EQ(SockAnyAddr::fromBuf(buf), SockAnyAddr(""));
-    buf.fam = AF_INET6;
+    buf.sin6_.sin6_family = AF_INET6;
     buf.len = sizeof(sockaddr_in);
     EXPECT_THROW(SockAnyAddr::fromBuf(buf), std::invalid_argument);
-    buf.fam = AF_INET;
+    buf.sin_.sin_family = AF_INET;
     EXPECT_EQ(SockAnyAddr::fromBuf(buf), SockAnyAddr(In4Addr{}, 0));
-    buf.fam = AF_INET6;
+    buf.sin6_.sin6_family = AF_INET6;
     buf.len = sizeof(sockaddr_in6);
     EXPECT_EQ(SockAnyAddr::fromBuf(buf), SockAnyAddr(In6Addr{}, 0));
 }
