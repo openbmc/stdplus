@@ -63,8 +63,7 @@ constexpr bool is_alnum(char c) noexcept
     State state = State::Start;
     std::size_t label_len = 0;
     bool current_label_has_alpha =
-        false;                  // Track if current label has alphabetic char
-    bool has_any_alpha = false; // Track if entire hostname has any alpha
+        false; // Track if current label has alphabetic char
 
     for (char c : hostname)
     {
@@ -78,7 +77,6 @@ constexpr bool is_alnum(char c) noexcept
                 return false;
             }
             // Reset for next label
-            current_label_has_alpha = false;
             state = State::Dot;
             label_len = 0;
         }
@@ -97,11 +95,14 @@ constexpr bool is_alnum(char c) noexcept
         }
         else if (is_alnum(c))
         {
+            if (state == State::Dot)
+            {
+                current_label_has_alpha = false;
+            }
             // Track if this character is alphabetic
             if (is_alpha(c))
             {
                 current_label_has_alpha = true;
-                has_any_alpha = true;
             }
             state = State::LabelChar;
             if (++label_len > 63)
@@ -129,17 +130,9 @@ constexpr bool is_alnum(char c) noexcept
         return false;
     }
 
-    // Ensure hostname contains at least one alphabetic character
-    // This rejects pure numeric hostnames (e.g., "123456", "192.168.1")
-    // while allowing mixed alphanumeric (e.g., "server1", "192.example.com")
-    if (!has_any_alpha)
-    {
-        return false;
-    }
-
     // The final label must contain at least one alphabetic character
     // This ensures the TLD or single-label hostname is not purely numeric
-    if (state == State::LabelChar && !current_label_has_alpha)
+    if (!current_label_has_alpha)
     {
         return false;
     }
