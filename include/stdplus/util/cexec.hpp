@@ -46,7 +46,7 @@
                 ::stdplus::util::doError(check_errno_err, (error_handler));    \
             }                                                                  \
         }                                                                      \
-        else if constexpr (::std::is_signed_v<decltype(check_errno_ret)>)      \
+        else if constexpr (::std::signed_integral<decltype(check_errno_ret)>)  \
         {                                                                      \
             if (check_errno_ret < 0)                                           \
             {                                                                  \
@@ -73,7 +73,7 @@
  */
 #define CHECK_RET(expr, error_handler)                                         \
     [&](auto check_ret_ret) {                                                  \
-        if constexpr (::std::is_signed_v<decltype(check_ret_ret)>)             \
+        if constexpr (::std::signed_integral<decltype(check_ret_ret)>)         \
         {                                                                      \
             if (check_ret_ret < 0)                                             \
                 ::stdplus::util::doError(-check_ret_ret, (error_handler));     \
@@ -168,7 +168,7 @@ inline auto callCheckErrno(const char* msg, Args&&... args)
 {
     using Ret = typename std::invoke_result<Args...>::type;
 
-    if constexpr (std::is_integral_v<Ret> && std::is_signed_v<Ret>)
+    if constexpr (std::signed_integral<Ret>)
     {
         Ret r = std::invoke(std::forward<Args>(args)...);
         if (r < 0)
@@ -210,7 +210,7 @@ inline auto callCheckRet(const char* msg, Args&&... args)
 {
     using Ret = typename std::invoke_result<Args...>::type;
 
-    if constexpr (std::is_integral_v<Ret> && std::is_signed_v<Ret>)
+    if constexpr (std::signed_integral<Ret>)
     {
         Ret r = std::invoke(std::forward<Args>(args)...);
         if (r < 0)
