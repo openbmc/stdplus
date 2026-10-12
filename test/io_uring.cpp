@@ -14,6 +14,7 @@
 #include <chrono>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -165,6 +166,9 @@ TEST_F(IoUringTest, HandlerCalled)
 
 TEST_F(IoUringTest, HandlerReplacement)
 {
+    // Registering a handler may allocate and must be allowed to throw
+    static_assert(
+        !noexcept(ring.setHandler(std::declval<io_uring_sqe&>(), nullptr)));
     auto& sqe = ring.getSQE();
     io_uring_prep_nop(&sqe);
     sqe.user_data = 0xdeadbeef;

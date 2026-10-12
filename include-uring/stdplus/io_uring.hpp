@@ -91,7 +91,7 @@ class IoUring
      *  @param[in] sqe - The SQE that we want to register
      *  @param[in] h   - The handler which will be run when the CQE comes back
      */
-    void setHandler(io_uring_sqe& sqe, CQEHandler* h) noexcept;
+    void setHandler(io_uring_sqe& sqe, CQEHandler* h);
 
     /** @brief Cancels the outstanding request associated with a handler
      *
