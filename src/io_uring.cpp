@@ -86,7 +86,14 @@ void IoUring::reserveFiles(size_t num)
 
 io_uring_sqe& IoUring::getSQE()
 {
-    return *CHECK_ERRNO(io_uring_get_sqe(&ring), "io_uring_get_sqe");
+    auto sqe = io_uring_get_sqe(&ring);
+    if (sqe == nullptr)
+    {
+        throw std::system_error(EBUSY, std::generic_category(),
+                                "io_uring_get_sqe");
+    }
+    sqe->user_data = 0;
+    return *sqe;
 }
 
 void IoUring::setHandler(io_uring_sqe& sqe, CQEHandler* h) noexcept
