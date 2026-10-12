@@ -69,6 +69,7 @@ TEST_F(AtomicWriterTest, Basic)
               std::filesystem::perms::owner_read |
                   std::filesystem::perms::owner_write);
     EXPECT_NO_THROW(file->commit());
+    EXPECT_THROW(file->commit(), std::system_error);
     EXPECT_EQ(file->getTmpname(), ""sv);
     std::error_code ec;
     EXPECT_EQ(3, std::filesystem::file_size(filename, ec));
