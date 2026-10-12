@@ -7,6 +7,7 @@
 
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #include <gtest/gtest.h>
 
@@ -16,6 +17,11 @@ namespace fd
 {
 
 using std::literals::string_view_literals::operator""sv;
+
+static_assert(!std::is_copy_constructible_v<FormatBuffer>);
+static_assert(std::is_move_constructible_v<FormatBuffer>);
+static_assert(!std::is_copy_assignable_v<FormatBuffer>);
+static_assert(!std::is_move_assignable_v<FormatBuffer>);
 
 TEST(FormatBuffer, Basic)
 {
