@@ -287,6 +287,7 @@ struct CompileInAddrInt<Sub> : CompileInAddrInt<typename Sub::Addr>
         if (pos == sv.npos)
         {
             this->valid = false;
+            return;
         }
         static_cast<CompileInAddrInt<typename Sub::Addr>&>(*this).compile(
             sv.substr(0, pos));
