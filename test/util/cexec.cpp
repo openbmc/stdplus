@@ -183,6 +183,17 @@ TEST(Cexec, CallCheckErrnoErrorFunc)
         EXPECT_EQ(errno, error);
     }
 
+    errno = EBADF;
+    try
+    {
+        callCheckErrno<makeTrivialError>(std::string("sample2"), sample2, -1);
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(errno, error);
+    }
+
     try
     {
         errno = EBADF;
@@ -263,6 +274,16 @@ TEST(Cexec, CallCheckRetErrorFunc)
     try
     {
         callCheckRet<makeTrivialError>("sample2", sample2, -EBADF);
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(EBADF, error);
+    }
+
+    try
+    {
+        callCheckRet<makeTrivialError>(std::string("sample2"), sample2, -EBADF);
         EXPECT_TRUE(false);
     }
     catch (int error)
