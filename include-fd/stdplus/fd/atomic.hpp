@@ -15,8 +15,8 @@ class AtomicWriter : public stdplus::FdImpl
   public:
     AtomicWriter(const std::filesystem::path& filename, int mode,
                  std::string_view tmpl = {});
-    AtomicWriter(AtomicWriter&& other);
-    AtomicWriter& operator=(AtomicWriter&& other);
+    AtomicWriter(AtomicWriter&& other) noexcept;
+    AtomicWriter& operator=(AtomicWriter&& other) noexcept;
     ~AtomicWriter();
 
     void commit(bool allow_copy = false);
