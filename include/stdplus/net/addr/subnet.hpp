@@ -36,7 +36,7 @@ constexpr In4Addr addrToSubnet(In4Addr a, std::size_t pfx) noexcept
 constexpr In6Addr addrToSubnet(In6Addr a, std::size_t pfx, std::size_t i = 0,
                                std::size_t s = 0, In6Addr ret = {}) noexcept
 {
-    if (s + 32 < pfx)
+    if (s + 32 < pfx && i + 1 < 4)
     {
         ret.word(i, a.word(i));
         return addrToSubnet(a, pfx, i + 1, s + 32, ret);
@@ -81,9 +81,9 @@ class Subnet46
   public:
     using Addr = Addr_;
     using Pfx = Pfx_;
+    static inline constexpr std::size_t maxPfx = sizeof(Addr) * 8;
 
   private:
-    static inline constexpr std::size_t maxPfx = sizeof(Addr) * 8;
     static_assert(std::is_unsigned_v<Pfx> && std::is_integral_v<Pfx>);
     static_assert(std::numeric_limits<Pfx>::max() >= maxPfx);
 
@@ -127,12 +127,19 @@ class Subnet46
 
 } // namespace detail
 
+using Subnet4 = detail::Subnet46<In4Addr, std::uint8_t>;
+using Subnet6 = detail::Subnet46<In6Addr, std::uint8_t>;
+
 template <typename T>
 constexpr T pfxToMask(std::uint8_t pfx);
 
 template <>
 constexpr In4Addr pfxToMask<In4Addr>(std::uint8_t pfx)
 {
+    if (pfx > Subnet4::maxPfx)
+    {
+        detail::invalidSubnetPfx(pfx);
+    }
     return in_addr{detail::addr32Mask(pfx)};
 }
 
@@ -145,9 +152,6 @@ constexpr std::uint8_t maskToPfx(In4Addr mask)
     }
     return 32 - std::countr_zero(x);
 }
-
-using Subnet4 = detail::Subnet46<In4Addr, std::uint8_t>;
-using Subnet6 = detail::Subnet46<In6Addr, std::uint8_t>;
 
 class SubnetAny;
 
@@ -295,6 +299,19 @@ struct CompileInAddrInt<Sub> : CompileInAddrInt<typename Sub::Addr>
         try
         {
             pfx = StrToInt<10, typename Sub::Pfx>{}(sv.substr(pos + 1));
+            std::size_t max_pfx = 0;
+            if constexpr (std::is_same_v<typename Sub::Addr, InAnyAddr>)
+            {
+                max_pfx = this->v4 ? Subnet4::maxPfx : Subnet6::maxPfx;
+            }
+            else
+            {
+                max_pfx = Sub::maxPfx;
+            }
+            if (pfx > max_pfx)
+            {
+                this->valid = false;
+            }
         }
         catch (...)
         {
