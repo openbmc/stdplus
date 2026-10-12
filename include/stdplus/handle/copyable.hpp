@@ -136,16 +136,17 @@ struct Copyable
         }
     };
 
-    template <T (*ref)(const T&, As&...)>
+    template <auto ref>
     struct Reffer
     {
-        T operator()(const T& t, As&... as) noexcept(noexcept(ref))
+        T operator()(const T& t, As&... as) noexcept(
+            noexcept(ref(std::declval<const T&>(), std::declval<As&>()...)))
         {
             return ref(t, as...);
         }
     };
 
-    template <void (*drop)(T&&, As&...), T (*ref)(const T&, As&...)>
+    template <auto drop, auto ref>
     using Handle = HandleF<typename Managed<T, As...>::template Dropper<drop>,
                            Reffer<ref>>;
 };

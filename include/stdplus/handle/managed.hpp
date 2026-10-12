@@ -233,16 +233,17 @@ struct Managed
         }
     };
 
-    template <void (*drop)(T&&, As&...)>
+    template <auto drop>
     struct Dropper
     {
-        void operator()(T&& t, As&... as) noexcept(noexcept(drop))
+        void operator()(T&& t, As&... as) noexcept(
+            noexcept(drop(std::declval<T>(), std::declval<As&>()...)))
         {
             drop(std::move(t), as...);
         }
     };
 
-    template <void (*drop)(T&&, As&...)>
+    template <auto drop>
     using Handle = HandleF<Dropper<drop>>;
 };
 

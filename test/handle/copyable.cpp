@@ -70,6 +70,10 @@ using SimpleHandle = Copyable<int>::HandleF<SimpleDrop, SimpleRef>;
 using StoreHandle =
     Copyable<int, std::string, int>::HandleF<StoreDrop, StoreRef>;
 
+static_assert(!std::is_nothrow_copy_constructible_v<SimpleHandleOld>);
+static_assert(!std::is_nothrow_move_assignable_v<SimpleHandleOld>);
+static_assert(!std::is_nothrow_destructible_v<SimpleHandleOld>);
+static_assert(!noexcept(std::declval<SimpleHandleOld>().reset()));
 static_assert(std::is_nothrow_copy_constructible_v<SimpleHandle>);
 static_assert(std::is_nothrow_move_constructible_v<SimpleHandle>);
 static_assert(std::is_nothrow_move_assignable_v<SimpleHandle>);
