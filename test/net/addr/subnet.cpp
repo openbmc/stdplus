@@ -70,6 +70,7 @@ TEST(Subnet4, FromStr)
     EXPECT_THROW(fs("::/80"sv), std::invalid_argument);
     EXPECT_EQ((SubnetAny{in_addr{}, 30}), fs("0.0.0.0/30"sv));
     EXPECT_EQ((SubnetAny{in_addr{}, 30}), "0.0.0.0/30"_sub4);
+    static_assert(!detail::CompileSubnet4("127.0.0.1").valid);
 }
 
 TEST(Subnet4, ToStr)
@@ -144,6 +145,7 @@ TEST(Subnet6, FromStr)
     EXPECT_THROW(fs("0.0.0.0/0"sv), std::invalid_argument);
     EXPECT_EQ((Subnet6{in6_addr{}, 80}), fs("::/80"sv));
     EXPECT_EQ((Subnet6{in6_addr{}, 80}), "::/80"_sub6);
+    static_assert(!detail::CompileSubnet6("::1").valid);
 }
 
 TEST(Subnet6, ToStr)
