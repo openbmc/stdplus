@@ -1,6 +1,7 @@
 #pragma once
 #include <concepts>
 #include <functional>
+#include <limits>
 #include <string>
 #include <system_error>
 #include <type_traits>
@@ -76,7 +77,9 @@
         if constexpr (::std::signed_integral<decltype(check_ret_ret)>)         \
         {                                                                      \
             if (check_ret_ret < 0)                                             \
-                ::stdplus::util::doError(-check_ret_ret, (error_handler));     \
+                ::stdplus::util::doError(                                      \
+                    ::stdplus::util::negToErr(check_ret_ret),                  \
+                    (error_handler));                                          \
         }                                                                      \
         else                                                                   \
         {                                                                      \
@@ -90,6 +93,23 @@ namespace stdplus
 {
 namespace util
 {
+
+template <std::signed_integral Ret>
+constexpr int negToErr(Ret r) noexcept
+{
+    if constexpr (sizeof(Ret) < sizeof(int))
+    {
+        return -static_cast<int>(r);
+    }
+    else
+    {
+        if (r < -static_cast<Ret>(std::numeric_limits<int>::max()))
+        {
+            return std::numeric_limits<int>::max();
+        }
+        return static_cast<int>(-r);
+    }
+}
 
 /** @brief   Common pattern used by default for constructing a system exception
  *  @details Most libc or system calls will want to return a generic
@@ -214,7 +234,7 @@ inline auto callCheckRet(const char* msg, Args&&... args)
     {
         Ret r = std::invoke(std::forward<Args>(args)...);
         if (r < 0)
-            throw makeError(-r, msg);
+            throw makeError(negToErr(r), msg);
         return r;
     }
     else

@@ -1,5 +1,7 @@
 #include <stdplus/util/cexec.hpp>
 
+#include <cstdint>
+#include <limits>
 #include <string_view>
 #include <system_error>
 
@@ -289,6 +291,60 @@ TEST(Cexec, CallCheckRetErrorFunc)
     catch (int error)
     {
         EXPECT_EQ(EBADF, error);
+    }
+
+    try
+    {
+        callCheckRet<makeTrivialError>("min", sample2,
+                                       std::numeric_limits<int>::min());
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(std::numeric_limits<int>::max(), error);
+    }
+
+    try
+    {
+        CHECK_RET(sample2(std::numeric_limits<int>::min()),
+                  [](int error) { throw error; });
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(std::numeric_limits<int>::max(), error);
+    }
+
+    // Return types wider and narrower than int
+    const auto wide = [](std::int64_t v) { return v; };
+    const auto narrow = [](short v) { return v; };
+    try
+    {
+        callCheckRet<makeTrivialError>("wide", wide, -(std::int64_t{1} << 40));
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(std::numeric_limits<int>::max(), error);
+    }
+    try
+    {
+        callCheckRet<makeTrivialError>("wide", wide, std::int64_t{-EBADF});
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(EBADF, error);
+    }
+    try
+    {
+        callCheckRet<makeTrivialError>("narrow", narrow,
+                                       std::numeric_limits<short>::min());
+        EXPECT_TRUE(false);
+    }
+    catch (int error)
+    {
+        EXPECT_EQ(-int{std::numeric_limits<short>::min()}, error);
     }
 }
 
