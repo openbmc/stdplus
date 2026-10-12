@@ -92,7 +92,28 @@ void AtomicWriter::commit(bool allow_copy)
             {
                 throw;
             }
-            std::filesystem::copy(tmpname, filename);
+            auto dst_tmp = makeTmpName(filename);
+            int rfd = mktemp(dst_tmp);
+            try
+            {
+                ManagedFd dst_fd(std::move(rfd));
+                std::filesystem::copy_file(
+                    tmpname, dst_tmp,
+                    std::filesystem::copy_options::overwrite_existing);
+                CHECK_ERRNO(fsync(dst_fd.get()), "fsync");
+                CHECK_ERRNO(fchmod(dst_fd.get(), mode), "fchmod");
+                {
+                    auto ifd = std::move(dst_fd);
+                }
+                std::filesystem::rename(dst_tmp, filename);
+            }
+            catch (...)
+            {
+                std::error_code ec;
+                std::filesystem::remove(dst_tmp, ec);
+                throw;
+            }
+            cleanup();
         }
     }
     catch (...)
