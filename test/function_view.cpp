@@ -71,6 +71,18 @@ TEST(FunctionView, Ptr)
     EXPECT_EQ(8, fv(3, 5));
 
     EXPECT_EQ(8, callFv(add));
+
+    static_assert(std::is_constructible_v<function_view<int(int, int) noexcept>,
+                                          decltype(&mul)>);
+    static_assert(
+        !std::is_constructible_v<function_view<int(int, int) noexcept>,
+                                 decltype(&add)>);
+    static_assert(
+        std::is_constructible_v<function_view<int(int, int)>,
+                                function_view<int(int, int) const noexcept>>);
+    static_assert(
+        !std::is_constructible_v<function_view<int(int, int) noexcept>,
+                                 function_view<int(int, int)>>);
 }
 
 TEST(FunctionView, Obj)
