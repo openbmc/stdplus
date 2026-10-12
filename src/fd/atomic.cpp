@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -26,12 +27,9 @@ static std::string makeTmpName(const std::filesystem::path& filename)
 
 static int mktemp(std::string& tmpl)
 {
-    mode_t old = umask(0077);
-    int fd = mkstemp(tmpl.data());
-    umask(old);
-    return CHECK_ERRNO(fd, [&](int error) {
+    return CHECK_ERRNO(mkostemp(tmpl.data(), O_CLOEXEC), [&](int error) {
         throw std::system_error(error, std::generic_category(),
-                                std::format("mkstemp({})", tmpl));
+                                std::format("mkostemp({})", tmpl));
     });
 }
 
