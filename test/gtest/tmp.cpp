@@ -39,5 +39,17 @@ TEST_F(TestWithTmpTest2, One)
         std::filesystem::path(CaseTmpDir()) / "a"));
 }
 
+class TestWithTmpParam :
+    public TestWithTmp,
+    public ::testing::WithParamInterface<int>
+{};
+
+TEST_P(TestWithTmpParam, SubdirName)
+{
+    EXPECT_TRUE(std::filesystem::exists(CaseTmpDir()));
+}
+
+INSTANTIATE_TEST_SUITE_P(Param, TestWithTmpParam, ::testing::Values(0));
+
 } // namespace gtest
 } // namespace stdplus
