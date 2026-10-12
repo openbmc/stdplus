@@ -220,9 +220,9 @@ void IoUring::setFile(unsigned slot, int fd) noexcept
 
 void IoUring::updateFile(unsigned slot, int fd)
 {
-    setFile(slot, fd);
-    CHECK_RET(io_uring_register_files_update(&ring, slot, &files[slot], 1),
+    CHECK_RET(io_uring_register_files_update(&ring, slot, &fd, 1),
               "io_uring_register_files_update");
+    setFile(slot, fd);
 }
 
 } // namespace stdplus
