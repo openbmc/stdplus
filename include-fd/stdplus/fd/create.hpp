@@ -1,6 +1,7 @@
 #pragma once
 #include <fcntl.h>
 #include <netinet/ip.h>
+#include <sys/socket.h>
 
 #include <stdplus/fd/dupable.hpp>
 #include <stdplus/flags.hpp>
@@ -71,8 +72,8 @@ enum class SocketType : int
 
 enum class SocketFlag : int
 {
-    CloseOnExec = O_CLOEXEC,
-    NonBlock = O_NONBLOCK,
+    CloseOnExec = SOCK_CLOEXEC,
+    NonBlock = SOCK_NONBLOCK,
 };
 
 class SocketFlags : public BitFlags<SocketFlag>
