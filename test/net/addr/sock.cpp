@@ -13,9 +13,9 @@ namespace stdplus
 
 TEST(Sock4Addr, Basic)
 {
-    constexpr Sock4Addr addr1{.addr = In4Addr{255}, .port = 3959};
-    Sock4Addr addr2{.addr = In4Addr{255}, .port = 2000};
-    Sock4Addr addr3{.addr = In4Addr{0}, .port = 3959};
+    constexpr Sock4Addr addr1{.addr = In4Addr{{255}}, .port = 3959};
+    Sock4Addr addr2{.addr = In4Addr{{255}}, .port = 2000};
+    Sock4Addr addr3{.addr = In4Addr{{0}}, .port = 3959};
 
     EXPECT_EQ(addr1, addr1);
     EXPECT_NE(addr1, addr2);
@@ -23,7 +23,7 @@ TEST(Sock4Addr, Basic)
 
     auto addr = addr1.sockaddr();
     EXPECT_EQ(AF_INET, addr.sin_family);
-    EXPECT_EQ(In4Addr{255}, addr.sin_addr);
+    EXPECT_EQ(In4Addr{{255}}, addr.sin_addr);
     EXPECT_EQ(3959, stdplus::ntoh(addr.sin_port));
     EXPECT_EQ(sizeof(sockaddr_in), addr1.sockaddrLen());
 }
@@ -41,7 +41,7 @@ TEST(Sock4Addr, FromBuf)
     buf.len = sizeof(sockaddr_in);
     EXPECT_THROW(Sock4Addr::fromBuf(buf), std::invalid_argument);
     buf.fam = AF_INET;
-    EXPECT_EQ(Sock4Addr::fromBuf(buf), Sock4Addr(In4Addr{255, 0, 0, 0}, 33));
+    EXPECT_EQ(Sock4Addr::fromBuf(buf), Sock4Addr(In4Addr{{255, 0, 0, 0}}, 33));
 }
 
 TEST(Sock4Addr, FromStr)
@@ -60,17 +60,17 @@ TEST(Sock4Addr, ToStr)
     ToStrHandle<ToStr<Sock4Addr>> tsh;
     EXPECT_EQ("0.0.0.0:3959", tsh(Sock4Addr({}, 3959)));
     EXPECT_EQ("255.0.255.255:28",
-              tsh(Sock4Addr(In4Addr{255, 0, 255, 255}, 28)));
+              tsh(Sock4Addr(In4Addr{{255, 0, 255, 255}}, 28)));
     EXPECT_EQ("a 1.2.3.4:32 b",
-              std::format("a {} b", Sock4Addr(In4Addr{1, 2, 3, 4}, 32)));
+              std::format("a {} b", Sock4Addr(In4Addr{{1, 2, 3, 4}}, 32)));
 }
 
 TEST(Sock6Addr, Basic)
 {
-    constexpr Sock6Addr addr1{.addr = In6Addr{255}, .port = 3959, .scope = 0};
-    Sock6Addr addr2{.addr = In6Addr{255}, .port = 2000, .scope = 0};
-    Sock6Addr addr3{.addr = In6Addr{0}, .port = 3959, .scope = 0};
-    Sock6Addr addr4{.addr = In6Addr{255}, .port = 3959, .scope = 1};
+    constexpr Sock6Addr addr1{.addr = In6Addr{{255}}, .port = 3959, .scope = 0};
+    Sock6Addr addr2{.addr = In6Addr{{255}}, .port = 2000, .scope = 0};
+    Sock6Addr addr3{.addr = In6Addr{{0}}, .port = 3959, .scope = 0};
+    Sock6Addr addr4{.addr = In6Addr{{255}}, .port = 3959, .scope = 1};
 
     EXPECT_EQ(addr1, addr1);
     EXPECT_NE(addr1, addr2);
@@ -79,7 +79,7 @@ TEST(Sock6Addr, Basic)
 
     auto addr = addr1.sockaddr();
     EXPECT_EQ(AF_INET6, addr.sin6_family);
-    EXPECT_EQ(In6Addr{255}, addr.sin6_addr);
+    EXPECT_EQ(In6Addr{{255}}, addr.sin6_addr);
     EXPECT_EQ(3959, stdplus::ntoh(addr.sin6_port));
     EXPECT_EQ(sizeof(sockaddr_in6), addr1.sockaddrLen());
 }
@@ -97,7 +97,7 @@ TEST(Sock6Addr, FromBuf)
     buf.len = sizeof(sockaddr_in6);
     EXPECT_THROW(Sock6Addr::fromBuf(buf), std::invalid_argument);
     buf.fam = AF_INET6;
-    EXPECT_EQ(Sock6Addr::fromBuf(buf), Sock6Addr(In6Addr{0xff}, 33, 0));
+    EXPECT_EQ(Sock6Addr::fromBuf(buf), Sock6Addr(In6Addr{{0xff}}, 33, 0));
 }
 
 TEST(Sock6Addr, FromStr)
@@ -116,12 +116,12 @@ TEST(Sock6Addr, ToStr)
 {
     ToStrHandle<ToStr<Sock6Addr>> tsh;
     EXPECT_EQ("[::]:0", tsh(Sock6Addr({}, 0, 0)));
-    EXPECT_EQ("[ff00::]:128", tsh(Sock6Addr(In6Addr{0xff}, 128, 0)));
+    EXPECT_EQ("[ff00::]:128", tsh(Sock6Addr(In6Addr{{0xff}}, 128, 0)));
     EXPECT_EQ("a [102:304::]:32 b",
-              std::format("a {} b", Sock6Addr(In6Addr{1, 2, 3, 4}, 32, 0)));
+              std::format("a {} b", Sock6Addr(In6Addr{{1, 2, 3, 4}}, 32, 0)));
     const Sock6Addr maxAddr{
-        In6Addr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+        In6Addr{{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}},
         65535, 0};
     EXPECT_EQ("[ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff]:65535", tsh(maxAddr));
     StrBuf sbuf;
@@ -241,8 +241,8 @@ TEST(SockUAddr, ToStr)
 
 TEST(SockInAddr, Basic)
 {
-    constexpr SockInAddr addr1(In4Addr{255}, 3959);
-    constexpr SockInAddr addr2(In6Addr{255}, 3959);
+    constexpr SockInAddr addr1(In4Addr{{255}}, 3959);
+    constexpr SockInAddr addr2(In6Addr{{255}}, 3959);
     EXPECT_NE(addr1, addr2);
     EXPECT_EQ(addr1, addr1);
     auto buf = addr1.buf();
@@ -288,7 +288,7 @@ TEST(SockInAddr, ToStr)
 
 TEST(SockAnyAddr, Basic)
 {
-    constexpr SockAnyAddr addr1(In4Addr{255}, 3959);
+    constexpr SockAnyAddr addr1(In4Addr{{255}}, 3959);
     constexpr SockAnyAddr addr2("/hi"sv);
     EXPECT_NE(addr1, addr2);
     EXPECT_EQ(addr1, addr1);
