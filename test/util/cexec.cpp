@@ -186,7 +186,10 @@ TEST(Cexec, CallCheckErrnoErrorFunc)
     try
     {
         errno = EBADF;
-        CHECK_ERRNO(sample2(-1), [](int r) { throw r; });
+        CHECK_ERRNO(sample2(-1), ([&]() {
+                        errno = EINVAL;
+                        return [](int r) { throw r; };
+                    }()));
         EXPECT_TRUE(false);
     }
     catch (int i)
