@@ -1,10 +1,15 @@
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <stdplus/fd/atomic.hpp>
 #include <stdplus/fd/ops.hpp>
 #include <stdplus/gtest/tmp.hpp>
 
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <memory>
+#include <string>
 #include <string_view>
 
 namespace stdplus
@@ -83,6 +88,38 @@ TEST_F(AtomicWriterTest, MoveAssign)
     EXPECT_EQ(file->getTmpname(), newTmp);
     // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
     EXPECT_EQ(other.getTmpname(), ""sv);
+}
+
+TEST_F(AtomicWriterTest, CrossDeviceCopy)
+{
+    struct stat st_case{}, st_shm{};
+    if (stat(CaseTmpDir().c_str(), &st_case) != 0 ||
+        stat("/dev/shm", &st_shm) != 0 || st_case.st_dev == st_shm.st_dev ||
+        access("/dev/shm", W_OK) != 0)
+    {
+        GTEST_SKIP();
+    }
+    auto shm_tmpl = std::format("/dev/shm/stdplus-atomic-{}.XXXXXX", getpid());
+    ASSERT_NO_THROW(
+        file = std::make_unique<AtomicWriter>(filename, 0640, shm_tmpl));
+    writeExact(*file, "hi\n"sv);
+    auto tmp = file->getTmpname();
+    EXPECT_TRUE(std::filesystem::exists(tmp));
+    EXPECT_THROW(file->commit(false), std::filesystem::filesystem_error);
+    EXPECT_FALSE(std::filesystem::exists(tmp));
+
+    ASSERT_NO_THROW(
+        file = std::make_unique<AtomicWriter>(filename, 0640, shm_tmpl));
+    writeExact(*file, "cross\n"sv);
+    tmp = file->getTmpname();
+    // Replacing an existing destination must work across devices too.
+    std::ofstream(filename) << "previous contents\n";
+    EXPECT_NO_THROW(file->commit(true));
+    EXPECT_FALSE(std::filesystem::exists(tmp));
+    EXPECT_EQ(6u, std::filesystem::file_size(filename));
+    std::string contents;
+    std::getline(std::ifstream(filename), contents);
+    EXPECT_EQ("cross", contents);
 }
 
 } // namespace fd
