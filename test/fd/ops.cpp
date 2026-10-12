@@ -75,7 +75,16 @@ TEST(ReadExact, NotEnoughBlock)
     }
     char buf[9];
     EXPECT_THROW(readExact(fd, buf), exception::Incomplete);
-    EXPECT_THROW(readExact(fd, buf), exception::WouldBlock);
+    try
+    {
+        readExact(fd, buf);
+        FAIL();
+    }
+    catch (const exception::WouldBlock& e)
+    {
+        EXPECT_NE(std::string_view(e.what()).find("readExact missing 9B"),
+                  std::string_view::npos);
+    }
 }
 
 TEST(ReadExact, NotEnoughBlockInt)
