@@ -39,7 +39,7 @@ endif
 
 if has_fd
     gtests += {
-        'fd/dupable': [stdplus_fd_dep],
+        'fd/dupable': [stdplus_fd_dep, gtest_main_dep],
         'fd/managed': [stdplus_fd_dep, gtest_main_dep],
         'fd/fmt': [stdplus_fd_dep, stdplus_dep, gtest_main_dep],
         'fd/intf': [stdplus_fd_dep],
