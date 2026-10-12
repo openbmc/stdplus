@@ -86,6 +86,36 @@ static_assert(!std::is_nothrow_move_assignable_v<StoreHandle>);
 static_assert(!std::is_nothrow_destructible_v<StoreHandle>);
 static_assert(!noexcept(std::declval<StoreHandle>().reset()));
 
+struct ThrowingCopyAssign
+{
+    ThrowingCopyAssign() = default;
+    ThrowingCopyAssign(const ThrowingCopyAssign&) noexcept = default;
+    ThrowingCopyAssign(ThrowingCopyAssign&&) noexcept = default;
+    ThrowingCopyAssign& operator=(const ThrowingCopyAssign&)
+    {
+        return *this;
+    }
+    ThrowingCopyAssign& operator=(ThrowingCopyAssign&&) noexcept = default;
+};
+
+struct NoopDrop
+{
+    void operator()(int&&, ThrowingCopyAssign&) noexcept {}
+};
+
+struct NoopRef
+{
+    int operator()(const int& i, ThrowingCopyAssign&) noexcept
+    {
+        return i;
+    }
+};
+
+using ThrowingAssignHandle =
+    Copyable<int, ThrowingCopyAssign>::HandleF<NoopDrop, NoopRef>;
+static_assert(std::is_nothrow_copy_constructible_v<ThrowingAssignHandle>);
+static_assert(!std::is_nothrow_copy_assignable_v<ThrowingAssignHandle>);
+
 class CopyableHandleTest : public ::testing::Test
 {
   protected:
