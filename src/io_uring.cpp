@@ -138,20 +138,22 @@ io_uring_sqe& IoUring::getSQE()
     return *sqe;
 }
 
-void IoUring::setHandler(io_uring_sqe& sqe, CQEHandler* h) noexcept
+void IoUring::setHandler(io_uring_sqe& sqe, CQEHandler* h)
 {
     auto oldh = reinterpret_cast<CQEHandler*>(sqe.user_data);
     if (oldh == h)
     {
         return;
     }
-    io_uring_cqe cqe{};
-    cqe.res = -ECANCELED;
-    dropHandler(oldh, cqe);
+    // Register the new handler first so that an allocation failure leaves
+    // the old handler in place. oldh != h, so dropHandler() cannot remove it.
     if (h != nullptr)
     {
         handlers.push_back(h);
     }
+    io_uring_cqe cqe{};
+    cqe.res = -ECANCELED;
+    dropHandler(oldh, cqe);
     io_uring_sqe_set_data(&sqe, h);
 }
 
