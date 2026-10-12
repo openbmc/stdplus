@@ -22,8 +22,10 @@ void Dl::info(int request, void* info)
 {
     if (::dlinfo(*handle, request, info) != 0)
     {
-        throw std::runtime_error("dlinfo");
-    };
+        const char* err = dlerror();
+        throw std::runtime_error(
+            std::format("dlinfo: {}", err ? err : "unknown error"));
+    }
 }
 
 void* Dl::open(const char* file, int flags)
@@ -31,8 +33,10 @@ void* Dl::open(const char* file, int flags)
     void* ret = ::dlopen(file, flags);
     if (ret == nullptr)
     {
-        throw std::runtime_error(std::format(
-            "dlopen `{}`: {}", file ? file : "<nullptr>", dlerror()));
+        const char* err = dlerror();
+        throw std::runtime_error(
+            std::format("dlopen `{}`: {}", file ? file : "<nullptr>",
+                        err ? err : "unknown error"));
     }
     return ret;
 }
