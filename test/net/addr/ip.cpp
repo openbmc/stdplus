@@ -79,6 +79,9 @@ TEST(FromStr, In6Addr)
     EXPECT_THROW(fs("0:1:2:3:4::5:6:7"sv), std::invalid_argument);
     EXPECT_THROW(fs("::0:1:2:3:4:5:6:7"sv), std::invalid_argument);
     EXPECT_THROW(fs("0:1:2:3:4:5:6:7::"sv), std::invalid_argument);
+    EXPECT_THROW(fs(":1:2:3:4:5:6:7:8"sv), std::invalid_argument);
+    EXPECT_THROW(fs("1:2:3:4:5:6:7:8:"sv), std::invalid_argument);
+    EXPECT_THROW(fs(":1::2"sv), std::invalid_argument);
     EXPECT_THROW(fs("0:1:2:3:4:5:6:7:8"sv), std::invalid_argument);
     EXPECT_THROW(fs("0:1:2:3:4:5:6:0.0.0.0"sv), std::invalid_argument);
     EXPECT_THROW(fs("0:1:2:3:4:5::0.0.0.0"sv), std::invalid_argument);

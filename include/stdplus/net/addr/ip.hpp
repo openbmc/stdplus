@@ -274,7 +274,7 @@ struct FromStr<In6Addr>
                 sv.remove_prefix(loc + 2);
                 break;
             }
-            else if (sv.empty())
+            else if (sv.empty() || loc == 0 || (i == 8 && loc != sv.npos))
             {
                 throw std::invalid_argument("IPv6 Data");
             }
