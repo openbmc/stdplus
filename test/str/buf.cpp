@@ -181,6 +181,27 @@ TEST(StrBuf, CopyDynToDyn)
 
 static_assert(!noexcept(std::declval<StrBuf&>().push_back('a')));
 
+TEST(StrBuf, WideChar)
+{
+    BasicStrBuf<char16_t> u16buf;
+    u16buf.push_back(u'x');
+    EXPECT_EQ(std::u16string_view{u"x"}, u16buf);
+    for (std::size_t i = 0; i < 200; ++i)
+    {
+        u16buf.push_back(u'y');
+    }
+    EXPECT_EQ(201u, u16buf.size());
+
+    WStrBuf wbuf;
+    wbuf.push_back(L'a');
+    EXPECT_EQ(std::wstring_view{L"a"}, wbuf);
+    for (std::size_t i = 0; i < 200; ++i)
+    {
+        wbuf.push_back(L'b');
+    }
+    EXPECT_EQ(201u, wbuf.size());
+}
+
 template <typename T, bool POCCA, bool POCMA, bool UniqueId = false>
 struct StatefulAlloc
 {
