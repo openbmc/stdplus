@@ -169,6 +169,17 @@ TEST(SockUAddr, Basic)
         std::equal(ptr, ptr + buf.len, reinterpret_cast<std::uint8_t*>(&addr)));
     addr = addr3;
     EXPECT_EQ("/nope\0"sv, std::string_view(addr.sun_path, 6));
+    auto addr_empty = addr4.sockaddr();
+    EXPECT_EQ(AF_UNIX, addr_empty.sun_family);
+    static_assert(addr4.sockaddr().sun_family == AF_UNIX);
+    static_assert(addr3.sockaddr().sun_path[5] == '\0');
+    // A maximum-length abstract name fills sun_path completely. Writing a
+    // NUL terminator past it is only detected reliably under ASan.
+    SockUAddr max_abs(std::string(SockUAddr::maxLen, '\0'));
+    auto addr_max_abs = max_abs.sockaddr();
+    EXPECT_EQ(AF_UNIX, addr_max_abs.sun_family);
+    EXPECT_EQ(std::string(SockUAddr::maxLen, '\0'),
+              std::string_view(addr_max_abs.sun_path, SockUAddr::maxLen));
     EXPECT_EQ(addr1.sockaddrLen(), sizeof(addr.sun_family) + 3);
     EXPECT_EQ(addr2.sockaddrLen(), sizeof(addr.sun_family) + 3);
     EXPECT_EQ(addr3.sockaddrLen(), sizeof(addr.sun_family) + 6);

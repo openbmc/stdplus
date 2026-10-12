@@ -263,7 +263,7 @@ struct SockUAddr
 
     constexpr sockaddr_un sockaddr() const noexcept
     {
-        sockaddr_un ret;
+        sockaddr_un ret{};
         fill(ret);
         return ret;
     }
@@ -298,14 +298,18 @@ struct SockUAddr
     constexpr void fill(sockaddr_un& v) const noexcept
     {
         v.sun_family = AF_UNIX;
+        if (len_ == 0)
+        {
+            return;
+        }
         bool abstract = buf_[0] == '@';
         v.sun_path[0] = abstract ? '\0' : buf_[0];
         std::copy(buf_.begin() + 1, buf_.begin() + len_, v.sun_path + 1);
-        if (abstract)
+        if (!abstract)
         {
             v.sun_path[len_] = '\0';
         }
-    };
+    }
 };
 
 template <>
