@@ -162,11 +162,13 @@ TEST(StrToInt, Int8_16)
     EXPECT_EQ(-1, dec("-1"sv));
     EXPECT_EQ(0x42, dec("42"sv));
     EXPECT_EQ(-0x7f, dec("-7f"sv));
+    EXPECT_EQ(-0x80, dec("-80"sv));
     EXPECT_THROW(dec(""sv), std::invalid_argument);
     EXPECT_THROW(dec("--1"sv), std::invalid_argument);
     EXPECT_THROW(dec("g0"sv), std::invalid_argument);
     EXPECT_THROW(dec(".0"sv), std::invalid_argument);
     EXPECT_THROW(dec("ff"sv), std::overflow_error);
+    EXPECT_THROW(dec("-81"sv), std::overflow_error);
     EXPECT_THROW(dec("10000"sv), std::overflow_error);
 }
 
@@ -178,12 +180,20 @@ TEST(StrToInt, Int8_0)
     EXPECT_EQ(0x42, dec("0x42"sv));
     EXPECT_EQ(-42, dec("-42"sv));
     EXPECT_EQ(-0x42, dec("-0x42"sv));
+    EXPECT_EQ(-128, dec("-128"sv));
     EXPECT_THROW(dec(""sv), std::invalid_argument);
     EXPECT_THROW(dec("--1"sv), std::invalid_argument);
     EXPECT_THROW(dec("ac"sv), std::invalid_argument);
     EXPECT_THROW(dec(".0"sv), std::invalid_argument);
     EXPECT_THROW(dec("0xff"sv), std::overflow_error);
+    EXPECT_THROW(dec("-129"sv), std::overflow_error);
+    EXPECT_THROW(dec("-200"sv), std::overflow_error);
     EXPECT_THROW(dec("10000"sv), std::overflow_error);
+
+    StrToInt<10, int64_t> dec64;
+    EXPECT_EQ(std::numeric_limits<int64_t>::min(),
+              dec64("-9223372036854775808"sv));
+    EXPECT_THROW(dec64("-9223372036854775809"sv), std::overflow_error);
 }
 
 TEST(StrToInt, Perf)
