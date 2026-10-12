@@ -33,9 +33,11 @@ TEST(CancelTest, Cancel)
 
 TEST(CancelTest, EmptyCancel)
 {
-    Cancel cancel, cancel2(std::nullopt);
+    Cancel cancel, cancel2(std::nullopt),
+        cancel3(static_cast<Cancelable*>(nullptr));
     EXPECT_FALSE(cancel);
     EXPECT_FALSE(cancel2);
+    EXPECT_TRUE(cancel3);
 }
 
 TEST(CancelTest, AlwaysCallOnceLambda)
