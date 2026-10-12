@@ -21,8 +21,7 @@ static void opExact(const char* name, Fun&& fun, const Fd& fd,
     {
         while (total < data.size())
         {
-            auto r =
-                (fd.*fun)(data.subspan(total), std::forward<Args>(args)...);
+            auto r = (fd.*fun)(data.subspan(total), args...);
             if (r.size() == 0)
             {
                 throw exception::WouldBlock(
@@ -91,8 +90,7 @@ static std::span<Byte> opAligned(const char* name, Fun&& fun, const Fd& fd,
     {
         do
         {
-            auto r =
-                (fd.*fun)(data.subspan(total), std::forward<Args>(args)...);
+            auto r = (fd.*fun)(data.subspan(total), args...);
             if (total != 0 && r.size() == 0)
             {
                 throw exception::Incomplete(
