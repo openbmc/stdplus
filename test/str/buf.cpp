@@ -181,4 +181,70 @@ TEST(StrBuf, CopyDynToDyn)
 
 static_assert(!noexcept(std::declval<StrBuf&>().push_back('a')));
 
+template <typename T, bool POCCA, bool POCMA, bool UniqueId = false>
+struct StatefulAlloc
+{
+    using value_type = T;
+    using propagate_on_container_copy_assignment = std::bool_constant<POCCA>;
+    using propagate_on_container_move_assignment = std::bool_constant<POCMA>;
+    using is_always_equal = std::false_type;
+
+    static inline std::size_t next_id = 0;
+    std::size_t id = UniqueId ? ++next_id : 0;
+
+    constexpr StatefulAlloc() noexcept = default;
+    constexpr explicit StatefulAlloc(std::size_t id) noexcept : id(id) {}
+
+    constexpr T* allocate(std::size_t n)
+    {
+        return std::allocator<T>{}.allocate(n);
+    }
+
+    constexpr void deallocate(T* p, std::size_t n) noexcept
+    {
+        std::allocator<T>{}.deallocate(p, n);
+    }
+
+    constexpr bool operator==(const StatefulAlloc& other) const noexcept
+    {
+        return id == other.id;
+    }
+};
+
+TEST(StrBuf, StatefulAllocator)
+{
+    using BufPOCCA =
+        BasicStrBuf<char, 128, StatefulAlloc<char, true, true, true>>;
+    BufPOCCA a1;
+    std::copy(data.begin(), data.end(), a1.append(data.size()));
+    BufPOCCA a2;
+    std::copy(data.begin(), data.end(), a2.append(data.size()));
+    a2 = a1;
+    EXPECT_EQ(data, a2);
+    BufPOCCA a3;
+    a3.push_back('x');
+    a2 = std::move(a3);
+    EXPECT_EQ("x", a2);
+
+    using BufNoPOCMAEqual =
+        BasicStrBuf<char, 128, StatefulAlloc<char, false, false, false>>;
+    static_assert(!noexcept(
+        std::declval<BufNoPOCMAEqual&>() = std::declval<BufNoPOCMAEqual&&>()));
+    BufNoPOCMAEqual b1;
+    std::copy(data.begin(), data.end(), b1.append(data.size()));
+    BufNoPOCMAEqual b2;
+    b2 = std::move(b1);
+    EXPECT_EQ(data, b2);
+
+    using BufNoPOCMAUnequal =
+        BasicStrBuf<char, 128, StatefulAlloc<char, false, false, true>>;
+    BufNoPOCMAUnequal c1;
+    std::copy(data.begin(), data.end(), c1.append(data.size()));
+    BufNoPOCMAUnequal c2;
+    c2 = std::move(c1);
+    EXPECT_EQ(data, c2);
+    // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
+    EXPECT_EQ(0u, c1.size());
+}
+
 } // namespace stdplus

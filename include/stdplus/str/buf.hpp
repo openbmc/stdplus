@@ -137,7 +137,22 @@ struct StrBufAS : Allocator
         zeroInit();
     }
 
+    constexpr StrBufAS(const Allocator& a) noexcept : Allocator(a)
+    {
+        if (std::is_constant_evaluated())
+        {
+            std::construct_at(&store.dyn);
+        }
+        zeroInit();
+    }
+
     constexpr StrBufAS& operator=(Allocator&& a) noexcept
+    {
+        *static_cast<Allocator*>(this) = std::move(a);
+        return *this;
+    }
+
+    constexpr StrBufAS& operator=(const Allocator& a) noexcept
     {
         *static_cast<Allocator*>(this) = a;
         return *this;
@@ -214,6 +229,10 @@ class BasicStrBuf
                 else
                 {
                     as.deallocate(as.store.dyn.ptr, as.store.dyn.cap);
+                    if (!std::is_constant_evaluated())
+                    {
+                        as.inlLen(0);
+                    }
                 }
             }
         }
@@ -223,8 +242,10 @@ class BasicStrBuf
             as.inlLen(olen);
             return;
         }
-        as.store.dyn.cap = other.as.store.dyn.cap;
-        as.store.dyn.ptr = as.allocate(as.store.dyn.cap);
+        const auto ncap = other.as.store.dyn.cap;
+        const auto nptr = as.allocate(ncap);
+        as.store.dyn.cap = ncap;
+        as.store.dyn.ptr = nptr;
         as.store.dyn.len = other.as.store.dyn.len;
         std::copy(optr, optr + olen, as.store.dyn.ptr);
     }
@@ -248,16 +269,36 @@ class BasicStrBuf
         copy</*assign=*/false>(other);
     }
 
-    constexpr BasicStrBuf& operator=(BasicStrBuf&& other) noexcept
+    constexpr BasicStrBuf& operator=(BasicStrBuf&& other) noexcept(
+        std::allocator_traits<
+            Allocator>::propagate_on_container_move_assignment::value ||
+        std::allocator_traits<Allocator>::is_always_equal::value)
     {
         if (this != &other)
         {
             if constexpr (typename std::allocator_traits<Allocator>::
                               propagate_on_container_move_assignment())
             {
+                if (as.isDyn() && (other.as.isDyn() ||
+                                   static_cast<const Allocator&>(as) !=
+                                       static_cast<const Allocator&>(other.as)))
+                {
+                    as.deallocate(as.store.dyn.ptr, as.store.dyn.cap);
+                    as.zeroInit();
+                }
                 as = static_cast<Allocator&&>(other.as);
+                move</*assign=*/true>(std::move(other));
             }
-            move</*assign=*/true>(std::move(other));
+            else if (static_cast<const Allocator&>(as) ==
+                     static_cast<const Allocator&>(other.as))
+            {
+                move</*assign=*/true>(std::move(other));
+            }
+            else
+            {
+                copy</*assign=*/true>(other);
+                other.clear();
+            }
         }
         return *this;
     }
@@ -269,6 +310,14 @@ class BasicStrBuf
             if constexpr (typename std::allocator_traits<Allocator>::
                               propagate_on_container_copy_assignment())
             {
+                if (as.isDyn() && ((other.as.isDyn() &&
+                                    other.as.dynLen() > as.store.dyn.cap) ||
+                                   static_cast<const Allocator&>(as) !=
+                                       static_cast<const Allocator&>(other.as)))
+                {
+                    as.deallocate(as.store.dyn.ptr, as.store.dyn.cap);
+                    as.zeroInit();
+                }
                 as = static_cast<const Allocator&>(other.as);
             }
             copy</*assign=*/true>(other);
