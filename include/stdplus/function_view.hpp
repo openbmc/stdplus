@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <type_traits>
 #include <utility>
 
 namespace stdplus
@@ -50,6 +51,10 @@ struct IsFView<function_view<Args...>> : std::true_type
 template <typename F>
 concept NonFView = !IsFView<std::decay_t<F>>::value;
 
+template <typename F>
+concept NonFunc =
+    !std::is_function_v<std::remove_pointer_t<std::remove_cvref_t<F>>>;
+
 template <typename R, bool C, bool Nx, typename... Args>
 struct function_view_base
 {
@@ -70,8 +75,9 @@ struct function_view_base
         fun(f), obj(nullptr)
     {}
 
-    template <std::invocable<Args...> F>
-        requires(!C && std::same_as<std::invoke_result_t<F, Args...>, R>)
+    template <NonFunc F>
+        requires(!C && std::invocable<F&, Args...> &&
+                 std::same_as<std::invoke_result_t<F&, Args...>, R>)
     inline function_view_base(F& f) noexcept :
         memfun([](void* v, Args... args) {
             return (*reinterpret_cast<F*>(v))(std::forward<Args>(args)...);
@@ -79,8 +85,9 @@ struct function_view_base
         obj(std::addressof(f))
     {}
 
-    template <std::invocable<Args...> F>
-        requires std::same_as<std::invoke_result_t<F, Args...>, R>
+    template <NonFunc F>
+        requires(std::invocable<const F&, Args...> &&
+                 std::same_as<std::invoke_result_t<const F&, Args...>, R>)
     inline function_view_base(const F& f) noexcept :
         memfun([](void* v, Args... args) {
             return (*reinterpret_cast<const F*>(v))(

@@ -58,6 +58,19 @@ TEST(FunctionView, Ptr)
     fv = nullptr;
     EXPECT_FALSE(fv);
 
+    int (*null_fp)(int, int) = nullptr;
+    fv = null_fp;
+    EXPECT_FALSE(fv);
+
+    {
+        int (*fp)(int, int) = add;
+        fv = fp;
+        fp = mul;
+        EXPECT_EQ(15, fp(3, 5));
+    }
+    EXPECT_TRUE(fv);
+    EXPECT_EQ(8, fv(3, 5));
+
     EXPECT_EQ(8, callFv(add));
 }
 
