@@ -318,6 +318,30 @@ TEST(AsSpan, Span)
     EXPECT_THAT(s2, ElementsAreArray(arr));
 }
 
+template <typename T>
+concept CanRefFrom = requires(T&& v) { refFrom<char>(std::forward<T>(v)); };
+template <typename T>
+concept CanRefFromStrict =
+    requires(T&& v) { refFromStrict<char>(std::forward<T>(v)); };
+template <typename T>
+concept CanAsView = requires(T&& v) { asView<char>(std::forward<T>(v)); };
+template <typename T>
+concept CanAsSpan = requires(T&& v) { asSpan<char>(std::forward<T>(v)); };
+
+static_assert(CanRefFrom<const std::vector<char>&>);
+static_assert(!CanRefFrom<std::vector<char>>);
+static_assert(CanRefFrom<std::string_view>);
+static_assert(!CanRefFromStrict<std::vector<char>>);
+static_assert(CanRefFromStrict<std::string_view>);
+static_assert(CanAsView<int&>);
+static_assert(!CanAsView<int>);
+static_assert(!CanAsView<std::vector<char>>);
+static_assert(CanAsView<std::string_view>);
+static_assert(CanAsSpan<int&>);
+static_assert(!CanAsSpan<int>);
+static_assert(!CanAsSpan<std::vector<char>>);
+static_assert(CanAsSpan<std::span<const char>>);
+
 } // namespace
 } // namespace raw
 } // namespace stdplus
