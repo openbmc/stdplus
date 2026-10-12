@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <format>
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -59,6 +60,34 @@ TEST(Lifetime, Operations)
     check(5, "Destroy", std::format(" {}", id + 2));
     check(6, "Destroy", std::format(" {}", id + 3));
     check(7, "Destroy", std::format(" {}", id + 4));
+}
+
+TEST(Lifetime, Assignment)
+{
+    Lifetime a;
+    const auto bloc = std::source_location::current();
+    Lifetime b(bloc);
+    testing::internal::CaptureStderr();
+    auto& self = a;
+    a = self;
+    a = std::move(self);
+    a = b;
+    const auto lines = captureLines(testing::internal::GetCapturedStderr());
+    ASSERT_EQ(3u, lines.size());
+    // Self-assignment must log the original id as both source and dropped id
+    for (std::size_t i = 0; i < 2; ++i)
+    {
+        const auto& l = lines[i];
+        const auto drop = l.rfind(" drop ");
+        const auto arrow = l.rfind("->", drop);
+        const auto src = l.rfind(' ', arrow) + 1;
+        EXPECT_EQ(l.substr(src, arrow - src), l.substr(drop + 6)) << l;
+    }
+    // Assignment must take over the source location of the assigned object
+    EXPECT_NE(
+        std::string::npos,
+        lines[2].find(std::format("{}:{}(", bloc.file_name(), bloc.line())))
+        << lines[2];
 }
 
 } // namespace stdplus::debug
