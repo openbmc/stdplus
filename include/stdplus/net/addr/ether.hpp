@@ -7,6 +7,8 @@
 #include <stdplus/str/conv.hpp>
 
 #include <algorithm>
+#include <array>
+#include <concepts>
 #include <stdexcept>
 #include <variant>
 
@@ -16,8 +18,10 @@ namespace stdplus
 struct EtherAddr : ether_addr
 {
     constexpr EtherAddr() noexcept : ether_addr() {}
-    constexpr EtherAddr(ether_addr other) noexcept : ether_addr(other) {}
-    explicit constexpr EtherAddr(std::initializer_list<uint8_t> a) noexcept :
+    constexpr EtherAddr(std::same_as<ether_addr> auto other) noexcept :
+        ether_addr(other)
+    {}
+    explicit constexpr EtherAddr(std::array<uint8_t, 6> a) noexcept :
         ether_addr()
     {
         std::copy(a.begin(), a.end(), ether_addr_octet);
