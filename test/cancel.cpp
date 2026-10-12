@@ -67,8 +67,20 @@ TEST(CancelTest, AlwaysCallOnceFunction)
         EXPECT_EQ(ctr, 0);
         acb = alwaysCallOnce(std::function<void()>([&]() { ctr += 2; }));
         EXPECT_EQ(ctr, 1);
+        auto& self = acb;
+        acb = std::move(self);
+        EXPECT_EQ(ctr, 1);
     }
     EXPECT_EQ(ctr, 3);
+    {
+        auto acb = alwaysCallOnce([&]() {
+            ctr += 10;
+            throw std::runtime_error("fail");
+        });
+        EXPECT_THROW(acb(), std::runtime_error);
+        EXPECT_EQ(ctr, 13);
+    }
+    EXPECT_EQ(ctr, 13);
 }
 
 } // namespace stdplus
