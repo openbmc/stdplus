@@ -8,6 +8,7 @@
 #include <stdplus/io_uring.hpp>
 #include <stdplus/util/cexec.hpp>
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <chrono>
@@ -336,6 +337,10 @@ TEST_F(IoUringTest, RegisterFiles)
 
     std::optional<IoUring::FileHandle> fh;
 
+    // Invalid file descriptors must fail without corrupting state
+    EXPECT_THROW((void)ring.registerFile(99999), std::system_error);
+    EXPECT_TRUE(ring.getFiles().empty());
+
     // Slots are always allocated linearly and re-used if invalidated
     fh = ring.registerFile(STDERR_FILENO);
     EXPECT_GT(ring.getFiles().size(), 1);
@@ -383,6 +388,17 @@ TEST_F(IoUringTest, RegisterFiles)
     fhs.emplace_back(ring.registerFile(STDERR_FILENO));
     testFdWrite(fhs.back(), IOSQE_FIXED_FILE);
     EXPECT_GE(ring.getFiles().size(), 10);
+
+    // A failed table growth must keep the previous table registered
+    while (std::ranges::count(ring.getFiles(), -1) > 0)
+    {
+        fhs.emplace_back(ring.registerFile(STDERR_FILENO));
+    }
+    const std::vector<int> before(ring.getFiles().begin(),
+                                  ring.getFiles().end());
+    EXPECT_THROW((void)ring.registerFile(99999), std::system_error);
+    EXPECT_TRUE(std::ranges::equal(before, ring.getFiles()));
+    testFdWrite(fhs.front(), IOSQE_FIXED_FILE);
 }
 
 } // namespace stdplus
