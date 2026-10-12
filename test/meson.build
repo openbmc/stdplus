@@ -88,20 +88,20 @@ else
     warning('Not testing gtest lib feature')
 endif
 
-add_test_setup(
-    'stdplus',
-    exe_wrapper: [run_with_tmp.full_path()],
-    env: {'TMPTMPL': 'stdplus-test.XXXXXXXXXX'},
-    is_default: true,
-)
-
-add_test_setup(
-    'valgrind',
-    exe_wrapper: [run_with_tmp.full_path(), 'valgrind'],
-    env: {'TMPTMPL': 'stdplus-test.XXXXXXXXXX'},
-)
-
 if gtest_dep.found() and gmock_dep.found()
+    add_test_setup(
+        'stdplus',
+        exe_wrapper: [run_with_tmp.full_path()],
+        env: {'TMPTMPL': 'stdplus-test.XXXXXXXXXX'},
+        is_default: true,
+    )
+
+    add_test_setup(
+        'valgrind',
+        exe_wrapper: [run_with_tmp.full_path(), 'valgrind'],
+        env: {'TMPTMPL': 'stdplus-test.XXXXXXXXXX'},
+    )
+
     foreach t, deps : gtests
         test(
             t,
