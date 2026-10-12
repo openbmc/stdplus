@@ -39,6 +39,10 @@ TEST(Subnet4, Network)
     EXPECT_EQ((In4Addr{255, 254, 0, 0}), Subnet4(addr4Full, 15).network());
     EXPECT_EQ((In4Addr{}), Subnet4(addr4Full, 0).network());
     EXPECT_EQ((In4Addr{}), Subnet4(In4Addr{}, 0).network());
+    static_assert(Subnet4(In4Addr{255, 255, 255, 255}, 0).network() ==
+                  In4Addr{});
+    static_assert(Subnet4(In4Addr{255, 255, 255, 255}, 32).network() ==
+                  In4Addr{255, 255, 255, 255});
 }
 
 TEST(Subnet4, Contains)
