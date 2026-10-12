@@ -255,5 +255,26 @@ TEST_F(ManagedHandleTest, MoveAssignWithStorage)
     dropped.clear();
 }
 
+struct ThrowingDrop
+{
+    void operator()(int&& i)
+    {
+        dropped.push_back(i);
+        throw std::runtime_error("drop failed");
+    }
+};
+
+TEST_F(ManagedHandleTest, ThrowingDropReset)
+{
+    using ThrowingHandle = Managed<int>::HandleF<ThrowingDrop>;
+    {
+        ThrowingHandle h(3);
+        EXPECT_THROW(h.reset(), std::runtime_error);
+        EXPECT_FALSE(h);
+    }
+    EXPECT_EQ(std::vector{3}, dropped);
+    dropped.clear();
+}
+
 } // namespace
 } // namespace stdplus
