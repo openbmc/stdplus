@@ -42,7 +42,7 @@ AtomicWriter::AtomicWriter(const std::filesystem::path& filename, int mode,
     fd(mktemp(tmpname))
 {}
 
-AtomicWriter::AtomicWriter(AtomicWriter&& other) :
+AtomicWriter::AtomicWriter(AtomicWriter&& other) noexcept :
     filename(std::move(other.filename)), mode(other.mode),
     tmpname(std::move(other.tmpname)), fd(std::move(other.fd))
 {
@@ -50,10 +50,11 @@ AtomicWriter::AtomicWriter(AtomicWriter&& other) :
     other.tmpname.clear();
 }
 
-AtomicWriter& AtomicWriter::operator=(AtomicWriter&& other)
+AtomicWriter& AtomicWriter::operator=(AtomicWriter&& other) noexcept
 {
     if (this != &other)
     {
+        cleanup();
         filename = std::move(other.filename);
         mode = other.mode;
         tmpname = std::move(other.tmpname);

@@ -67,5 +67,23 @@ TEST_F(AtomicWriterTest, Basic)
     EXPECT_EQ(std::errc{}, ec);
 }
 
+TEST_F(AtomicWriterTest, MoveAssign)
+{
+    ASSERT_NO_THROW(file = std::make_unique<AtomicWriter>(filename, 0644));
+    auto oldTmp = file->getTmpname();
+    EXPECT_TRUE(std::filesystem::exists(oldTmp));
+
+    AtomicWriter other(filename, 0644);
+    auto newTmp = other.getTmpname();
+    EXPECT_TRUE(std::filesystem::exists(newTmp));
+
+    *file = std::move(other);
+    EXPECT_FALSE(std::filesystem::exists(oldTmp));
+    EXPECT_TRUE(std::filesystem::exists(newTmp));
+    EXPECT_EQ(file->getTmpname(), newTmp);
+    // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
+    EXPECT_EQ(other.getTmpname(), ""sv);
+}
+
 } // namespace fd
 } // namespace stdplus
