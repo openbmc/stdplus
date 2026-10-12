@@ -73,7 +73,7 @@ constexpr void intStrWrite(auto str, auto v) noexcept
 }
 
 inline constexpr auto multiIntSupport = []() {
-    std::array<uint8_t, maxBase> ret;
+    std::array<uint8_t, maxBase + 1> ret;
     std::fill(ret.begin(), ret.end(), 1);
     // Decimals are common enough and have slow division
     ret[10] = 2;

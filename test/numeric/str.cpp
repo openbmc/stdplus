@@ -86,6 +86,16 @@ TEST(IntToStr, Uint8_11)
     EXPECT_EQ("212", std::string_view(buf, enc(buf, 255)));
 }
 
+TEST(IntToStr, Uint8_36)
+{
+    IntToStr<36, uint8_t> enc;
+    static_assert(enc.buf_size == 2);
+    char buf[enc.buf_size];
+    EXPECT_EQ("0", std::string_view(buf, enc(buf, 0)));
+    EXPECT_EQ("z", std::string_view(buf, enc(buf, 35)));
+    EXPECT_EQ("73", std::string_view(buf, enc(buf, 255)));
+}
+
 TEST(ToString, Int)
 {
     EXPECT_EQ("10", stdplus::toStr(size_t{10}));
