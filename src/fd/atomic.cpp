@@ -36,9 +36,19 @@ static int mktemp(std::string& tmpl)
 AtomicWriter::AtomicWriter(const std::filesystem::path& filename, int mode,
                            std::string_view tmpl) :
     filename(filename), mode(mode),
-    tmpname(!tmpl.empty() ? std::string(tmpl) : makeTmpName(filename)),
-    fd(mktemp(tmpname))
-{}
+    tmpname(!tmpl.empty() ? std::string(tmpl) : makeTmpName(filename))
+{
+    int rfd = mktemp(tmpname);
+    try
+    {
+        fd = ManagedFd(std::move(rfd));
+    }
+    catch (...)
+    {
+        cleanup();
+        throw;
+    }
+}
 
 AtomicWriter::AtomicWriter(AtomicWriter&& other) noexcept :
     filename(std::move(other.filename)), mode(other.mode),
