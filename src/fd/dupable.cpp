@@ -15,7 +15,7 @@ namespace detail
 
 int ref(const int& fd)
 {
-    return CHECK_ERRNO(fcntl(fd, F_DUPFD_CLOEXEC, fd), "fcntl dupfd_cloexec");
+    return CHECK_ERRNO(fcntl(fd, F_DUPFD_CLOEXEC, 0), "fcntl dupfd_cloexec");
 }
 
 } // namespace detail
