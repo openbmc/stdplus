@@ -543,8 +543,15 @@ struct FromStr<Sock6Addr>
         {
             throw std::invalid_argument("Invalid string for Sock6Addr");
         }
-        return {FromStr<In6Addr>{}(v6seg.substr(1, v6seg.size() - 2)),
-                StrToInt<10, std::uint16_t>{}(sv.substr(pos + 1)), 0};
+        const auto addr = v6seg.substr(1, v6seg.size() - 2);
+        const auto spos = addr.find('%');
+        std::uint32_t scope = 0;
+        if (spos != addr.npos)
+        {
+            scope = StrToInt<10, std::uint32_t>{}(addr.substr(spos + 1));
+        }
+        return {FromStr<In6Addr>{}(addr.substr(0, spos)),
+                StrToInt<10, std::uint16_t>{}(sv.substr(pos + 1)), scope};
     }
 };
 
@@ -554,15 +561,21 @@ struct ToStr<Sock6Addr>
     using type = Sock6Addr;
     using FromAddr = ToStr<In6Addr>;
     using FromDec = IntToStr<10, std::uint16_t>;
-    // '[' + Addr + ']' + ':' + port chars
+    using FromScope = IntToStr<10, std::uint32_t>;
+    // '[' + Addr + '%' + scope + ']' + ':' + port chars
     static inline constexpr std::size_t buf_size =
-        FromAddr::buf_size + 3 + FromDec::buf_size;
+        FromAddr::buf_size + 1 + FromScope::buf_size + 3 + FromDec::buf_size;
 
     template <typename CharT>
     constexpr CharT* operator()(CharT* buf, Sock6Addr v) const noexcept
     {
         (buf++)[0] = '[';
         buf = FromAddr{}(buf, v.addr);
+        if (v.scope > 0)
+        {
+            (buf++)[0] = '%';
+            buf = FromScope{}(buf, v.scope);
+        }
         (buf++)[0] = ']';
         (buf++)[0] = ':';
         return FromDec{}(buf, v.port);

@@ -112,8 +112,11 @@ TEST(Sock6Addr, FromStr)
     EXPECT_THROW(fs("ff::"sv), std::invalid_argument);
     EXPECT_THROW(fs("[ff::]"sv), std::invalid_argument);
     EXPECT_THROW(fs("[::]:"sv), std::invalid_argument);
+    EXPECT_THROW(fs("[::%]:80"sv), std::invalid_argument);
+    EXPECT_THROW(fs("[::%eth0]:80"sv), std::invalid_argument);
     EXPECT_THROW(fs("0.0.0.0:0"sv), std::invalid_argument);
     EXPECT_EQ((Sock6Addr{In6Addr{}, 80, 0}), fs("[::]:80"sv));
+    EXPECT_EQ((Sock6Addr{In6Addr{{0xfe, 0x80}}, 80, 3}), fs("[fe80::%3]:80"sv));
 }
 
 TEST(Sock6Addr, ToStr)
@@ -121,6 +124,7 @@ TEST(Sock6Addr, ToStr)
     ToStrHandle<ToStr<Sock6Addr>> tsh;
     EXPECT_EQ("[::]:0", tsh(Sock6Addr({}, 0, 0)));
     EXPECT_EQ("[ff00::]:128", tsh(Sock6Addr(In6Addr{{0xff}}, 128, 0)));
+    EXPECT_EQ("[fe80::%3]:80", tsh(Sock6Addr(In6Addr{{0xfe, 0x80}}, 80, 3)));
     EXPECT_EQ("a [102:304::]:32 b",
               std::format("a {} b", Sock6Addr(In6Addr{{1, 2, 3, 4}}, 32, 0)));
     const Sock6Addr maxAddr{
@@ -132,6 +136,12 @@ TEST(Sock6Addr, ToStr)
     ToStrAdap<ToStr<Sock6Addr>>{}(sbuf, maxAddr);
     EXPECT_EQ("[ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff]:65535",
               std::string_view(sbuf));
+    const Sock6Addr maxScopedAddr{
+        In6Addr{{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}},
+        65535, 4294967295u};
+    EXPECT_EQ("[ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff%4294967295]:65535",
+              tsh(maxScopedAddr));
 }
 
 TEST(SockUAddr, Basic)
