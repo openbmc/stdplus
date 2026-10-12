@@ -577,7 +577,7 @@ static inline constexpr std::string_view upfx = "unix:";
 template <>
 struct FromStr<SockUAddr>
 {
-    template <typename CharT>
+    template <std::same_as<char> CharT>
     constexpr SockUAddr operator()(std::basic_string_view<CharT> sv) const
     {
         if (sv.starts_with(detail::upfx))
@@ -636,14 +636,14 @@ struct ToStr<SockInAddr>
 template <>
 struct FromStr<SockAnyAddr>
 {
-    template <typename CharT>
+    template <std::same_as<char> CharT>
     constexpr SockAnyAddr operator()(std::basic_string_view<CharT> sv) const
     {
         if (sv.starts_with('['))
         {
             return FromStr<Sock6Addr>{}(sv);
         }
-        else if (sv.starts_with(detail::upfx))
+        else if (sv.starts_with(detail::upfx) || sv.starts_with('@'))
         {
             return FromStr<SockUAddr>{}(sv);
         }
