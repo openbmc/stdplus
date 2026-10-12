@@ -179,4 +179,6 @@ TEST(StrBuf, CopyDynToDyn)
     EXPECT_EQ(buf3, buf1);
 }
 
+static_assert(!noexcept(std::declval<StrBuf&>().push_back('a')));
+
 } // namespace stdplus
