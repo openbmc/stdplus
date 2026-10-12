@@ -161,6 +161,7 @@ TEST_F(IoUringTest, HandlerReplacement)
 {
     auto& sqe = ring.getSQE();
     io_uring_prep_nop(&sqe);
+    sqe.user_data = 0xdeadbeef;
     ring.setHandler(sqe, &h[0]);
 
     // Setting a new handler should cancel the old one

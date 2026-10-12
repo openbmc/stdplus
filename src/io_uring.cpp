@@ -171,6 +171,10 @@ void IoUring::dropHandler(CQEHandler* h, io_uring_cqe& cqe) noexcept
         return;
     }
     auto it = std::find(handlers.begin(), handlers.end(), h);
+    if (it == handlers.end())
+    {
+        return;
+    }
     if (it != handlers.end() - 1)
     {
         std::swap(*it, handlers.back());
