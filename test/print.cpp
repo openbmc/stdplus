@@ -26,6 +26,12 @@ TEST(Print, Basic)
     print("hi {}\n", 4);
     println("ho\n");
     println("ho {}", 16);
+
+    auto ro = std::fopen("/dev/null", "r");
+    ASSERT_NE(nullptr, ro);
+    std::setbuf(ro, nullptr);
+    EXPECT_THROW(print(ro, "hello"), std::system_error);
+    EXPECT_EQ(0, std::fclose(ro));
 }
 
 } // namespace stdplus
