@@ -169,7 +169,8 @@ ManagedFd& IoUring::getEventFd()
     {
         return *event_fd;
     }
-    ManagedFd efd(CHECK_RET(eventfd(0, EFD_NONBLOCK), "eventfd"));
+    ManagedFd efd(
+        CHECK_ERRNO(eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC), "eventfd"));
     CHECK_RET(io_uring_register_eventfd(&ring, efd.get()),
               "io_uring_register_eventfd");
     return *(event_fd = std::move(efd));

@@ -1,5 +1,7 @@
+#include <fcntl.h>
 #include <fmt/format.h>
 #include <poll.h>
+#include <sys/resource.h>
 #include <sys/utsname.h>
 #include <unistd.h>
 
@@ -211,6 +213,7 @@ TEST_F(IoUringTest, SQEExhaustionAndStaleUserData)
 TEST_F(IoUringTest, EventFd)
 {
     auto& efd = ring.getEventFd();
+    EXPECT_NE(fcntl(efd.get(), F_GETFD) & FD_CLOEXEC, 0);
 
     for (size_t i = 0; i < h.size(); ++i)
     {
@@ -235,6 +238,38 @@ TEST_F(IoUringTest, EventFd)
 
     // Our event fd should be empty
     ASSERT_EQ(0, poll(&pfd, 1, 100));
+}
+
+TEST_F(IoUringTest, EventFdError)
+{
+    // eventfd() failures must report the actual errno value
+    struct RestoreLimit
+    {
+        rlimit lim;
+        ~RestoreLimit()
+        {
+            setrlimit(RLIMIT_NOFILE, &lim);
+        }
+    };
+    rlimit old;
+    ASSERT_EQ(0, getrlimit(RLIMIT_NOFILE, &old));
+    int error = 0;
+    {
+        // Restore the limit even if an assertion below returns early
+        const RestoreLimit restore{old};
+        rlimit none = old;
+        none.rlim_cur = 0;
+        ASSERT_EQ(0, setrlimit(RLIMIT_NOFILE, &none));
+        try
+        {
+            ring.getEventFd();
+        }
+        catch (const std::system_error& e)
+        {
+            error = e.code().value();
+        }
+    }
+    EXPECT_EQ(EMFILE, error);
 }
 
 TEST_F(IoUringTest, Wait)
