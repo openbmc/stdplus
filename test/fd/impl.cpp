@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <stdplus/fd/create.hpp>
@@ -64,6 +65,8 @@ TEST(FdImpl, RecvfromAndAcceptClampAddrLen)
 
     auto acc = server.accept(small_addr);
     ASSERT_TRUE(acc.has_value());
+    // Check the raw descriptor since DupableFd sets FD_CLOEXEC itself
+    EXPECT_NE(fcntl(std::get<0>(*acc), F_GETFD) & FD_CLOEXEC, 0);
     DupableFd accepted(std::move(std::get<0>(*acc)));
     EXPECT_EQ(std::get<1>(*acc).size(), small_addr.size());
 }
