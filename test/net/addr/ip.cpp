@@ -15,9 +15,9 @@ namespace stdplus
 
 TEST(EqualOperator, In4Addr)
 {
-    EXPECT_EQ((In4Addr{255, 0, 255, 0}), (in_addr{hton(0xff00ff00)}));
+    EXPECT_EQ((In4Addr{{255, 0, 255, 0}}), (in_addr{hton(0xff00ff00)}));
     EXPECT_EQ((in_addr{}), (In4Addr{}));
-    EXPECT_NE((In4Addr{1}), (In4Addr{in_addr{}}));
+    EXPECT_NE((In4Addr{{1}}), (In4Addr{in_addr{}}));
     std::hash<In4Addr>{}(In4Addr{});
 }
 
@@ -34,11 +34,11 @@ TEST(FromStr, In4Addr)
     EXPECT_THROW(fromStr<In4Addr>("256.0.0.0"), std::overflow_error);
 
     EXPECT_EQ((In4Addr{}), fromStr<In4Addr>("0.0.0.0"));
-    EXPECT_EQ((In4Addr{192, 168, 1, 1}), fromStr<In4Addr>("192.168.001.1"));
+    EXPECT_EQ((In4Addr{{192, 168, 1, 1}}), fromStr<In4Addr>("192.168.001.1"));
 
     constexpr bool tv = detail::CompileIn4Addr("192.0.0.0").valid;
     EXPECT_TRUE(tv);
-    constexpr bool t = "192.0.0.0"_ip4 == (In4Addr{192});
+    constexpr bool t = "192.0.0.0"_ip4 == (In4Addr{{192}});
     EXPECT_TRUE(t);
 }
 
@@ -46,18 +46,18 @@ TEST(ToStr, In4Addr)
 {
     ToStrHandle<ToStr<In4Addr>> tsh;
     EXPECT_EQ("255.255.255.255", tsh(in_addr{0xffffffff}));
-    EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
+    EXPECT_EQ("1.15.3.4", tsh(In4Addr{{1, 15, 3, 4}}));
     EXPECT_EQ("0.0.0.0", tsh(In4Addr{}));
-    EXPECT_EQ("a 1.15.3.4 b", fmt::format("a {} b", In4Addr{1, 15, 3, 4}));
-    EXPECT_EQ("a 1.15.3.4 b", std::format("a {} b", In4Addr{1, 15, 3, 4}));
+    EXPECT_EQ("a 1.15.3.4 b", fmt::format("a {} b", In4Addr{{1, 15, 3, 4}}));
+    EXPECT_EQ("a 1.15.3.4 b", std::format("a {} b", In4Addr{{1, 15, 3, 4}}));
 }
 
 TEST(EqualOperator, In6Addr)
 {
-    EXPECT_EQ((In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+    EXPECT_EQ((In6Addr{{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}),
               (in6_addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
     EXPECT_EQ((in6_addr{}), (In6Addr{}));
-    EXPECT_NE((In6Addr{1}), (In6Addr{in6_addr{}}));
+    EXPECT_NE((In6Addr{{1}}), (In6Addr{in6_addr{}}));
     std::hash<In6Addr>{}(In6Addr{});
 }
 
@@ -88,90 +88,92 @@ TEST(FromStr, In6Addr)
     EXPECT_THROW(fs("ffff0::0"sv), std::overflow_error);
 
     EXPECT_EQ((In6Addr{}), fs("::"sv));
-    EXPECT_EQ((In6Addr{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-                       255, 255, 255, 255, 255}),
+    EXPECT_EQ((In6Addr{{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                        255, 255, 255, 255, 255}}),
               fs("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"sv));
     EXPECT_EQ((In6Addr{}), fs("0:0:0:0:0:0:0:0"sv));
-    EXPECT_EQ((In6Addr{0, 1}), fs("1::"sv));
-    EXPECT_EQ((In6Addr{0, 0xff}), fs("ff::"sv));
-    EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+    EXPECT_EQ((In6Addr{{0, 1}}), fs("1::"sv));
+    EXPECT_EQ((In6Addr{{0, 0xff}}), fs("ff::"sv));
+    EXPECT_EQ((In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}),
               fs("::ff"sv));
-    EXPECT_EQ((In6Addr{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}),
+    EXPECT_EQ((In6Addr{{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}),
               fs("0:0:ff::ff"sv));
-    EXPECT_EQ((In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}),
+    EXPECT_EQ((In6Addr{{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}}),
               fs("1:2:3:4::6:7:8"sv));
-    EXPECT_EQ((In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 0}),
+    EXPECT_EQ((In6Addr{{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 0}}),
               fs("1:2:3:4:5:6:7::"sv));
-    EXPECT_EQ((In6Addr{0, 0, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}),
+    EXPECT_EQ((In6Addr{{0, 0, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}}),
               fs("::2:3:4:5:6:7:8"sv));
     EXPECT_EQ(
-        (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}),
+        (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}}),
         fs("::ffff:192.168.0.1"sv));
-    EXPECT_EQ((In6Addr{0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 168, 0, 1}),
-              fs("ff::255.168.0.1"sv));
-    EXPECT_EQ((In6Addr{0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 255, 168, 0, 1}),
+    EXPECT_EQ(
+        (In6Addr{{0, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 168, 0, 1}}),
+        fs("ff::255.168.0.1"sv));
+    EXPECT_EQ((In6Addr{{0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 255, 168, 0, 1}}),
               fs("0:1:2:3:4:5:255.168.0.1"sv));
 
     constexpr bool tv = detail::CompileIn6Addr("1::").valid;
     EXPECT_TRUE(tv);
-    constexpr bool t = "ff02::"_ip6 == In6Addr{0xff, 2};
+    constexpr bool t = "ff02::"_ip6 == In6Addr{{0xff, 2}};
     EXPECT_TRUE(t);
-    EXPECT_EQ("1::"_ip6, (In6Addr{0, 1}));
-    EXPECT_EQ("100::"_ip6, (In6Addr{1}));
-    EXPECT_EQ("2::"_ip6, (In6Addr{0, 2}));
-    EXPECT_EQ("ff::"_ip6, (In6Addr{0, 0xff}));
+    EXPECT_EQ("1::"_ip6, (In6Addr{{0, 1}}));
+    EXPECT_EQ("100::"_ip6, (In6Addr{{1}}));
+    EXPECT_EQ("2::"_ip6, (In6Addr{{0, 2}}));
+    EXPECT_EQ("ff::"_ip6, (In6Addr{{0, 0xff}}));
     EXPECT_EQ("::100"_ip6,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}}));
     EXPECT_EQ("::1"_ip6,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}}));
     EXPECT_EQ("::2"_ip6,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}}));
     EXPECT_EQ("::ff"_ip6,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}));
     EXPECT_EQ("1::1"_ip6,
-              (In6Addr{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+              (In6Addr{{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}}));
     EXPECT_EQ("5::b"_ip6,
-              (In6Addr{0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xb}));
+              (In6Addr{{0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xb}}));
 }
 
 TEST(ToStr, In6Addr)
 {
     ToStrHandle<ToStr<In6Addr>> tsh;
     EXPECT_EQ("::", tsh(In6Addr{}));
-    EXPECT_EQ("ff::", tsh(In6Addr{0, 0xff}));
-    EXPECT_EQ("::ff",
-              tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
-    EXPECT_EQ("0:0:ff::ff", tsh(In6Addr{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0,
-                                        0, 0, 0, 0xff}));
-    EXPECT_EQ("::100:0:ff",
-              tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0xff}));
-    EXPECT_EQ("ff00::", tsh(In6Addr{0xff}));
+    EXPECT_EQ("ff::", tsh(In6Addr{{0, 0xff}}));
+    EXPECT_EQ("::ff", tsh(In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                   0xff}}));
+    EXPECT_EQ("0:0:ff::ff", tsh(In6Addr{{0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0,
+                                         0, 0, 0, 0xff}}));
+    EXPECT_EQ("::100:0:ff", tsh(In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                                         0, 0, 0xff}}));
+    EXPECT_EQ("ff00::", tsh(In6Addr{{0xff}}));
     EXPECT_EQ("1:2:3:4:5:6:7:8",
-              tsh(In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}));
+              tsh(In6Addr{{0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8}}));
     EXPECT_EQ("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
-              tsh(In6Addr{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-                          255, 255, 255, 255, 255}));
+              tsh(In6Addr{{255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                           255, 255, 255, 255, 255, 255}}));
     // rfc5952 4.2.2
     EXPECT_EQ("1:2:3:4:0:6:7:8",
-              tsh(In6Addr{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}));
+              tsh(In6Addr{{0, 1, 0, 2, 0, 3, 0, 4, 0, 0, 0, 6, 0, 7, 0, 8}}));
     // rfc5952 4.2.3
     EXPECT_EQ("1::4:0:0:7:8",
-              tsh(In6Addr{0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 7, 0, 8}));
+              tsh(In6Addr{{0, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 7, 0, 8}}));
     // rfc5952 5
-    EXPECT_EQ("::ffff:192.168.0.1", tsh(In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                0xff, 0xff, 192, 168, 0, 1}));
+    EXPECT_EQ("::ffff:192.168.0.1", tsh(In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                 0xff, 0xff, 192, 168, 0, 1}}));
 
-    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", In6Addr{0xff}));
-    EXPECT_EQ("a ff00:: b", std::format("a {} b", In6Addr{0xff}));
+    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", In6Addr{{0xff}}));
+    EXPECT_EQ("a ff00:: b", std::format("a {} b", In6Addr{{0xff}}));
 }
 
 TEST(EqualOperator, InAnyAddr)
 {
-    EXPECT_EQ(InAnyAddr(In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                0xff}),
-              (In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
-    EXPECT_NE(InAnyAddr(In6Addr{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                0xff}),
+    EXPECT_EQ(
+        InAnyAddr(
+            In6Addr{{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}),
+        (In6Addr{{0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}));
+    EXPECT_NE(InAnyAddr(In6Addr{
+                  {0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}),
               (in_addr{}));
     EXPECT_EQ((In6Addr{}), InAnyAddr(In6Addr{}));
     EXPECT_NE((In4Addr{}), InAnyAddr(In6Addr{}));
@@ -179,8 +181,8 @@ TEST(EqualOperator, InAnyAddr)
     EXPECT_NE((In6Addr{}), InAnyAddr(In4Addr{}));
     EXPECT_EQ(InAnyAddr(In6Addr{}), (in6_addr{}));
     EXPECT_EQ(InAnyAddr(In4Addr{}), (in_addr{}));
-    EXPECT_NE(InAnyAddr(In6Addr{1}), InAnyAddr(In6Addr{}));
-    EXPECT_EQ(InAnyAddr(In6Addr{1}), InAnyAddr(In6Addr{1}));
+    EXPECT_NE(InAnyAddr(In6Addr{{1}}), InAnyAddr(In6Addr{}));
+    EXPECT_EQ(InAnyAddr(In6Addr{{1}}), InAnyAddr(In6Addr{{1}}));
 
     std::hash<InAnyAddr>{}(In4Addr{});
     std::hash<InAnyAddr>{}(In6Addr{});
@@ -195,7 +197,7 @@ TEST(FromStr, InAnyAddr)
     EXPECT_EQ((In4Addr{}), fs("0.0.0.0"sv));
     EXPECT_EQ((In6Addr{}), fs("::"sv));
     EXPECT_EQ(
-        (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}),
+        (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 0, 1}}),
         fs("::ffff:192.168.0.1"sv));
 
     constexpr bool tv = detail::CompileInAnyAddr("192.0.0.0").valid;
@@ -204,33 +206,33 @@ TEST(FromStr, InAnyAddr)
     EXPECT_TRUE(tv2);
     EXPECT_EQ((In4Addr{}), empty4);
     EXPECT_EQ((In6Addr{}), empty6);
-    EXPECT_EQ("ff02::"_ip, (In6Addr{0xff, 2}));
-    EXPECT_EQ("1::"_ip, (In6Addr{0, 1}));
-    EXPECT_EQ("100::"_ip, (In6Addr{1}));
-    EXPECT_EQ("2::"_ip, (In6Addr{0, 2}));
-    EXPECT_EQ("ff::"_ip, (In6Addr{0, 0xff}));
+    EXPECT_EQ("ff02::"_ip, (In6Addr{{0xff, 2}}));
+    EXPECT_EQ("1::"_ip, (In6Addr{{0, 1}}));
+    EXPECT_EQ("100::"_ip, (In6Addr{{1}}));
+    EXPECT_EQ("2::"_ip, (In6Addr{{0, 2}}));
+    EXPECT_EQ("ff::"_ip, (In6Addr{{0, 0xff}}));
     EXPECT_EQ("::100"_ip,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}}));
     EXPECT_EQ("::1"_ip,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}}));
     EXPECT_EQ("::2"_ip,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}}));
     EXPECT_EQ("::ff"_ip,
-              (In6Addr{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}));
+              (In6Addr{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff}}));
     EXPECT_EQ("1::1"_ip,
-              (In6Addr{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
+              (In6Addr{{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}}));
     EXPECT_EQ("5::b"_ip,
-              (In6Addr{0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xb}));
+              (In6Addr{{0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xb}}));
 }
 
 TEST(ToStr, InAnyAddr)
 {
     ToStrHandle<ToStr<InAnyAddr>> tsh;
-    EXPECT_EQ("1.15.3.4", tsh(In4Addr{1, 15, 3, 4}));
-    EXPECT_EQ("ff::", tsh(In6Addr{0, 0xff}));
+    EXPECT_EQ("1.15.3.4", tsh(In4Addr{{1, 15, 3, 4}}));
+    EXPECT_EQ("ff::", tsh(In6Addr{{0, 0xff}}));
 
-    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", InAnyAddr{In6Addr{0xff}}));
-    EXPECT_EQ("a ff00:: b", std::format("a {} b", InAnyAddr{In6Addr{0xff}}));
+    EXPECT_EQ("a ff00:: b", fmt::format("a {} b", InAnyAddr{In6Addr{{0xff}}}));
+    EXPECT_EQ("a ff00:: b", std::format("a {} b", InAnyAddr{In6Addr{{0xff}}}));
     EXPECT_NE("0.0.0.0"_ip, std::optional<InAnyAddr>());
     EXPECT_EQ("0.0.0.0"_ip, std::optional<InAnyAddr>(In4Addr{}));
 }

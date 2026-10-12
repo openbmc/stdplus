@@ -12,9 +12,9 @@ using std::literals::string_view_literals::operator""sv;
 namespace stdplus
 {
 
-auto addr4Full = In4Addr{255, 255, 255, 255};
-auto addr6Full = In6Addr{255, 255, 255, 255, 255, 255, 255, 255,
-                         255, 255, 255, 255, 255, 255, 255, 255};
+auto addr4Full = In4Addr{{255, 255, 255, 255}};
+auto addr6Full = In6Addr{{255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                          255, 255, 255, 255, 255}};
 
 TEST(Subnet4, Basic)
 {
@@ -34,26 +34,28 @@ TEST(Subnet4, Network)
 {
     EXPECT_EQ((In4Addr{}), Subnet4(In4Addr{}, 32).network());
     EXPECT_EQ(addr4Full, Subnet4(addr4Full, 32).network());
-    EXPECT_EQ((In4Addr{255, 255, 128, 0}), Subnet4(addr4Full, 17).network());
-    EXPECT_EQ((In4Addr{255, 255, 0, 0}), Subnet4(addr4Full, 16).network());
-    EXPECT_EQ((In4Addr{255, 254, 0, 0}), Subnet4(addr4Full, 15).network());
+    EXPECT_EQ((In4Addr{{255, 255, 128, 0}}), Subnet4(addr4Full, 17).network());
+    EXPECT_EQ((In4Addr{{255, 255, 0, 0}}), Subnet4(addr4Full, 16).network());
+    EXPECT_EQ((In4Addr{{255, 254, 0, 0}}), Subnet4(addr4Full, 15).network());
     EXPECT_EQ((In4Addr{}), Subnet4(addr4Full, 0).network());
     EXPECT_EQ((In4Addr{}), Subnet4(In4Addr{}, 0).network());
-    static_assert(Subnet4(In4Addr{255, 255, 255, 255}, 0).network() ==
+    static_assert(Subnet4(In4Addr{{255, 255, 255, 255}}, 0).network() ==
                   In4Addr{});
-    static_assert(Subnet4(In4Addr{255, 255, 255, 255}, 32).network() ==
-                  In4Addr{255, 255, 255, 255});
+    static_assert(Subnet4(In4Addr{{255, 255, 255, 255}}, 32).network() ==
+                  In4Addr{{255, 255, 255, 255}});
 }
 
 TEST(Subnet4, Contains)
 {
     EXPECT_TRUE(Subnet4(addr4Full, 32).contains(addr4Full));
-    EXPECT_FALSE(Subnet4(addr4Full, 32).contains(In4Addr{255, 255, 255, 254}));
+    EXPECT_FALSE(
+        Subnet4(addr4Full, 32).contains(In4Addr{{255, 255, 255, 254}}));
     EXPECT_FALSE(Subnet4(addr4Full, 32).contains(In4Addr{}));
     EXPECT_TRUE(
         Subnet4(addr4Full, 17).contains(static_cast<in_addr>(addr4Full)));
-    EXPECT_TRUE(Subnet4(addr4Full, 17).contains(In4Addr{255, 255, 128, 134}));
-    EXPECT_FALSE(Subnet4(addr4Full, 17).contains(In4Addr{255, 255, 127, 132}));
+    EXPECT_TRUE(Subnet4(addr4Full, 17).contains(In4Addr{{255, 255, 128, 134}}));
+    EXPECT_FALSE(
+        Subnet4(addr4Full, 17).contains(In4Addr{{255, 255, 127, 132}}));
     EXPECT_TRUE(Subnet4(addr4Full, 14).contains(addr4Full));
     EXPECT_TRUE(Subnet4(addr4Full, 0).contains(addr4Full));
     EXPECT_TRUE(Subnet4(In4Addr{}, 0).contains(addr4Full));
@@ -77,11 +79,12 @@ TEST(Subnet4, ToStr)
 {
     ToStrHandle<ToStr<Subnet4>> tsh;
     EXPECT_EQ("0.0.0.0/16", tsh(Subnet4({}, 16)));
-    EXPECT_EQ("255.0.255.255/28", tsh(Subnet4(In4Addr{255, 0, 255, 255}, 28)));
+    EXPECT_EQ("255.0.255.255/28",
+              tsh(Subnet4(In4Addr{{255, 0, 255, 255}}, 28)));
     EXPECT_EQ("a 1.2.3.4/32 b",
-              fmt::format("a {} b", Subnet4(In4Addr{1, 2, 3, 4}, 32)));
+              fmt::format("a {} b", Subnet4(In4Addr{{1, 2, 3, 4}}, 32)));
     EXPECT_EQ("a 1.2.3.4/32 b",
-              std::format("a {} b", Subnet4(In4Addr{1, 2, 3, 4}, 32)));
+              std::format("a {} b", Subnet4(In4Addr{{1, 2, 3, 4}}, 32)));
 }
 
 TEST(Subnet6, Basic)
@@ -102,12 +105,13 @@ TEST(Subnet6, Network)
 {
     EXPECT_EQ(In6Addr(), Subnet6(In6Addr(), 128).network());
     EXPECT_EQ(addr6Full, Subnet6(addr6Full, 128).network());
-    EXPECT_EQ((In6Addr{255, 255, 255, 255, 224}),
+    EXPECT_EQ((In6Addr{{255, 255, 255, 255, 224}}),
               Subnet6(addr6Full, 35).network());
-    EXPECT_EQ((In6Addr{255, 255, 255, 255}), Subnet6(addr6Full, 32).network());
-    EXPECT_EQ((In6Addr{255, 255, 128, 0}), Subnet6(addr6Full, 17).network());
-    EXPECT_EQ((In6Addr{255, 255, 0, 0}), Subnet6(addr6Full, 16).network());
-    EXPECT_EQ((In6Addr{255, 254, 0, 0}), Subnet6(addr6Full, 15).network());
+    EXPECT_EQ((In6Addr{{255, 255, 255, 255}}),
+              Subnet6(addr6Full, 32).network());
+    EXPECT_EQ((In6Addr{{255, 255, 128, 0}}), Subnet6(addr6Full, 17).network());
+    EXPECT_EQ((In6Addr{{255, 255, 0, 0}}), Subnet6(addr6Full, 16).network());
+    EXPECT_EQ((In6Addr{{255, 254, 0, 0}}), Subnet6(addr6Full, 15).network());
     EXPECT_EQ((In6Addr{}), Subnet6(addr6Full, 0).network());
     EXPECT_EQ((In6Addr{}), Subnet6(In6Addr{}, 0).network());
 }
@@ -122,14 +126,14 @@ TEST(Subnet6, Contains)
     EXPECT_TRUE(
         Subnet6(addr6Full, 127).contains(static_cast<in6_addr>(addr6Full)));
     EXPECT_TRUE(Subnet6(addr6Full, 127).contains(addr6NFull));
-    EXPECT_TRUE(
-        Subnet6(addr6Full, 33).contains(In6Addr{255, 255, 255, 255, 128, 255}));
+    EXPECT_TRUE(Subnet6(addr6Full, 33)
+                    .contains(In6Addr{{255, 255, 255, 255, 128, 255}}));
     EXPECT_FALSE(
-        Subnet6(addr6Full, 33).contains(In6Addr{255, 255, 255, 255, 127}));
-    EXPECT_TRUE(Subnet6(In6Addr{}, 33).contains(In6Addr{0, 0, 0, 0, 127}));
-    EXPECT_TRUE(
-        Subnet6(addr6Full, 14).contains(In6Addr{255, 255, 0, 0, 0, 0, 0, 145}));
-    EXPECT_FALSE(Subnet6(addr6Full, 14).contains(In6Addr{255, 127, 1}));
+        Subnet6(addr6Full, 33).contains(In6Addr{{255, 255, 255, 255, 127}}));
+    EXPECT_TRUE(Subnet6(In6Addr{}, 33).contains(In6Addr{{0, 0, 0, 0, 127}}));
+    EXPECT_TRUE(Subnet6(addr6Full, 14)
+                    .contains(In6Addr{{255, 255, 0, 0, 0, 0, 0, 145}}));
+    EXPECT_FALSE(Subnet6(addr6Full, 14).contains(In6Addr{{255, 127, 1}}));
     EXPECT_TRUE(Subnet6(addr6Full, 0).contains(addr6Full));
     EXPECT_TRUE(Subnet6(In6Addr{}, 0).contains(addr6Full));
     EXPECT_TRUE(Subnet6(addr6Full, 0).contains(In6Addr{}));
@@ -152,11 +156,11 @@ TEST(Subnet6, ToStr)
 {
     ToStrHandle<ToStr<Subnet6>> tsh;
     EXPECT_EQ("::/0", tsh(Subnet6({}, 0)));
-    EXPECT_EQ("ff00::/128", tsh(Subnet6(In6Addr{0xff}, 128)));
+    EXPECT_EQ("ff00::/128", tsh(Subnet6(In6Addr{{0xff}}, 128)));
     EXPECT_EQ("a 102:304::/32 b",
-              fmt::format("a {} b", Subnet6(In6Addr{1, 2, 3, 4}, 32)));
+              fmt::format("a {} b", Subnet6(In6Addr{{1, 2, 3, 4}}, 32)));
     EXPECT_EQ("a 102:304::/32 b",
-              std::format("a {} b", Subnet6(In6Addr{1, 2, 3, 4}, 32)));
+              std::format("a {} b", Subnet6(In6Addr{{1, 2, 3, 4}}, 32)));
 }
 
 TEST(SubnetAny, Basic)
@@ -232,26 +236,26 @@ TEST(SubnetAny, ToStr)
 {
     ToStrHandle<ToStr<SubnetAny>> tsh;
     EXPECT_EQ("0.0.0.0/16", tsh(SubnetAny(In4Addr{}, 16)));
-    EXPECT_EQ("ff00::/128", tsh(SubnetAny(In6Addr{0xff}, 128)));
+    EXPECT_EQ("ff00::/128", tsh(SubnetAny(In6Addr{{0xff}}, 128)));
     EXPECT_EQ("a 102:304::/32 b",
-              fmt::format("a {} b", SubnetAny(In6Addr{1, 2, 3, 4}, 32)));
+              fmt::format("a {} b", SubnetAny(In6Addr{{1, 2, 3, 4}}, 32)));
     EXPECT_EQ("a 102:304::/32 b",
-              std::format("a {} b", SubnetAny(In6Addr{1, 2, 3, 4}, 32)));
+              std::format("a {} b", SubnetAny(In6Addr{{1, 2, 3, 4}}, 32)));
     EXPECT_EQ("a 1.2.3.4/32 b",
-              fmt::format("a {} b", SubnetAny(In4Addr{1, 2, 3, 4}, 32)));
+              fmt::format("a {} b", SubnetAny(In4Addr{{1, 2, 3, 4}}, 32)));
     EXPECT_EQ("a 1.2.3.4/32 b",
-              std::format("a {} b", SubnetAny(In4Addr{1, 2, 3, 4}, 32)));
+              std::format("a {} b", SubnetAny(In4Addr{{1, 2, 3, 4}}, 32)));
 }
 
 TEST(Ops, MaskToPfx)
 {
-    EXPECT_EQ(32, maskToPfx(In4Addr{0xff, 0xff, 0xff, 0xff}));
-    EXPECT_EQ(28, maskToPfx(In4Addr{0xff, 0xff, 0xff, 0xf0}));
-    EXPECT_EQ(16, maskToPfx(In4Addr{0xff, 0xff, 0, 0}));
+    EXPECT_EQ(32, maskToPfx(In4Addr{{0xff, 0xff, 0xff, 0xff}}));
+    EXPECT_EQ(28, maskToPfx(In4Addr{{0xff, 0xff, 0xff, 0xf0}}));
+    EXPECT_EQ(16, maskToPfx(In4Addr{{0xff, 0xff, 0, 0}}));
     EXPECT_EQ(0, maskToPfx(In4Addr{}));
 
-    EXPECT_THROW(maskToPfx(In4Addr{0, 0x8}), std::invalid_argument);
-    EXPECT_THROW(maskToPfx(In4Addr{0x40}), std::invalid_argument);
+    EXPECT_THROW(maskToPfx(In4Addr{{0, 0x8}}), std::invalid_argument);
+    EXPECT_THROW(maskToPfx(In4Addr{{0x40}}), std::invalid_argument);
 }
 
 } // namespace stdplus

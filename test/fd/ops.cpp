@@ -30,7 +30,7 @@ TEST(Connect, Success)
         std::copy(addr.begin(), addr.end(), reinterpret_cast<std::byte*>(&buf));
         buf.len = addr.size();
     });
-    Sock6Addr addr(In6Addr{0xff}, 365, 0);
+    Sock6Addr addr(In6Addr{{0xff}}, 365, 0);
     connect(fd, addr);
     EXPECT_EQ(Sock6Addr::fromBuf(buf), addr);
 }

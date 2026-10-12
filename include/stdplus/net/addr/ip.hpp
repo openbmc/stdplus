@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <stdexcept>
 #include <variant>
 
@@ -33,7 +34,7 @@ static_assert(sizeof(In4AddrInner) == sizeof(in_addr));
 struct In4Addr : detail::In4AddrInner
 {
     constexpr In4Addr() noexcept : In4AddrInner({.s4_addr = {}}) {}
-    constexpr In4Addr(in_addr a) noexcept : In4Addr()
+    constexpr In4Addr(std::same_as<in_addr> auto a) noexcept : In4Addr()
     {
         if (!std::is_constant_evaluated())
         {
@@ -43,8 +44,7 @@ struct In4Addr : detail::In4AddrInner
         auto arr = std::bit_cast<std::array<std::uint8_t, 4>>(a);
         std::copy(arr.begin(), arr.end(), s4_addr);
     }
-    explicit constexpr In4Addr(std::initializer_list<uint8_t> a) noexcept :
-        In4Addr()
+    explicit constexpr In4Addr(std::array<uint8_t, 4> a) noexcept : In4Addr()
     {
         std::copy(a.begin(), a.end(), s4_addr);
     }
@@ -160,15 +160,14 @@ struct ToStr<In4Addr>
 struct In6Addr : in6_addr
 {
     constexpr In6Addr() noexcept : in6_addr() {}
-    constexpr In6Addr(in6_addr a) noexcept : in6_addr(a)
+    constexpr In6Addr(std::same_as<in6_addr> auto a) noexcept : in6_addr(a)
     {
         if (std::is_constant_evaluated())
         {
             std::copy(a.s6_addr, a.s6_addr + std::size(s6_addr), s6_addr);
         }
     }
-    explicit constexpr In6Addr(std::initializer_list<uint8_t> a) noexcept :
-        In6Addr()
+    explicit constexpr In6Addr(std::array<uint8_t, 16> a) noexcept : In6Addr()
     {
         std::copy(a.begin(), a.end(), s6_addr);
     }
