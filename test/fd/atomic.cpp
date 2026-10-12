@@ -65,11 +65,19 @@ TEST_F(AtomicWriterTest, Basic)
     ASSERT_NO_THROW(file = std::make_unique<AtomicWriter>(filename, 0644));
     writeExact(*file, "hi\n"sv);
     EXPECT_TRUE(std::filesystem::exists(file->getTmpname()));
+    EXPECT_EQ(std::filesystem::status(file->getTmpname()).permissions(),
+              std::filesystem::perms::owner_read |
+                  std::filesystem::perms::owner_write);
     EXPECT_NO_THROW(file->commit());
     EXPECT_EQ(file->getTmpname(), ""sv);
     std::error_code ec;
     EXPECT_EQ(3, std::filesystem::file_size(filename, ec));
     EXPECT_EQ(std::errc{}, ec);
+    EXPECT_EQ(std::filesystem::status(filename).permissions(),
+              std::filesystem::perms::owner_read |
+                  std::filesystem::perms::owner_write |
+                  std::filesystem::perms::group_read |
+                  std::filesystem::perms::others_read);
 }
 
 TEST_F(AtomicWriterTest, MoveAssign)
