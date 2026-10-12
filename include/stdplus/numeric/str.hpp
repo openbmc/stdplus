@@ -156,10 +156,11 @@ constexpr T strToUInt(std::basic_string_view<CharT> str)
     }
     constexpr auto max = std::numeric_limits<T>::max();
     T ret = 0;
-    for (auto c : str)
+    using UCharT = std::make_unsigned_t<CharT>;
+    for (auto ch : str)
     {
-        constexpr auto cmax = 1 << (sizeof(CharT) << 3);
-        if constexpr (detail::charTable.size() < cmax)
+        auto c = static_cast<UCharT>(ch);
+        if constexpr (sizeof(UCharT) > 1)
         {
             if (detail::charTable.size() <= c)
             {
@@ -206,11 +207,15 @@ constexpr T strToUInt0(std::basic_string_view<CharT> str)
     {
         return strToUInt<base, T>(str);
     }
-    if (str.starts_with("0x"))
+    else
     {
-        return strToUInt<16, T>(str.substr(2));
+        constexpr CharT hex_pfx[] = {'0', 'x'};
+        if (str.starts_with(std::basic_string_view<CharT>(hex_pfx, 2)))
+        {
+            return strToUInt<16, T>(str.substr(2));
+        }
+        return strToUInt<10, T>(str);
     }
-    return strToUInt<10, T>(str);
 }
 
 template <uint8_t base, std::integral T, typename CharT>
