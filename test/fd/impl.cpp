@@ -69,6 +69,14 @@ TEST(FdImpl, RecvfromAndAcceptClampAddrLen)
     EXPECT_NE(fcntl(std::get<0>(*acc), F_GETFD) & FD_CLOEXEC, 0);
     DupableFd accepted(std::move(std::get<0>(*acc)));
     EXPECT_EQ(std::get<1>(*acc).size(), small_addr.size());
+
+    auto client2 =
+        socket(SocketDomain::UNIX, SocketType::Stream, SocketProto::IP);
+    connect(client2, srv_addr);
+    auto acc2 = server.accept(std::span<std::byte>{});
+    ASSERT_TRUE(acc2.has_value());
+    DupableFd accepted2(std::move(std::get<0>(*acc2)));
+    EXPECT_TRUE(std::get<1>(*acc2).empty());
 }
 
 } // namespace stdplus::fd
