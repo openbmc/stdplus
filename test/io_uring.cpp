@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 #include <poll.h>
 #include <sys/utsname.h>
+#include <unistd.h>
 
 #include <stdplus/io_uring.hpp>
 #include <stdplus/util/cexec.hpp>
@@ -252,7 +253,42 @@ TEST_F(IoUringTest, HandleCalledOnDestroy)
     auto& sqe = ring.getSQE();
     io_uring_prep_nop(&sqe);
     ring.setHandler(sqe, &h[0]);
+    auto& sqe2 = ring.getSQE();
+    io_uring_prep_nop(&sqe2);
+    ring.setHandler(sqe2, &h[1]);
+    EXPECT_CALL(h[1], handleCQE(_)).WillOnce([&](io_uring_cqe&) {
+        ring.cancelHandler(h[0]);
+    });
     EXPECT_CALL(h[0], handleCQE(_));
+}
+
+TEST_F(IoUringTest, CancelInFlightOnDestroy)
+{
+    // Synchronous cancellation requires Linux 6.0 or later
+    if (!checkKernelSafe(6, 0))
+    {
+        GTEST_SKIP();
+    }
+    int fds[2];
+    ASSERT_EQ(0, pipe(fds));
+    std::array<char, 1> buf;
+    {
+        IoUring r;
+        auto& sqe = r.getSQE();
+        io_uring_prep_read(&sqe, fds[0], buf.data(), buf.size(), 0);
+        r.setHandler(sqe, &h[0]);
+        r.submit();
+        // The read must already be cancelled when the handler runs, so the
+        // byte written here stays in the pipe instead of completing it.
+        EXPECT_CALL(h[0], handleCQE(_)).WillOnce([&](io_uring_cqe& cqe) {
+            EXPECT_EQ(-ECANCELED, cqe.res);
+            EXPECT_EQ(1, write(fds[1], "x", 1));
+        });
+    }
+    pollfd pfd{.fd = fds[0], .events = POLLIN, .revents = 0};
+    EXPECT_EQ(1, poll(&pfd, 1, 0));
+    close(fds[0]);
+    close(fds[1]);
 }
 
 TEST_F(IoUringTest, RegisterFiles)

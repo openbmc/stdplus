@@ -34,7 +34,12 @@ endif
 
 has_io_uring = false
 if not get_option('io_uring').disabled() and has_fd
-    io_uring_dep = dependency('liburing', required: get_option('io_uring'))
+    # io_uring_register_sync_cancel() requires liburing 2.3 or later
+    io_uring_dep = dependency(
+        'liburing',
+        version: '>=2.3',
+        required: get_option('io_uring'),
+    )
     if io_uring_dep.found()
         has_io_uring = true
     endif

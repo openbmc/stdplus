@@ -34,13 +34,27 @@ IoUring::IoUring(size_t queue_size, io_uring_params& params)
 
 IoUring::~IoUring()
 {
-    io_uring_queue_exit(&ring);
+    if (!handlers.empty())
+    {
+        // Synchronously cancel all in-flight requests and reap their
+        // completions so that no handler is notified while the kernel may
+        // still access the buffers associated with its request. This waits
+        // at most one second and is a no-op on kernels older than 6.0.
+        io_uring_sync_cancel_reg reg{};
+        reg.flags = IORING_ASYNC_CANCEL_ANY;
+        reg.fd = -1;
+        reg.timeout.tv_sec = 1;
+        reg.timeout.tv_nsec = 0;
+        io_uring_register_sync_cancel(&ring, &reg);
+        process();
+    }
     io_uring_cqe cqe{};
     cqe.res = -ECANCELED;
-    for (auto h : handlers)
+    while (!handlers.empty())
     {
-        h->handleCQE(cqe);
+        dropHandler(handlers.back(), cqe);
     }
+    io_uring_queue_exit(&ring);
 }
 
 IoUring::FileHandle::FileHandle(unsigned slot, IoUring& ring) :
