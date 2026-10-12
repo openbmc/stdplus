@@ -1,9 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <bit>
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <string_view>
 
 namespace stdplus
@@ -351,13 +353,18 @@ class BasicStrBuf
         if (!as.isDyn())
         {
             const std::size_t oldlen = as.inlLen();
+            if (amt >= as.dyn_mask - oldlen)
+            {
+                throw std::length_error("BasicStrBuf::append");
+            }
             const std::size_t newlen = oldlen + amt;
             if (newlen <= as.buf_len)
             {
                 as.inlLen(newlen);
                 return as.store.inl.ptr + oldlen;
             }
-            const std::size_t newcap = newlen + (newlen >> 1);
+            const std::size_t newcap =
+                std::min(as.dyn_mask - 1, newlen + (newlen >> 1));
             const auto ptr = as.allocate(newcap);
             std::copy(as.store.inl.ptr, as.store.inl.ptr + oldlen, ptr);
 
@@ -367,10 +374,15 @@ class BasicStrBuf
             return ptr + oldlen;
         }
         const std::size_t oldlen = as.dynLen();
+        if (amt >= as.dyn_mask - oldlen)
+        {
+            throw std::length_error("BasicStrBuf::append");
+        }
         const std::size_t newlen = oldlen + amt;
         if (newlen > as.store.dyn.cap)
         {
-            const std::size_t newcap = newlen + (newlen >> 1);
+            const std::size_t newcap =
+                std::min(as.dyn_mask - 1, newlen + (newlen >> 1));
             const auto ptr = as.allocate(newcap);
             std::copy(as.store.dyn.ptr, as.store.dyn.ptr + oldlen, ptr);
             as.deallocate(as.store.dyn.ptr, as.store.dyn.cap);
@@ -396,11 +408,13 @@ class BasicStrBuf
     {
         if (as.isDyn())
         {
-            as.store.dyn.len -= amt;
+            const std::size_t len = as.dynLen();
+            as.dynLen(len - std::min(amt, len));
         }
         else
         {
-            as.store.inl.len -= amt;
+            const std::size_t len = as.inlLen();
+            as.inlLen(len - std::min(amt, len));
         }
     }
 
