@@ -56,7 +56,7 @@ TEST(CancelTest, AlwaysCallOnceLambda)
     EXPECT_EQ(ctr, 4);
 }
 
-TEST(CanceTest, AlwaysCallOnceFunction)
+TEST(CancelTest, AlwaysCallOnceFunction)
 {
     size_t ctr = 0;
     {
