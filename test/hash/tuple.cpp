@@ -10,7 +10,8 @@ namespace stdplus
 TEST(HashTuple, Basic)
 {
     std::tuple<std::string, int> a{"bacon", 2};
-    std::hash<decltype(a)>{}(a);
+    const stdplus::hash<decltype(a)> h;
+    EXPECT_EQ(h(a), std::hash<decltype(a)>{}(a));
 }
 
 } // namespace stdplus
