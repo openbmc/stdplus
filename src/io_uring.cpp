@@ -102,6 +102,12 @@ void IoUring::reserveFiles(size_t num)
 
 [[nodiscard]] IoUring::FileHandle IoUring::registerFile(int fd)
 {
+    if (fd < 0)
+    {
+        throw std::system_error(EBADF, std::generic_category(),
+                                "io_uring_register_files");
+    }
+
     unsigned slot = 0;
     for (; slot < files.size(); slot++)
     {

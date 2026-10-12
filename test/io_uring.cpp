@@ -338,6 +338,7 @@ TEST_F(IoUringTest, RegisterFiles)
     std::optional<IoUring::FileHandle> fh;
 
     // Invalid file descriptors must fail without corrupting state
+    EXPECT_THROW((void)ring.registerFile(-1), std::system_error);
     EXPECT_THROW((void)ring.registerFile(99999), std::system_error);
     EXPECT_TRUE(ring.getFiles().empty());
 
@@ -347,6 +348,7 @@ TEST_F(IoUringTest, RegisterFiles)
     EXPECT_EQ(*fh, 0);
 
     // Failed registration into an existing table must leave slots intact
+    EXPECT_THROW((void)ring.registerFile(-1), std::system_error);
     EXPECT_THROW((void)ring.registerFile(99999), std::system_error);
     EXPECT_EQ(ring.getFiles()[0], STDERR_FILENO);
     EXPECT_EQ(ring.getFiles()[1], -1);
