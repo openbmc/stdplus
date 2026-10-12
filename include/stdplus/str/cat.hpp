@@ -1,6 +1,9 @@
 #pragma once
 #include <array>
+#include <concepts>
 #include <functional>
+#include <limits>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -68,6 +71,21 @@ constexpr std::basic_string_view<CharT> rebaseSv(
     return s;
 }
 
+constexpr std::size_t totalSize(std::size_t init,
+                                std::same_as<std::size_t> auto... sizes)
+{
+    std::size_t total = init;
+    [[maybe_unused]] auto add = [&](std::size_t s) {
+        if (s > std::numeric_limits<std::size_t>::max() - total)
+        {
+            throw std::length_error("strAppend");
+        }
+        total += s;
+    };
+    (add(sizes), ...);
+    return total;
+}
+
 template <typename CharT, typename Traits, typename Alloc, typename... CharTs>
 constexpr void strAppend(std::basic_string<CharT, Traits, Alloc>& dst,
                          std::basic_string_view<CharTs>... strs)
@@ -75,7 +93,7 @@ constexpr void strAppend(std::basic_string<CharT, Traits, Alloc>& dst,
     [[maybe_unused]] const auto offsets =
         std::array<std::size_t, sizeof...(strs)>{
             selfOffset(dst.data(), dst.size(), strs)...};
-    dst.reserve((dst.size() + ... + strs.size()));
+    dst.reserve(totalSize(dst.size(), strs.size()...));
     [&]<std::size_t... Is>(std::index_sequence<Is...>) {
         (dst.append(rebaseSv(dst.data(), offsets[Is], strs)), ...);
     }(std::index_sequence_for<CharTs...>{});
@@ -88,7 +106,7 @@ constexpr void strAppend(stdplus::BasicStrBuf<CharT, ObjSize, Alloc>& dst,
     [[maybe_unused]] const auto offsets =
         std::array<std::size_t, sizeof...(strs)>{
             selfOffset(dst.data(), dst.size(), strs)...};
-    [[maybe_unused]] auto out = dst.append((strs.size() + ... + 0));
+    [[maybe_unused]] auto out = dst.append(totalSize(0, strs.size()...));
     [&]<std::size_t... Is>(std::index_sequence<Is...>) {
         ((out = std::copy(rebaseSv(dst.data(), offsets[Is], strs).begin(),
                           rebaseSv(dst.data(), offsets[Is], strs).end(), out)),
