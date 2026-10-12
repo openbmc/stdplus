@@ -221,12 +221,14 @@ constexpr T strToInt(std::basic_string_view<CharT> str)
         return strToUInt0<base, T>(str);
     }
     bool is_neg = str.starts_with('-');
-    auto ret = strToUInt0<base, std::make_unsigned_t<T>>(str.substr(is_neg));
-    if (ret > std::numeric_limits<T>::max())
+    using UT = std::make_unsigned_t<T>;
+    auto ret = strToUInt0<base, UT>(str.substr(is_neg));
+    constexpr auto max = static_cast<UT>(std::numeric_limits<T>::max());
+    if (ret > max + is_neg)
     {
         throw std::overflow_error("Integer Decode Overflow");
     }
-    return is_neg ? -static_cast<T>(ret) : ret;
+    return is_neg ? static_cast<T>(~ret + 1u) : static_cast<T>(ret);
 }
 
 } // namespace detail
@@ -278,7 +280,8 @@ struct StrToInt
         auto ret = detail::strToInt<
             base, std::conditional_t<sizeof(T) <= sizeof(ptr_t), ptr_t, T>>(
             str);
-        if (ret > std::numeric_limits<T>::max())
+        if (ret > std::numeric_limits<T>::max() ||
+            ret < std::numeric_limits<T>::min())
         {
             throw std::overflow_error("Integer Decode");
         }
