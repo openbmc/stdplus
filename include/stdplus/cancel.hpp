@@ -2,6 +2,7 @@
 #include <stdplus/handle/managed.hpp>
 
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 namespace stdplus
@@ -87,10 +88,13 @@ class AlwaysCallOnce
     AlwaysCallOnce& operator=(const AlwaysCallOnce&) = delete;
     AlwaysCallOnce& operator=(AlwaysCallOnce&& other) noexcept
     {
-        finalCall();
-        f = std::move(other.f);
-        default_args = std::move(other.default_args);
-        called = std::exchange(other.called, true);
+        if (this != &other)
+        {
+            finalCall();
+            f = std::move(other.f);
+            default_args = std::move(other.default_args);
+            called = std::exchange(other.called, true);
+        }
         return *this;
     }
     ~AlwaysCallOnce()
@@ -99,7 +103,8 @@ class AlwaysCallOnce
     }
 
     template <typename... Args>
-    auto operator()(Args&&... args) noexcept
+    auto operator()(Args&&... args) noexcept(
+        std::is_nothrow_invocable_v<F&, Args...>)
     {
         called = true;
         return f(std::forward<Args>(args)...);
@@ -112,9 +117,13 @@ class AlwaysCallOnce
 
     void finalCall() noexcept
     {
-        if (!called && detail::fPop(f))
+        if (!called)
         {
-            std::apply(f, default_args);
+            called = true;
+            if (detail::fPop(f))
+            {
+                std::apply(f, default_args);
+            }
         }
     }
 };
