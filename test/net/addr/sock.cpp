@@ -333,6 +333,7 @@ TEST(SockAnyAddr, FromStr)
     EXPECT_EQ((Sock4Addr{In4Addr{}, 30}), fs("0.0.0.0:30"sv));
     EXPECT_EQ((Sock6Addr{In6Addr{}, 80, 0}), fs("[::]:80"sv));
     EXPECT_EQ((SockUAddr{"/nope"sv}), fs("unix:/nope"sv));
+    EXPECT_EQ((SockUAddr{"@hi"sv}), fs("@hi"sv));
 }
 
 TEST(SockAnyAddr, ToStr)
