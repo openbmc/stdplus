@@ -75,7 +75,12 @@ Lifetime& Lifetime::operator=(Lifetime&& other)
 
 Lifetime::~Lifetime()
 {
-    stdplus::print(stderr, "Lifetime Destroy {} {}\n", Loc{loc}, id);
+    try
+    {
+        stdplus::print(stderr, "Lifetime Destroy {} {}\n", Loc{loc}, id);
+    }
+    catch (...)
+    {}
 }
 
 } // namespace stdplus::debug
