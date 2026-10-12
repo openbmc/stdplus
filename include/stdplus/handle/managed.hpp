@@ -228,7 +228,9 @@ struct Managed
         {
             if (maybeT)
             {
-                Drop()(std::move(*maybeT), std::get<Indices>(as)...);
+                T t = std::move(*maybeT);
+                maybeT = std::nullopt;
+                Drop()(std::move(t), std::get<Indices>(as)...);
             }
         }
     };
